@@ -1,0 +1,11 @@
+id;libelle;unite;ordre;actif;bulle;page_doc
+dh;DH;°C.h;1;1;Degrés-heures : somme, heure par heure, des degrés au-dessus du seuil d'inconfort. Méthode et occupation selon les réglages.;les_indicateurs
+dh_nuit;DH nuit;°C.h;2;1;Part des DH tombée la nuit (22h-6h, heure légale).;les_indicateurs
+nuits_20;Nuits tropicales ≥ [[hyp:seuil_nuit_tropicale]] °C;nuits;4;1;Nombre de nuits où la température ne descend pas sous [[hyp:seuil_nuit_tropicale]] °C entre 22h et 6h.;hypotheses
+nuits_24;Nuits ≥ [[hyp:seuil_nuit_tres_chaude]] °C;nuits;5;1;Nombre de nuits où la température ne descend pas sous [[hyp:seuil_nuit_tres_chaude]] °C entre 22h et 6h. Seuil proposé, source à préciser.;hypotheses
+journee_chaude;Journée la + chaude;°C.h;9;0;DH de la journée la plus chaude (minuit à minuit, heure légale), choisie selon le critère des réglages.;les_indicateurs
+semaine_chaude;Semaine la + chaude;°C.h;10;0;DH cumulés sur les 7 jours consécutifs les plus chauds, selon le critère des réglages.;les_indicateurs
+heures_chaudes;Heures > [[hyp:seuil_heures_chaudes]] °C;h;3;1;Nombre d'heures où la température dépasse [[hyp:seuil_heures_chaudes]] °C.;les_indicateurs
+nuits_consecutives;Nuits tropicales consécutives (max);nuits;6;1;Plus longue suite de nuits consécutives où la température ne descend pas sous [[hyp:seuil_nuit_tropicale]] °C (22h-6h).;les_indicateurs
+t_moyenne;Température moyenne;°C;7;1;Moyenne de toutes les heures de l'été (1er juin → 30 septembre), ou de toute la série pour un relevé plus court.;les_indicateurs
+t_moyenne_nuit;Température moyenne nocturne;°C;8;1;Moyenne des heures de nuit (22h-6h, heure légale) de l'été.;les_indicateurs

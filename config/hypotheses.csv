@@ -1,0 +1,21 @@
+id;libelle;valeur;unite;reference;statut;source;lien;explication
+seuil_nuit_dh;Seuil DH de nuit;26;°C;RE2020;sourcé;Arrêté du 4 août 2021, annexe III, (2544);https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;La nuit, le seuil d'inconfort est fixe : la consigne de refroidissement, sans effet adaptatif.
+seuil_jour_max;Plafond du seuil de jour;28;°C;RE2020;sourcé;Annexe III, (2544);https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;Le jour, le seuil adaptatif ne dépasse jamais la consigne + 2 °C.
+pente_confort;Pente de la droite de confort;0.33;-;EN 16798 / RE2020;sourcé;Annexe III, (2543);https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;Le seuil de jour monte de 0,33 °C par degré de moyenne glissante extérieure.
+ordonnee_confort;Ordonnée de la droite de confort;18.8;°C;EN 16798 / RE2020;sourcé;Annexe III, (2543);https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;Température de confort neutre extrapolée à θrm = 0 °C.
+delta_categorie;Écart catégorie d'ambiance 1;2;°C;RE2020;sourcé;Annexe III, tableau 340;https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;La RE2020 retient la catégorie 1 pour tous les usages.
+alpha_theta_rm;Coefficient de la température extérieure lissée;0.8;-;RE2020;sourcé;Annexe III, fiche climat, (1);https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;Température extérieure lissée du jour = 0,8 × celle de la veille + 0,2 × moyenne de la veille (notée θrm dans la méthode).
+seuil_periode_adaptative;Température extérieure lissée minimale de la période de confort adaptatif;16;°C;RE2020;sourcé;Annexe III, fiche climat, (2);https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;Les DH RE2020 ne sont comptés que du premier au dernier jour où la température lissée ≥ 16 °C.
+jour_debut;Début du jour;6;h;RE2020;sourcé;Annexe III, (2544);https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;Jour = de 6h à 22h, heure légale.
+jour_fin;Fin du jour;22;h;RE2020;sourcé;Annexe III, (2544);https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;Après 22h, seuil de nuit.
+nuit_debut;Début de la nuit (nuits caniculaires);22;h;Météo et Chaleur;hypothèse;;;La température minimale de la nuit est cherchée de 22h au lendemain 6h, heure légale.
+nuit_fin;Fin de la nuit (nuits caniculaires);6;h;Météo et Chaleur;hypothèse;;;Voir début de la nuit.
+seuil_nuit_tropicale;Nuit tropicale;20;°C;Météo-France;sourcé;Météo-France, nuit tropicale;https://meteofrance.com/actualites-et-dossiers/actualites/climat/une-nuit-tropicale-au-coeur-de-lhiver;Nuit où la température ne descend pas sous 20 °C.
+seuil_nuit_tres_chaude;Nuit très chaude;24;°C;—;à préciser;à compléter;;Seuil proposé pour les nuits très chaudes. Source à préciser.
+occupation_logement;Occupation logement;absents 10h-18h (mercredi 10h-14h);-;CEREMA;provisoire;Webinaire CEREMA RE2020 confort d'été;https://www.batylab.bzh/wp-content/uploads/webinairere2020-presentation-cerema.pdf;"Absents de 10h à 18h les lundis, mardis, jeudis et vendredis, de 10h à 14h le mercredi ; présents le week-end."
+decalage_heure_ete;Heure légale d'été;2;h;Th-BCE;hypothèse;Annexe III, Hleg = IHJ + EHLO;https://www.legifrance.gouv.fr/jorf/id/JORFSCTA000043936447;"Les fichiers RE2020 sont en UTC ; heure légale = UTC + 2 h, appliqué toute l'année."
+ete_debut;Début de l'été (affichage et moyennes);06-01;mm-jj;Météo et Chaleur;hypothèse;;;Fenêtre de zoom par défaut et période des températures moyennes.
+ete_fin;Fin de l'été (affichage);09-30;mm-jj;Météo et Chaleur;hypothèse;;;Voir début de l'été.
+semaine_jours;Durée de la semaine la plus chaude;7;jours;Météo et Chaleur;hypothèse;;;Fenêtre glissante de 7 jours consécutifs complets.
+trou_max_heures;Trou maximal comblé à l'import;3;h;Météo et Chaleur;hypothèse;;;"Les trous de 3 h ou moins sont interpolés et signalés ; au-delà, la série est refusée."
+seuil_heures_chaudes;Seuil des heures chaudes;28;°C;Météo et Chaleur;hypothèse;;;Nombre d'heures où la température dépasse ce seuil (plafond du seuil DH de jour RE2020).
