@@ -11,7 +11,7 @@ import streamlit as st
 
 from calcul.hypotheses import remplacer_reperes, valeur
 from calcul.indicateurs import jour_le_plus_chaud, semaine_la_plus_chaude
-from config.reglages import COULEUR_FICHIER_1, COULEUR_FICHIER_2, FAMILLES, GRIS
+from config.reglages import COULEUR_FICHIER_1, COULEUR_FICHIER_2, GRIS
 from interface import graphiques as g
 from interface.composants import cartouche, pastille_ecart, valeur_texte
 
@@ -50,44 +50,23 @@ def _tableau(res_a, res_b, nom_a, nom_b, hyp):
 
 
 # ============================================================
-# CHOIX DU SECOND FICHIER (famille → fichier)
-# ============================================================
-
-def _choisir_second(choix_b, analyse_a):
-    """
-    choix_b : liste de dict {famille, libelle, charger} (catalogue sans le fichier A, importés, fichier C).
-    Par défaut : même scénario dans une autre zone (dernier trouvé), sinon le premier fichier.
-    """
-    familles = [f for f in FAMILLES if any(c["famille"] == f for c in choix_b)]
-    familles += [f for f in dict.fromkeys(c["famille"] for c in choix_b) if f not in familles]
-    libelle_a = analyse_a.serie.meta.get("libelle", "")
-    meme = [c for c in choix_b if libelle_a and c["libelle"].endswith(libelle_a)]
-    defaut = meme[-1] if meme else choix_b[0]
-    famille = st.radio("Famille", familles, index=familles.index(defaut["famille"]), horizontal=True,
-                       key="famille_b", label_visibility="collapsed")
-    options = [c for c in choix_b if c["famille"] == famille]
-    libelles = [c["libelle"] for c in options]
-    index = libelles.index(defaut["libelle"]) if defaut in options else 0
-    nom = st.selectbox("Second fichier", libelles, index=index, key=f"fichier_b_{famille}",
-                       label_visibility="collapsed")
-    return options[libelles.index(nom)]["charger"]()
-
-
-# ============================================================
 # ONGLET
 # ============================================================
 
-def afficher(analyse_a, res_a, choix_b, analyser_b, reglage, hyp):
+def afficher(analyse_a, res_a, serie_b, analyser_b, reglage, hyp, ouvrir_choix_second):
+    """
+    serie_b : second fichier (choisi dans la fenêtre de choix, par défaut le même scénario dans une autre zone).
+    ouvrir_choix_second : ouvre la fenêtre de choix en mode « second fichier ».
+    """
     nom_a = analyse_a.serie.libelle
     col_a, col_b = st.columns(2)
     with col_a, st.container(key="cartouche_a"):
         cartouche(ROLE_A, analyse_a.serie, COULEUR_FICHIER_1)
-        st.caption("Pour le changer : menu de gauche.")
+        st.caption("Pour le changer : « Changer de fichier » dans le menu de gauche.")
     with col_b, st.container(key="cartouche_b"):
-        tete = st.empty()                      # rempli après le choix (le nom dépend de la sélection)
-        serie_b = _choisir_second(choix_b, analyse_a)
-        with tete.container():
-            cartouche(ROLE_B, serie_b, COULEUR_FICHIER_2)
+        cartouche(ROLE_B, serie_b, COULEUR_FICHIER_2)
+        if st.button("⌕  Changer le second fichier", key="ouvrir_choix_second"):
+            ouvrir_choix_second()
     analyse_b, res_b = analyser_b(serie_b)
     nom_b = analyse_b.serie.libelle
     if analyse_b.message_methode:

@@ -6,7 +6,7 @@ journée et semaine les plus chaudes), comparer deux fichiers et créer des jour
 > Les DH sont calculés sur la **température extérieure** : c'est un indicateur de sévérité du climat,
 > pas le DH d'un bâtiment.
 
-Version : voir `CHANGELOG.md` (0.8.4, non fonctionnelle).
+Version : voir `CHANGELOG.md` (0.9.0, version de test).
 
 ## Lancer en local
 

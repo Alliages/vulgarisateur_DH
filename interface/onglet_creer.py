@@ -11,6 +11,8 @@ from interface.format_fr import date_longue, periode_longue
 from interface import graphiques as g
 from interface.composants import cartes
 from interface.onglet_analyser import CONFIG_PLOTLY
+from config.reglages import ONGLETS
+from interface.choix_fichier import CLE_FICHIER_C, CLE_SECOND
 from interface.outils import PYARROW_DISPONIBLE
 
 # ============================================================
@@ -77,6 +79,13 @@ def _formulaire(df, cle):
     return pd.DataFrame(lignes, columns=COLONNES)
 
 
+def _comparer_fichier_c(serie_c):
+    """Le fichier créé devient le second fichier de Comparer, et l'onglet Comparer s'ouvre."""
+    st.session_state[CLE_FICHIER_C] = serie_c
+    st.session_state[CLE_SECOND] = CLE_FICHIER_C
+    st.session_state["onglet"] = ONGLETS[1]
+
+
 def afficher(analyse_a, reglage, hyp, definitions, analyser_serie, calculer):
     mode = st.radio("Créer", ["Semaine", "Journée"], horizontal=True, key="creer_mode")
     nb = 7 if mode == "Semaine" else 1
@@ -110,6 +119,5 @@ def afficher(analyse_a, reglage, hyp, definitions, analyser_serie, calculer):
                                 "semaine" if nb > 1 else "jour", occupe), width="stretch", config=CONFIG_PLOTLY, theme=None)
     if analyse_c.message_methode:
         st.caption(f"⚠ {analyse_c.message_methode}")
-    if st.button("+ Comparer comme fichier C", type="primary"):
-        st.session_state["fichier_C"] = serie_c
-        st.success("Fichier C disponible dans l'onglet Comparer.")
+    st.button("+ Comparer comme fichier C", type="primary", on_click=_comparer_fichier_c, args=(serie_c,),
+              help="Le fichier créé devient le second fichier de l'onglet Comparer.")

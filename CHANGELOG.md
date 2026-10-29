@@ -1,7 +1,20 @@
 # Journal des versions — Météo et Chaleur
 
-Règle : `0.8.x` tant que l'outil ne fonctionne pas bien, `0.9.0` quand il commence à bien fonctionner.
+Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
+
+## 0.9.0 — version de test (29/10/2026)
+
+On approche d'une version finale. Validé : fond teinté des cartes, DH par jour sur l'année, heure légale des maximums.
+
+- **Choix du fichier météo dans une fenêtre dédiée** (`interface/choix_fichier.py`) :
+  - menu de gauche allégé : carte du fichier en cours, bouton « Changer de fichier », fichiers récents ;
+  - recherche dans toutes les familles ; familles en onglets (RE2020, Relevés, TRACC à venir, Importés, + Importer) ;
+  - zones RE2020 sur une carte schématique, barre = DH du fichier « Th-D canicule » (réglage RE2020) ;
+  - fichiers en cartes cliquables avec usage et 3 chiffres clés (DH, nuits ≥ 20 °C, T max) ;
+  - « Analyser ce fichier » / « Comparer avec le fichier en cours » ; la même fenêtre choisit le second fichier de Comparer.
+- Créer : « + Comparer comme fichier C » ouvre directement l'onglet Comparer avec le fichier créé.
+- Tests : `tests/test_choix_fichier.py` (carte des zones, second fichier par défaut, recherche).
 
 ## 0.8.4 — version non fonctionnelle (29/10/2026)
 

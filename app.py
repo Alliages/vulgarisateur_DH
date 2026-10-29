@@ -8,30 +8,26 @@
 ============================================================
 """
 
-from functools import partial
-
+import numpy as np
 import streamlit as st
 
 from calcul.hypotheses import charger_hypotheses, charger_indicateurs, remplacer_reperes, valeur
 from calcul.indicateurs import analyser, calculer_indicateurs
 from calcul.serie import charger_catalogue, charger_serie, lire_fichier_importe
-from config.reglages import (FAMILLE_IMPORTES, FAMILLES, FICHIER_DEFAUT, LIBELLE_SEUILS_DH, LIBELLES_CRITERE_JOURNEE,
-                             LIBELLES_CRITERE_SEMAINE, LIBELLES_METHODE, REGLAGE_RE2020, VERSION)
+from config.reglages import (FAMILLE_IMPORTES, LIBELLE_SEUILS_DH, LIBELLES_CRITERE_JOURNEE, LIBELLES_CRITERE_SEMAINE,
+                             LIBELLES_METHODE, ONGLETS, REGLAGE_RE2020, VERSION)
 from export.export import csv_horaire, excel_complet
-from interface import onglet_analyser, onglet_comparer, onglet_creer, onglet_methode
+from interface import choix_fichier, onglet_analyser, onglet_comparer, onglet_creer, onglet_methode
 from interface.composants import entete, pied
 
 # ============================================================
 # PARAMÈTRES
 # ============================================================
 TITRE_PAGE = "Météo et Chaleur"
-ONGLETS = ["①  Analyser", "②  Comparer", "③  Créer jour / semaine", "Méthode & sources"]
 CLES_REGLAGE = {"methode": "r_methode", "occupation": "r_occupation",
                 "critere_journee": "r_journee", "critere_semaine": "r_semaine"}
 CLE_INDICATEURS = "r_indicateurs"        # ordre des cartes choisi dans le menu
-BASES_HORAIRES = ["légale", "UTC"]
-MESSAGE_FAMILLE_VIDE = ("Pas encore de fichier {famille} dans le catalogue : ils seront ajoutés quand la source et "
-                        "le format seront connus. Fichier affiché : celui par défaut.")
+INDICATEURS_RESUME = ["dh", "nuits_20"]  # chiffres clés des cartes de la fenêtre de choix (+ T max)
 
 st.set_page_config(page_title=TITRE_PAGE, page_icon="☀", layout="wide")
 
@@ -56,6 +52,20 @@ def _serie_enregistree(identifiant):
     ligne = _catalogue().set_index("id").loc[identifiant].to_dict()
     ligne["id"] = identifiant
     return charger_serie(ligne, int(valeur(hyp, "decalage_heure_ete")))
+
+
+def _resumer(serie) -> dict:
+    """DH (réglage RE2020), nuits ≥ 20 °C et T max d'une série : chiffres clés de la fenêtre de choix."""
+    _, tous = _hypotheses()
+    a = analyser(serie, REGLAGE_RE2020, HYP)
+    defs = [d for d in tous if d["id"] in INDICATEURS_RESUME]
+    v = {d["id"]: r.valeur for d, r in calculer_indicateurs(a, REGLAGE_RE2020, HYP, defs)}
+    return {"dh": v.get("dh"), "nuits_20": v.get("nuits_20"), "tmax": float(np.max(serie.t))}
+
+
+@st.cache_data(show_spinner="Calcul des chiffres clés du fichier…")
+def _resume_enregistre(identifiant):
+    return _resumer(_serie_enregistree(identifiant))
 
 
 HYP, TOUS_INDICATEURS = _hypotheses()
@@ -92,62 +102,27 @@ def _libelle_indicateur(identifiant):
     return remplacer_reperes(INDICATEURS[identifiant]["libelle"], HYP)
 
 
-def _choisir_fichier():
-    """Famille → zone → fichier (ou recherche libre). Renvoie la série du fichier de l'onglet Analyser."""
-    st.sidebar.markdown("### FICHIERS MÉTÉO")
-    recherche = st.sidebar.text_input("Rechercher", placeholder="zone, station, type…", label_visibility="collapsed")
-    importes = st.session_state.setdefault("importes", {})
-
-    if recherche:                                  # recherche : résultats toutes familles confondues
-        texte = recherche.lower()
-        trouves = CATALOGUE[CATALOGUE.apply(lambda r: texte in " ".join(map(str, r.values)).lower(), axis=1)]
-        options = {f"{r.famille} · {r.zone} · {r.libelle}": partial(_serie_enregistree, r.id) for r in trouves.itertuples()}
-        options.update({f"{FAMILLE_IMPORTES} · {nom}": (lambda s=s: s) for nom, s in importes.items()
-                        if texte in nom.lower()})
-        if options:
-            return options[st.sidebar.radio("Résultats", list(options), label_visibility="collapsed")]()
-        st.sidebar.warning("Aucun fichier ne correspond.")
-
-    familles = list(FAMILLES) + ([FAMILLE_IMPORTES] if importes else [])
-    nb = {f: int((CATALOGUE["famille"] == f).sum()) for f in FAMILLES} | {FAMILLE_IMPORTES: len(importes)}
-    famille_defaut = CATALOGUE.set_index("id").loc[FICHIER_DEFAUT, "famille"]
-    famille = st.sidebar.radio("Famille", familles, index=familles.index(famille_defaut), horizontal=True,
-                               key="famille_a", format_func=lambda f: f"{f} ({nb[f]})" if nb[f] else f"{f} (bientôt)")
-    if famille == FAMILLE_IMPORTES:
-        nom = st.sidebar.radio("Fichier", list(importes), label_visibility="collapsed", key="fichier_importe")
-        return importes[nom]
-    lignes = CATALOGUE[CATALOGUE["famille"] == famille]
-    if lignes.empty:
-        st.sidebar.info(MESSAGE_FAMILLE_VIDE.format(famille=famille))
-        return _serie_enregistree(FICHIER_DEFAUT)
-    zones = list(dict.fromkeys(lignes["zone"]))
-    zone_defaut = CATALOGUE.set_index("id").loc[FICHIER_DEFAUT, "zone"]
-    zone = st.sidebar.selectbox("Zone", zones, index=zones.index(zone_defaut) if zone_defaut in zones else 0,
-                                key=f"zone_{famille}")
-    lignes = lignes[lignes["zone"] == zone]
-    ids = list(lignes["id"])
-    choix = st.sidebar.radio("Fichier", ids, format_func=lambda i: lignes.set_index("id").loc[i, "libelle"],
-                             captions=list(lignes["description"]), label_visibility="collapsed",
-                             index=ids.index(FICHIER_DEFAUT) if FICHIER_DEFAUT in ids else 0,
-                             key=f"fichier_{famille}_{zone}")
-    return _serie_enregistree(choix)
+def serie_par_cle(cle):
+    """Clé de fichier (catalogue, « importe:<nom> », « fichier_C ») → série."""
+    if cle == choix_fichier.CLE_FICHIER_C:
+        return st.session_state[choix_fichier.CLE_FICHIER_C]
+    if cle.startswith(choix_fichier.PREFIXE_IMPORTE):
+        return choix_fichier.importes()[cle[len(choix_fichier.PREFIXE_IMPORTE):]]
+    return _serie_enregistree(cle)
 
 
-def _importer():
-    importes = st.session_state.setdefault("importes", {})
-    with st.sidebar.expander("+ Importer un fichier (session)"):
-        fichier = st.file_uploader("CSV horaire (heure;T ou date;heure;T)", type=["csv", "txt"])
-        base = st.radio("Base horaire du fichier", BASES_HORAIRES, horizontal=True)
-        if fichier is not None and st.button("Charger"):
-            try:
-                s = lire_fichier_importe(fichier.getvalue(), fichier.name, base, int(valeur(HYP, "decalage_heure_ete")),
-                                         int(valeur(HYP, "trou_max_heures")))
-                s.meta.setdefault("famille", FAMILLE_IMPORTES)
-                importes[s.libelle] = s
-                st.success(f"{s.libelle} chargé ({len(s.t)} h) : famille « {FAMILLE_IMPORTES} ».")
-            except ValueError as e:
-                st.error(str(e))
-        st.caption("Proposer à l'enregistrement : bientôt.")
+def _resume(cle):
+    ids = set(CATALOGUE["id"])
+    return _resume_enregistre(cle) if cle in ids else _resumer(serie_par_cle(cle))
+
+
+def _importer_fichier(contenu, nom, base):
+    s = lire_fichier_importe(contenu, nom, base, int(valeur(HYP, "decalage_heure_ete")), int(valeur(HYP, "trou_max_heures")))
+    s.meta.setdefault("famille", FAMILLE_IMPORTES)
+    return s
+
+
+SOURCES = choix_fichier.Sources(catalogue=CATALOGUE, charger=serie_par_cle, resume=_resume, importer=_importer_fichier)
 
 
 def _choisir_indicateurs():
@@ -165,8 +140,8 @@ def _choisir_indicateurs():
 
 
 def barre_laterale():
-    serie = _choisir_fichier()
-    _importer()
+    serie = serie_par_cle(choix_fichier.cle_courante(SOURCES))
+    choix_fichier.menu(SOURCES, serie, lambda: choix_fichier.ouvrir("analyser", SOURCES))
 
     st.sidebar.markdown("### RÉGLAGES")
     for cle, cle_widget in CLES_REGLAGE.items():
@@ -192,22 +167,6 @@ def barre_laterale():
     reglage["indicateurs"] = _choisir_indicateurs()
     st.sidebar.button("↺ Revenir au réglage RE2020", on_click=_reinitialiser)
     return serie, reglage
-
-
-def _choix_second_fichier(serie_a):
-    """Fichiers proposés pour la comparaison : {famille, libelle, charger} (chargement à la demande)."""
-    choix = []
-    if "fichier_C" in st.session_state:
-        c = st.session_state["fichier_C"]
-        choix.append({"famille": FAMILLE_IMPORTES, "libelle": c.libelle, "charger": (lambda s=c: s)})
-    for nom, s in st.session_state.get("importes", {}).items():
-        if s is not serie_a:
-            choix.append({"famille": FAMILLE_IMPORTES, "libelle": nom, "charger": (lambda s=s: s)})
-    for r in CATALOGUE.itertuples():
-        if r.id != serie_a.id:
-            choix.append({"famille": r.famille, "libelle": f"{r.zone} · {r.libelle}",
-                          "charger": partial(_serie_enregistree, r.id)})
-    return choix
 
 
 # ============================================================
@@ -236,8 +195,9 @@ def main():
     with onglets[0]:
         onglet_analyser.afficher(analyse_a, res_a, reglage, HYP, _aller_methode)
     with onglets[1]:
-        onglet_comparer.afficher(analyse_a, res_a, _choix_second_fichier(serie_a),
-                                 lambda s: (lambda a: (a, calculer(a)))(analyser_serie(s)), reglage, HYP)
+        serie_b = serie_par_cle(choix_fichier.cle_seconde(SOURCES))
+        onglet_comparer.afficher(analyse_a, res_a, serie_b, lambda s: (lambda a: (a, calculer(a)))(analyser_serie(s)),
+                                 reglage, HYP, lambda: choix_fichier.ouvrir("comparer", SOURCES))
     with onglets[2]:
         onglet_creer.afficher(analyse_a, reglage, HYP, reglage["indicateurs"], analyser_serie, calculer)
     with onglets[3]:

@@ -9,8 +9,8 @@
 """
 
 # --- Version (dernier chiffre pair = gros changement, impair = correction) ---
-VERSION = "0.8.4"
-STATUT_VERSION = "non fonctionnelle"
+VERSION = "0.9.0"
+STATUT_VERSION = "version de test"
 
 # --- Réglage par défaut (= RE2020) ---------------------------------------
 REGLAGE_RE2020 = {
@@ -22,8 +22,11 @@ REGLAGE_RE2020 = {
 }
 FICHIER_DEFAUT = "H1a_th_d"
 
-# --- Familles de fichiers météo (colonne « famille » du catalogue), dans l'ordre du menu ---
-FAMILLES = ["RE2020", "TRACC", "Relevés"]
+# --- Onglets de la page (le nom sert aussi de clé pour passer d'un onglet à l'autre) ---
+ONGLETS = ["①  Analyser", "②  Comparer", "③  Créer jour / semaine", "Méthode & sources"]
+
+# --- Familles de fichiers météo (colonne « famille » du catalogue), dans l'ordre de la fenêtre de choix ---
+FAMILLES = ["RE2020", "Relevés", "TRACC"]
 FAMILLE_IMPORTES = "Importés"          # fichiers chargés pendant la session (et fichier C)
 LIBELLE_SEUILS_DH = "Seuils d'inconfort pour le DH"
 

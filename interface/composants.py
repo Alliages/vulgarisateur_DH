@@ -137,6 +137,81 @@ CSS = f"""
   .cartouche .role {{ font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; color: {GRIS_DOUX}; }}
   .cartouche .nom {{ font-size: 1.35rem; font-weight: 700; line-height: 1.2; }}
   .cartouche .meta {{ color: {GRIS_DOUX}; font-size: .82rem; }}
+  /* --- Menu de gauche : carte du fichier en cours + récents (0.9.0) --- */
+  .st-key-fichier_actuel {{ background: white; border-radius: 16px; padding: 14px 14px 12px; box-shadow: {OMBRE}; }}
+  .nom-actuel {{ font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; line-height: 1.2; }}
+  .nom-actuel .point, .tuile .point {{ width: 11px; height: 11px; border-radius: 50%; flex: none; display: inline-block; }}
+  .meta-actuel {{ color: {GRIS_DOUX}; font-size: .8rem; margin: 4px 0 8px; line-height: 1.35; }}
+  .etiquettes {{ display: flex; flex-wrap: wrap; gap: 5px; }}
+  .tag {{ font-size: .7rem; padding: 2px 8px; border-radius: 10px; background: #F1EFEA; color: {GRIS_DOUX}; }}
+  .tag.famille {{ background: {BLEU_CLAIR}; color: #13628f; font-weight: 600; }}
+  .st-key-fichier_actuel button, .st-key-ouvrir_choix_second button {{ background: {INDIGO}; color: white;
+      border: none; border-radius: 22px; font-weight: 600; }}
+  .st-key-fichier_actuel button:hover, .st-key-ouvrir_choix_second button:hover {{ background: #45407a; color: white; }}
+  .st-key-recents {{ gap: .45rem; margin-top: 4px; }}
+  .st-key-recents [data-testid="stMarkdownContainer"] {{ margin-bottom: 0; }}
+  .lib-recents {{ font-size: .8rem; color: {INDIGO}; font-weight: 600; padding-bottom: 2px; }}
+  .st-key-recents button {{ background: rgba(255,255,255,.75); border: none; border-radius: 14px; min-height: 0;
+                            padding: 3px 12px; }}
+  .st-key-recents button p {{ font-size: .8rem; }}
+  /* --- Fenêtre de choix --- */
+  div[role="dialog"] {{ border-radius: 22px; }}
+  /*   familles en pilules (onglet actif en indigo, comme la barre des onglets) */
+  [data-testid="stDialog"] [data-testid="stButtonGroup"] {{ gap: 8px; }}
+  [data-testid="stDialog"] [data-testid="stButtonGroup"] button {{ border-radius: 20px !important; border: none;
+      background: #F1EFEA; color: {GRIS}; font-weight: 600; padding: 4px 16px; }}
+  [data-testid="stDialog"] [data-testid="stButtonGroup"] button[aria-checked="true"],
+  [data-testid="stDialog"] [data-testid="stButtonGroup"] button[aria-checked="true"]:hover {{
+      background: {INDIGO}; color: white; }}
+  [data-testid="stDialog"] [data-testid="stButtonGroup"] button:last-child {{ background: white;
+      border: 1.5px dashed {TEAL}; color: {TEAL}; }}
+  [data-testid="stDialog"] [data-testid="stButtonGroup"] button:last-child[kind="segmented_controlActive"] {{
+      background: {TEAL}; color: white; }}
+  .etape {{ font-size: .85rem; font-weight: 700; color: {INDIGO}; margin: 4px 0 6px; }}
+  .etape .num {{ display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: {BLEU_MENU};
+                 color: {INDIGO}; align-items: center; justify-content: center; font-size: .75rem; margin-right: 6px; }}
+  .etape small {{ font-weight: 400; color: {GRIS_DOUX}; margin-left: 6px; }}
+  /* tuile = dessin HTML + bouton Streamlit transparent posé par-dessus (toute la tuile est cliquable) */
+  [class*="st-key-tuile_"] {{ position: relative; }}
+  /*   l'enveloppe Streamlit du bouton (stElementContainer) couvre toute la tuile ; le bouton la remplit */
+  [class*="st-key-tuile_"] > [data-testid="stElementContainer"]:has([data-testid="stButton"]) {{
+      position: absolute; inset: 0; margin: 0; z-index: 2; }}
+  [class*="st-key-tuile_"] [data-testid="stButton"], [class*="st-key-tuile_"] [data-testid="stButton"] > div,
+  [class*="st-key-tuile_"] [data-testid="stButton"] button {{ width: 100%; height: 100%; }}
+  [class*="st-key-tuile_"] [data-testid="stButton"] button {{ opacity: 0; cursor: pointer; }}
+  [class*="st-key-tuile_"]:hover .tuile:not(.choisie) {{ border-color: #C9C6BF; background: white; }}
+  .tuile {{ border-radius: 14px; border: 1.5px solid #EEECE7; background: #FAF9F6; padding: 9px 12px; }}
+  .tuile.choisie {{ border: 2.5px solid var(--c); background: var(--fond-choisi); }}
+  .tuile.zone .code {{ font-size: 1.2rem; font-weight: 800; line-height: 1.1; }}
+  .tuile.zone .station {{ font-size: .75rem; color: {GRIS_DOUX}; }}
+  .tuile .jauge {{ height: 6px; border-radius: 3px; background: #EEECE7; margin: 7px 0 4px; overflow: hidden; }}
+  .tuile .jauge div {{ height: 100%; border-radius: 3px; }}
+  .tuile .chiffre {{ font-size: .72rem; color: {GRIS_DOUX}; }}
+  .tuile .chiffre b {{ color: {GRIS}; font-size: .8rem; }}
+  .legende-zones {{ font-size: .72rem; color: {GRIS_DOUX}; padding: 6px 4px; line-height: 1.35; }}
+  .legende-zones .degrade {{ height: 7px; border-radius: 4px; margin: 6px 0 3px;
+                             background: linear-gradient(90deg, {CARAMEL}, {CORAIL}); }}
+  .legende-zones .bornes {{ display: flex; justify-content: space-between; }}
+  .tuile.fichier {{ margin-bottom: 8px; padding: 11px 14px; }}
+  .tuile.fichier.choisie {{ background: white; box-shadow: {OMBRE}; }}
+  .tuile.fichier .haut {{ display: flex; align-items: center; gap: 8px; }}
+  .tuile.fichier .nom {{ font-weight: 700; font-size: 1rem; margin-right: auto; }}
+  .tuile.fichier .desc {{ font-size: .78rem; color: {GRIS_DOUX}; margin: 3px 0 7px; line-height: 1.35; }}
+  .tuile.fichier .chiffres {{ display: flex; gap: 18px; }}
+  .tuile.fichier .chiffres div {{ font-size: .72rem; color: {GRIS_DOUX}; }}
+  .tuile.fichier .chiffres b {{ display: block; font-size: 1.05rem; color: {GRIS}; }}
+  .tuile.fichier .chiffres b.rouge {{ color: {CORAIL}; }}
+  .tuile.fichier .chiffres b.nuit {{ color: {INDIGO}; }}
+  .badge {{ font-size: .68rem; border-radius: 10px; padding: 2px 8px; font-weight: 600; }}
+  .badge.defaut {{ background: {CARAMEL}; color: {GRIS}; }}
+  .badge.encours {{ background: {BLEU_CLAIR}; color: #13628f; }}
+  .pied-fenetre {{ font-size: .8rem; color: {GRIS_DOUX}; margin-top: 10px; padding-top: 10px;
+                   border-top: 1px solid #EEECE7; }}
+  .st-key-dlg_analyser button, .st-key-dlg_comparer_second button {{ border-radius: 22px; border: none;
+      font-weight: 600; color: white; }}
+  .st-key-dlg_analyser button {{ background: {CORAIL}; }}
+  .st-key-dlg_comparer_second button {{ background: {TEAL}; }}
+  .st-key-dlg_comparer button {{ border-radius: 22px; border: 1.5px solid {INDIGO}; color: {INDIGO}; font-weight: 600; }}
   .pied {{ color: {GRIS_DOUX}; font-size: .75rem; border-top: 1px solid {TRAIT}; margin-top: 18px; padding-top: 6px;
            display: flex; justify-content: space-between; }}
 </style>
