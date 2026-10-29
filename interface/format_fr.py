@@ -32,8 +32,8 @@ def periode_longue(debut: pd.Timestamp, fin: pd.Timestamp, avec_annee: bool = Fa
 
 
 def jour_court(d: pd.Timestamp) -> str:
-    """« lun. 6/08 » pour les graduations de la semaine."""
-    return f"{JOURS_COURTS[d.dayofweek]} {d.day}/{d.month:02d}"
+    """« lun. 6 août » pour les graduations de la semaine (date au format long)."""
+    return f"{JOURS_COURTS[d.dayofweek]} {jour_mois(d)}"
 
 
 def heure(d: pd.Timestamp) -> str:
@@ -41,5 +41,12 @@ def heure(d: pd.Timestamp) -> str:
 
 
 def nombre(v: float, decimales: int = 1) -> str:
-    """Virgule décimale : 39,7."""
-    return f"{v:.{decimales}f}".replace(".", ",")
+    """Virgule décimale et espace des milliers : 39,7 · 1 472."""
+    return f"{v:,.{decimales}f}".replace(",", " ").replace(".", ",")
+
+
+# Dictionnaire de langue passé à Plotly (config « locales ») : mois, jours et virgule décimale
+# en français sur tous les axes, à tous les niveaux de zoom (évite les graduations calculées à la main).
+LOCALE_PLOTLY = {"fr": {"dictionary": {}, "format": {
+    "days": [JOURS[6]] + JOURS[:6], "shortDays": [JOURS_COURTS[6]] + JOURS_COURTS[:6],
+    "months": MOIS, "shortMonths": MOIS_COURTS, "decimal": ",", "thousands": " "}}}

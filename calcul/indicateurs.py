@@ -235,6 +235,68 @@ REGISTRE = {
 }
 
 
+# ============================================================
+# PROFILS (mini-graphiques des cartes) — un profil par indicateur
+# ============================================================
+# Chaque profil renvoie {"type": "barres" | "ligne" | "bande" | "jauge", "valeurs": …}.
+#   barres / ligne : une valeur par mois (index = numéro du mois), sur l'été si la série le couvre ;
+#   bande          : une valeur booléenne par nuit (nuit tropicale ou non), sur l'été ;
+#   jauge          : une part entre 0 et 1 (demi-cercle), ex. part des DH tombée la nuit.
+
+def _mois_utiles(a: Analyse) -> pd.DatetimeIndex:
+    """Horodatage restreint à l'été (si couvert), sinon toute la série."""
+    return a.serie.horodatage[a.est_ete]
+
+
+def _par_mois(a: Analyse, valeurs: np.ndarray, agregat: str) -> pd.Series:
+    x = pd.Series(np.asarray(valeurs, dtype=float)[a.est_ete], index=_mois_utiles(a))
+    return getattr(x.groupby(x.index.month), agregat)()
+
+
+def _nuits_ete(a: Analyse) -> pd.Series:
+    """Tmin des nuits complètes, restreint à l'été si la série le couvre."""
+    n = a.nuits
+    if a.ete_couvert and not n.empty:
+        jours_ete = set(_mois_utiles(a).normalize())
+        n = n[n.index.isin(jours_ete)]
+    return n
+
+
+def profil_mensuel(a: Analyse, identifiant: str, hyp: dict) -> dict | None:
+    t = a.serie.t
+    if identifiant == "dh":
+        return {"type": "barres", "valeurs": _par_mois(a, a.dh_h, "sum")}
+    if identifiant == "dh_nuit":
+        total = float(a.dh_h.sum())
+        return None if total <= 0 else {"type": "jauge", "valeurs": float(a.dh_h[~a.est_jour].sum()) / total}
+    if identifiant == "heures_chaudes":
+        return {"type": "barres", "valeurs": _par_mois(a, t > valeur(hyp, "seuil_heures_chaudes"), "sum")}
+    if identifiant in ("nuits_20", "nuits_24"):
+        seuil = valeur(hyp, "seuil_nuit_tropicale" if identifiant == "nuits_20" else "seuil_nuit_tres_chaude")
+        n = _nuits_ete(a)
+        return None if n.empty else {"type": "barres", "valeurs": (n >= seuil).groupby(n.index.month).sum()}
+    if identifiant == "nuits_consecutives":
+        n = _nuits_ete(a)
+        return None if n.empty else {"type": "bande", "valeurs": n >= valeur(hyp, "seuil_nuit_tropicale")}
+    if identifiant == "t_moyenne":
+        return {"type": "ligne", "valeurs": _par_mois(a, t, "mean")}
+    if identifiant == "t_moyenne_nuit":
+        x = pd.Series(np.where(a.est_nuit, t, np.nan)[a.est_ete], index=_mois_utiles(a))
+        return {"type": "ligne", "valeurs": x.groupby(x.index.month).mean()}
+    return None
+
+
 def calculer_indicateurs(a: Analyse, reglage: dict, hyp: dict, definitions: list) -> list:
-    """[(définition, Resultat)] dans l'ordre de indicateurs.csv ; ignore les id sans fonction."""
-    return [(d, REGISTRE[d["id"]](a, reglage, hyp)) for d in definitions if d["id"] in REGISTRE]
+    """
+    [(définition, Resultat)] dans l'ordre des définitions reçues (ordre choisi dans l'interface,
+    par défaut celui de indicateurs.csv) ; ignore les id sans fonction. Le profil mensuel
+    (mini-graphique de la carte) est rangé dans Resultat.info["profil"].
+    """
+    resultats = []
+    for d in definitions:
+        if d["id"] not in REGISTRE:
+            continue
+        r = REGISTRE[d["id"]](a, reglage, hyp)
+        r.info["profil"] = profil_mensuel(a, d["id"], hyp)
+        resultats.append((d, r))
+    return resultats

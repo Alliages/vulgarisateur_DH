@@ -3,6 +3,22 @@
 Règle : `0.8.x` tant que l'outil ne fonctionne pas bien, `0.9.0` quand il commence à bien fonctionner.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.8.4 — version non fonctionnelle (29/10/2026)
+
+Retours des 24 (soir), 26 et 28 octobre ; style inspiré d'un tableau de bord épuré (cartes blanches arrondies
+sur fond gris chaud, carte principale en couleur pleine, mini-graphiques et jauge dans les cartes, pastilles d'écart).
+
+- Graphiques : titre des axes (« °C », « °C.h ») à l'horizontale au-dessus de la graduation la plus haute ;
+  dates en français au format long sur tous les axes ; DH de chaque jour en barres jaunes sur l'année.
+- Nom du fichier en gros sous la barre des onglets ; « Méthode DH » devient « Seuils d'inconfort pour le DH ».
+- Cartes : ordre au choix (menu « Indicateurs affichés »), fond teinté de la couleur de la carte, DH en rouge,
+  nuit en foncé, températures moyennes à 1 décimale, mini-graphique par mois, jauge « part des DH la nuit ».
+- Comparer : fichier de l'onglet Analyser en corail, second fichier en bleu canard (cartouches, tableau, courbes) ;
+  écarts en pastilles ; nuits les plus chaudes annotées ; journée **et** semaine les plus chaudes superposées avec
+  traits 20 / 28 °C, fond orangé au-dessus de 28 °C, bleu en dessous de 20 °C.
+- Fichiers météo classés par famille (RE2020, TRACC à venir, Relevés, Importés) : famille → zone → fichier.
+- Windows : pyarrow figé dans requirements.txt ; l'outil fonctionne sans pyarrow (formulaire simple dans Créer).
+
 ## 0.8.0 — version non fonctionnelle (23/10/2026)
 
 - Remplacement de l'ancienne app Dash par l'interface Streamlit « Météo et Chaleur ».

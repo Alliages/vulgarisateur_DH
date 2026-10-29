@@ -11,6 +11,7 @@ from interface.format_fr import date_longue, periode_longue
 from interface import graphiques as g
 from interface.composants import cartes
 from interface.onglet_analyser import CONFIG_PLOTLY
+from interface.outils import PYARROW_DISPONIBLE
 
 # ============================================================
 # PARAMÈTRES
@@ -21,6 +22,7 @@ SEMAINE_EXEMPLE = [(28, 34.8, 19), (29, 36.2, 23.7), (29, 36.8, 23.6), (29.4, 38
                    (30.5, 38.4, 25.2), (30.5, 35.4, 24), (26, 33, 21.5)]
 DEBUT_DEFAUT = pd.Timestamp("2026-06-22")          # un lundi
 COLONNES = ["Jour", "T° minuit", "T° pic haut", "T° pic bas", "Heure du pic", "Courbe"]
+LARGEURS_FORMULAIRE = [1.1, 1, 1, 1, 1, 1]          # formulaire de secours (sans pyarrow)
 
 
 def _tableau_defaut(nb_jours):
@@ -44,6 +46,37 @@ def _depuis_semaine_chaude(analyse_a, reglage, nb_jours):
     return pd.DataFrame(lignes, columns=COLONNES)
 
 
+def _tableau_editable(df, cle):
+    """Tableau éditable Streamlit (nécessite pyarrow)."""
+    return st.data_editor(
+        df, hide_index=True, width="stretch", key=cle, disabled=["Jour"],
+        column_config={
+            "T° minuit": st.column_config.NumberColumn(format="%.1f °C", step=0.5),
+            "T° pic haut": st.column_config.NumberColumn(format="%.1f °C", step=0.5),
+            "T° pic bas": st.column_config.NumberColumn(format="%.1f °C", step=0.5),
+            "Heure du pic": st.column_config.SelectboxColumn(options=list(generateur.H_PIC)),
+            "Courbe": st.column_config.SelectboxColumn(options=list(generateur.COURBES))})
+
+
+def _formulaire(df, cle):
+    """Formulaire de secours, une ligne par jour, sans pyarrow (champs numériques et listes)."""
+    for c, t in zip(st.columns(LARGEURS_FORMULAIRE), COLONNES):
+        c.caption(t)
+    pics, courbes = list(generateur.H_PIC), list(generateur.COURBES)
+    lignes = []
+    for i, r in df.reset_index(drop=True).iterrows():
+        cols = st.columns(LARGEURS_FORMULAIRE, vertical_alignment="center")
+        cols[0].markdown(f"**{r['Jour']}**")
+        temperatures = [cols[k].number_input(COLONNES[k], value=float(r[COLONNES[k]]), step=0.5, format="%.1f",
+                                             key=f"{cle}_{i}_{k}", label_visibility="collapsed") for k in (1, 2, 3)]
+        pic = cols[4].selectbox("Heure du pic", pics, index=pics.index(r["Heure du pic"]), key=f"{cle}_{i}_pic",
+                                label_visibility="collapsed")
+        courbe = cols[5].selectbox("Courbe", courbes, index=courbes.index(r["Courbe"]), key=f"{cle}_{i}_courbe",
+                                   label_visibility="collapsed")
+        lignes.append([r["Jour"], *temperatures, pic, courbe])
+    return pd.DataFrame(lignes, columns=COLONNES)
+
+
 def afficher(analyse_a, reglage, hyp, definitions, analyser_serie, calculer):
     mode = st.radio("Créer", ["Semaine", "Journée"], horizontal=True, key="creer_mode")
     nb = 7 if mode == "Semaine" else 1
@@ -54,16 +87,14 @@ def afficher(analyse_a, reglage, hyp, definitions, analyser_serie, calculer):
         t = _depuis_semaine_chaude(analyse_a, reglage, nb)
         if t is not None:
             st.session_state["creer_tableau"] = t
-
-    tableau = st.data_editor(
-        st.session_state["creer_tableau"], hide_index=True, width="stretch", key=f"editeur_{nb}",
-        disabled=["Jour"],
-        column_config={
-            "T° minuit": st.column_config.NumberColumn(format="%.1f °C", step=0.5),
-            "T° pic haut": st.column_config.NumberColumn(format="%.1f °C", step=0.5),
-            "T° pic bas": st.column_config.NumberColumn(format="%.1f °C", step=0.5),
-            "Heure du pic": st.column_config.SelectboxColumn(options=list(generateur.H_PIC)),
-            "Courbe": st.column_config.SelectboxColumn(options=list(generateur.COURBES))})
+            st.session_state["creer_version"] = st.session_state.get("creer_version", 0) + 1   # rafraîchit la saisie
+    version = st.session_state.get("creer_version", 0)
+    if PYARROW_DISPONIBLE:
+        tableau = _tableau_editable(st.session_state["creer_tableau"], f"editeur_{nb}_{version}")
+    else:
+        st.caption("Saisie simplifiée : le tableau éditable de Streamlit a besoin de pyarrow, introuvable ici "
+                   "(voir README, installation sous Windows).")
+        tableau = _formulaire(st.session_state["creer_tableau"], f"form_{nb}_{version}")
 
     params = [dict(t0=r["T° minuit"], tmax=r["T° pic haut"], tmin=r["T° pic bas"], pic=r["Heure du pic"],
                    courbe=r["Courbe"]) for _, r in tableau.iterrows()]

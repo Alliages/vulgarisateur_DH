@@ -5,3 +5,4 @@ numpy
 openpyxl
 pythermalcomfort==4.6.2
 mammoth
+pyarrow==26.0.0   # tableaux interactifs Streamlit (facultatif : l'outil fonctionne sans, cf. README)

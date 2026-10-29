@@ -37,6 +37,7 @@ def excel_complet(analyse, resultats, hyp, reglage, remplacer) -> bytes:
         analyse.jours.rename_axis("jour_legal").to_excel(xl, sheet_name="journalier")
         pd.DataFrame(list(hyp.values())).to_excel(xl, sheet_name="hypotheses", index=False)
         meta = dict(analyse.serie.meta, version_outil=VERSION, methode_effective=analyse.methode_effective,
-                    **{f"reglage_{k}": str(v) for k, v in reglage.items()})
+                    **{f"reglage_{k}": (", ".join(d["id"] for d in v) if k == "indicateurs" else str(v))
+                       for k, v in reglage.items()})
         pd.DataFrame(list(meta.items()), columns=["clé", "valeur"]).to_excel(xl, sheet_name="fichier_et_reglage", index=False)
     return tampon.getvalue()

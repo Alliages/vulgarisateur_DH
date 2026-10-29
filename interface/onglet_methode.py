@@ -12,7 +12,9 @@ from calcul.dh_re2020 import moyenne_glissante_exterieure
 from calcul.hypotheses import RACINE, remplacer_reperes, valeur
 from interface import graphiques as g
 from interface.format_fr import nombre
+from interface.composants import tableau_html
 from interface.onglet_analyser import CONFIG_PLOTLY
+from interface.outils import PYARROW_DISPONIBLE
 
 # ============================================================
 # PARAMÈTRES
@@ -50,9 +52,13 @@ def afficher(analyse_a, hyp):
             df["valeur"] = df["valeur"].map(lambda v: f"{v:g}".replace(".", ",") if isinstance(v, float) else str(v))
             df = df[["libelle", "valeur", "unite", "reference", "statut", "source",
                                                    "lien", "explication"]]
-            st.dataframe(df, hide_index=True, width="stretch", height=560,
-                         column_config={"lien": st.column_config.LinkColumn("lien", display_text="ouvrir ↗"),
-                                        "libelle": "hypothèse", "explication": st.column_config.TextColumn(width="large")})
+            if PYARROW_DISPONIBLE:
+                st.dataframe(df, hide_index=True, width="stretch", height=560,
+                             column_config={"lien": st.column_config.LinkColumn("lien", display_text="ouvrir ↗"),
+                                            "libelle": "hypothèse",
+                                            "explication": st.column_config.TextColumn(width="large")})
+            else:                                   # secours sans pyarrow : tableau HTML simple
+                st.markdown(tableau_html(df.rename(columns={"libelle": "hypothèse"})), unsafe_allow_html=True)
         elif choix == PAGE_THETA:
             st.markdown("### Température extérieure lissée : pourquoi deux calculs ?")
             s = analyse_a.serie

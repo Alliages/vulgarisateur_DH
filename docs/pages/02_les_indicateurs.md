@@ -12,3 +12,5 @@ Semaine la plus chaude : critère au choix, moyenne des températures moyennes, 
 Nouveaux indicateurs : heures au-dessus de [[hyp:seuil_heures_chaudes]] °C, plus longue suite de nuits tropicales, température moyenne et température moyenne nocturne de l'été.
 
 Les valeurs sont arrondies à l'unité à l'écran et exactes à l'export.
+
+L'ordre des cartes se choisit dans le menu de gauche (« Indicateurs affichés ») ; l'ordre par défaut et le nombre de chiffres après la virgule (colonne « decimales ») viennent de hypotheses.xlsx.

@@ -54,9 +54,17 @@ def charger_hypotheses() -> dict:
     return hyp
 
 
-def charger_indicateurs() -> list:
-    """Indicateurs actifs, triés selon la colonne « ordre »."""
-    lignes = [l for l in lire_csv(CHEMIN_INDICATEURS) if str(l["actif"]).strip() in ("1", "1.0")]
+def charger_indicateurs(tous: bool = False) -> list:
+    """
+    Indicateurs triés selon la colonne « ordre » (ordre par défaut, modifiable dans l'interface).
+    tous=False : seulement les actifs (actif = 1) ; tous=True : aussi ceux proposés en option.
+    """
+    lignes = lire_csv(CHEMIN_INDICATEURS)
+    for l in lignes:
+        l["actif"] = str(l["actif"]).strip() in ("1", "1.0")
+        l["decimales"] = int(float(l.get("decimales") or 0))     # chiffres après la virgule sur les cartes
+    if not tous:
+        lignes = [l for l in lignes if l["actif"]]
     return sorted(lignes, key=lambda l: float(l["ordre"]))
 
 

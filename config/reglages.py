@@ -9,7 +9,7 @@
 """
 
 # --- Version (dernier chiffre pair = gros changement, impair = correction) ---
-VERSION = "0.8.0"
+VERSION = "0.8.4"
 STATUT_VERSION = "non fonctionnelle"
 
 # --- Réglage par défaut (= RE2020) ---------------------------------------
@@ -22,6 +22,11 @@ REGLAGE_RE2020 = {
 }
 FICHIER_DEFAUT = "H1a_th_d"
 
+# --- Familles de fichiers météo (colonne « famille » du catalogue), dans l'ordre du menu ---
+FAMILLES = ["RE2020", "TRACC", "Relevés"]
+FAMILLE_IMPORTES = "Importés"          # fichiers chargés pendant la session (et fichier C)
+LIBELLE_SEUILS_DH = "Seuils d'inconfort pour le DH"
+
 # --- Libellés des choix ---------------------------------------------------
 LIBELLES_METHODE = {"RE2020": "RE2020", "basic": "Basic 26/28"}
 LIBELLES_CRITERE_JOURNEE = {"moyenne": "T moyenne", "max": "T max"}
@@ -29,14 +34,22 @@ LIBELLES_CRITERE_SEMAINE = {"moyenne": "T moyenne", "moyenne_max": "Moyenne des 
                             "pointe_max": "Pointe T max"}
 
 # --- Palette du projet ------------------------------------------------------
-CARAMEL = "#f7b267"      # DH, nuits ≥ 20 °C, hypothèses
-CORAIL = "#f05d5e"       # température, nuits ≥ 24 °C
-TEAL = "#0f7173"         # fichier A, éléments actifs
+CARAMEL = "#f7b267"      # barres de DH, écart entre fichiers, hypothèses
+CORAIL = "#f05d5e"       # température, DH (cartes), fichier de l'onglet Analyser
+TEAL = "#0f7173"         # second fichier (Comparer), température moyenne
 GRIS = "#272932"         # texte, axes, seuils
-INDIGO = "#2e294e"       # bandeau, fichier B, titres
+INDIGO = "#2e294e"       # nuit (indicateurs nocturnes), barre des onglets, titres
 BLEU_MENU = "#48BEFF"    # couleur complémentaire du menu
 BLEU_CLAIR = "#E4F4FF"   # fond clair (champs de saisie)
 CARAMEL_CLAIR = "#FDF0E1"
-FOND = "#F7F6F3"
+FOND = "#ECEAE5"          # fond de page gris chaud (les cartes blanches ressortent)
+BLANC = "#FFFFFF"
+OMBRE = "0 1px 2px rgba(39,41,50,.04), 0 6px 18px rgba(39,41,50,.07)"   # ombre douce des cartes
+RAYON = "18px"            # arrondi des cartes
+BLEU_FRAIS = "#1C6E9C"    # texte « plus frais » (pastilles d'écart, bande < 20 °C)
+
+# --- Couleurs des deux fichiers de l'onglet Comparer (option A, 28/10/2026) ---
+COULEUR_FICHIER_1 = CORAIL   # fichier de l'onglet Analyser (même couleur que dans l'onglet 1)
+COULEUR_FICHIER_2 = TEAL     # second fichier
 GRIS_DOUX = "#6B6B76"
 TRAIT = "#D5D3CF"

@@ -8,13 +8,14 @@ from calcul.hypotheses import masque_occupation, valeur
 from calcul.indicateurs import jour_le_plus_chaud, semaine_la_plus_chaude
 from config.reglages import LIBELLES_CRITERE_JOURNEE, LIBELLES_CRITERE_SEMAINE
 from interface import graphiques as g
-from interface.composants import bandeau_hypotheses, cartes
+from interface.composants import bandeau_hypotheses, cartes, titre_fichier
+from config.reglages import COULEUR_FICHIER_1
 from interface.format_fr import date_longue, periode_longue
 
 # ============================================================
 # PARAMÈTRES
 # ============================================================
-CONFIG_PLOTLY = {"displaylogo": False, "scrollZoom": True}
+CONFIG_PLOTLY = g.CONFIG_PLOTLY          # zoom à la molette + mois et virgule en français
 CRITERES_SEMAINE_TEXTE = {"moyenne": "température moyenne la plus élevée sur 7 jours",
                           "moyenne_max": "moyenne des maximales la plus élevée sur 7 jours",
                           "pointe_max": "semaine centrée sur la pointe de chaleur"}
@@ -51,6 +52,7 @@ def source(serie):
 
 
 def afficher(analyse, resultats, reglage, hyp, aller_methode):
+    titre_fichier(analyse.serie, COULEUR_FICHIER_1)      # nom du fichier en gros, point de sa couleur
     cartes(resultats, hyp)
     bandeau_hypotheses(reglage, analyse, hyp, LIBELLES_CRITERE_SEMAINE, aller_methode)
 

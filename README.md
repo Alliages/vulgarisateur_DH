@@ -6,7 +6,7 @@ journée et semaine les plus chaudes), comparer deux fichiers et créer des jour
 > Les DH sont calculés sur la **température extérieure** : c'est un indicateur de sévérité du climat,
 > pas le DH d'un bâtiment.
 
-Version : voir `CHANGELOG.md` (0.8.0, non fonctionnelle).
+Version : voir `CHANGELOG.md` (0.8.4, non fonctionnelle).
 
 ## Lancer en local
 
@@ -14,6 +14,22 @@ Version : voir `CHANGELOG.md` (0.8.0, non fonctionnelle).
 pip install -r requirements.txt
 streamlit run app.py
 ```
+
+### Sous Windows (Anaconda)
+
+Une version de pyarrow en conflit dans Anaconda fait planter les tableaux interactifs
+(`ImportError: DLL load failed while importing lib`). Le plus simple : un environnement dédié, dans le dossier de l'outil.
+
+```bat
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Sans cet environnement, l'outil reste utilisable : s'il ne peut pas charger pyarrow, il remplace les tableaux
+interactifs par un formulaire simple (onglet Créer) et des tableaux fixes (onglet Méthode).
+Pour tester ce mode : variable d'environnement `METEO_SANS_PYARROW=1`.
 
 ## Organisation
 
