@@ -3,6 +3,18 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.7 — version de test (01/11/2026), corrections
+
+- Graphique de l'année (Analyser) simplifié : plus de bandes ni de points violets, ni d'étiquette « nuit la plus
+  chaude » ; les nuits ≥ 20 °C sont des barres bleu clair dans une bande sous les DH (bleu nuit foncé, plus
+  hautes, si ≥ 24 °C), étiquetées à gauche. Titre « Températures fichier · <fichier> », sous-titre = les trois
+  indicateurs. Axe des DH du jour jusqu'à 300 °C.h (plus si un jour dépasse), graduations de 50.
+- Axe des DH de la couleur des barres (caramel) sur tous les graphiques.
+- « Température(s) extérieure(s) » devient « température(s) fichier » dans le code et la documentation
+  (sauf `calcul/dh_re2020.py`, où le paramètre `t_exterieure` est bien la température extérieure de la
+  formule RE2020). L'outil est fait, en base, pour des températures extérieures, mais accepte tout fichier
+  horaire, y compris des températures intérieures simulées (README, page « Ce que mesure l'outil »).
+
 ## 0.9.5 — version de test (01/11/2026), corrections
 
 - Fenêtre de choix : les tuiles de zone et de fichier sont cliquables sur toute leur surface (le bouton

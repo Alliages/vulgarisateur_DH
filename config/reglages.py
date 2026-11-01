@@ -9,7 +9,7 @@
 """
 
 # --- Version (dernier chiffre pair = gros changement, impair = correction) ---
-VERSION = "0.9.5"
+VERSION = "0.9.7"
 STATUT_VERSION = "version de test"
 
 # --- Réglage par défaut (= RE2020) ---------------------------------------

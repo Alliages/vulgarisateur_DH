@@ -21,7 +21,7 @@ from interface.outils import PYARROW_DISPONIBLE
 # ============================================================
 DOSSIER_PAGES = os.path.join(RACINE, "docs", "pages")
 PAGE_HYPOTHESES = "Hypothèses (tableau)"
-PAGE_THETA = "Température extérieure lissée (graphique)"
+PAGE_THETA = "Température fichier lissée (graphique)"
 
 
 @st.cache_data
@@ -67,7 +67,7 @@ def afficher(analyse_a, hyp):
             else:                                   # secours sans pyarrow : tableau HTML simple
                 st.markdown(tableau_html(df.rename(columns={"libelle": "hypothèse"})), unsafe_allow_html=True)
         elif choix == PAGE_THETA:
-            st.markdown("### Température extérieure lissée : pourquoi deux calculs ?")
+            st.markdown("### Température fichier lissée : pourquoi deux calculs ?")
             s = analyse_a.serie
             if not s.annee_complete:
                 st.info("Graphique disponible pour une année complète.")
@@ -76,7 +76,7 @@ def afficher(analyse_a, hyp):
             x = pd.date_range(f"{s.horodatage[0].year}-01-01", periods=tm.size, freq="D")
             re = moyenne_glissante_exterieure(s.t)
             en = theta_rm_en16798(tm)
-            st.write("La température extérieure lissée est une moyenne des jours précédents, où chaque jour compte un "
+            st.write("La température fichier lissée est une moyenne des jours précédents, où chaque jour compte un "
                      "peu moins que le suivant (notée θrm dans la méthode). La RE2020 la calcule par récurrence "
                      "(valeur 0 le 1er janvier) ; la norme EN 16798-1 et pythermalcomfort sur les 7 derniers jours. "
                      f"Écart maximal de mai à septembre pour ce fichier : "

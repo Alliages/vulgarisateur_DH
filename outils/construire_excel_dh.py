@@ -303,7 +303,7 @@ def main():
     # ---------------------------------------------------------
     # Onglet Résultats
     # ---------------------------------------------------------
-    ws_r["A1"] = f"DH basic et DH réel — zone {ZONE}, température extérieure {PARAMETRES[0][1]}"
+    ws_r["A1"] = f"DH basic et DH réel — zone {ZONE}, température fichier {PARAMETRES[0][1]}"
     ws_r["A1"].font = F_TITRE
     ws_r["A2"] = ("Colonnes Python : valeurs de dh_re2020.calculer_dh avec les paramètres par défaut. "
                   "Si vous modifiez un paramètre, l'écart n'est plus nul : relancez le script Python.")
@@ -394,7 +394,7 @@ def main():
         ("Recalculer en formules Excel les degrés-heures (DH) d'une série horaire de 8760 températures, "
          "et comparer au module Python dh_re2020.calculer_dh (onglet Résultats, colonnes Écart).", F_NORMAL),
         ("Données : " + SOURCE_METEO + ". Fichier horaire en UTC.", F_NORMAL),
-        ("Les DH sont calculés sur la température extérieure (indicateur climatique), pas sur la température "
+        ("Les DH sont calculés sur la température fichier (indicateur climatique), pas sur la température "
          "opérative d'un bâtiment.", F_NORMAL),
         ("", F_NORMAL),
         ("DH basic", F_GRAS),

@@ -468,7 +468,7 @@ def bandeau_hypotheses(reglage, analyse, hyp, libelles_semaine, aller_methode=No
     puces = []
     if analyse.methode_effective == "RE2020":
         puces += [f"RE2020 · seuil {hyp['seuil_nuit_dh']['valeur']:g} → {hyp['seuil_jour_max']['valeur']:g} °C",
-                  "température extérieure lissée (RE2020)"]
+                  "température fichier lissée (RE2020)"]
     else:
         puces.append(f"basic · {hyp['seuil_nuit_dh']['valeur']:g} °C nuit / {hyp['seuil_jour_max']['valeur']:g} °C jour")
     puces.append("occupation logement (provisoire)" if reglage["occupation"] else "24h/24, sans occupation")

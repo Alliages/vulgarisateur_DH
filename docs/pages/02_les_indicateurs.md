@@ -1,7 +1,7 @@
 # Les indicateurs
 DH : somme, heure par heure, de max(0 ; T − seuil) sur les heures retenues.
 
-Méthode RE2020 : seuil de [[hyp:seuil_nuit_dh]] °C la nuit ; le jour, 0,33 × (température extérieure lissée) + 20,8 limité entre [[hyp:seuil_nuit_dh]] et [[hyp:seuil_jour_max]] °C ; DH comptés seulement pendant la période de confort adaptatif (température extérieure lissée ≥ [[hyp:seuil_periode_adaptative]] °C).
+Méthode RE2020 : seuil de [[hyp:seuil_nuit_dh]] °C la nuit ; le jour, 0,33 × (température fichier lissée) + 20,8 limité entre [[hyp:seuil_nuit_dh]] et [[hyp:seuil_jour_max]] °C ; DH comptés seulement pendant la période de confort adaptatif (température fichier lissée ≥ [[hyp:seuil_periode_adaptative]] °C).
 
 Méthode basic : [[hyp:seuil_nuit_dh]] °C la nuit, [[hyp:seuil_jour_max]] °C le jour, toute l'année.
 

@@ -34,7 +34,7 @@ CONFIG_PLOTLY = {"displaylogo": False, "scrollZoom": True, "locale": "fr", "loca
 EPAISSEUR_AXE = 2
 TAILLE_FLECHE = 1.4
 POLICE = "Inter, Segoe UI, sans-serif"
-JAUNE_FONCE = "#B8860B"               # axe, texte et titre d'axe des DH
+JAUNE_FONCE = CARAMEL                 # axe, graduations et titre « °C.h » des DH : la couleur des barres
 ORANGE_FONCE = "#B5651D"              # trait et texte de la bande « au-dessus de 28 °C »
 GRIS_INOCCUPE = "rgba(39,41,50,0.08)" # heures d'absence (scénario d'occupation)
 GRILLE = "#ECEAE6"
@@ -58,7 +58,6 @@ PX_TITRE_AXE = 24                     # titre d'axe horizontal au-dessus du trac
 # --- Échelles ---
 DEGRES_BANDE_NUITS = 10              # °C libres sous les courbes de l'été superposé (étiquettes de nuit)
 Y_ECART_ETE = 0.72                    # position (paper) de l'écart moyen écrit : haut gauche, sous les étiquettes Tmax
-DEGRES_ETIQUETTE_NUIT = 2.5           # °C au-dessus du maximum : hauteur de l'étiquette « nuit la plus chaude »
 MARGE_HAUT_DEGRES = 9                 # °C libres au-dessus du maximum (noms des mois + étiquettes)
 PART_DH = 3.2                         # année : l'axe des DH monte à PART_DH × max (barres dans le tiers bas)
 PART_DH_PERIODE = 1.5                 # semaine et journée : barres sur les deux tiers de la hauteur
@@ -66,7 +65,15 @@ PART_DH_PERIODE = 1.5                 # semaine et journée : barres sur les deu
 # --- Nuits chaudes (Comparer) : une case par nuit, du clair au foncé ---
 COULEURS_NUITS = ["#ECEAF3", "#8C86B8", INDIGO]   # < 20 °C · tropicale (≥ 20 °C) · très chaude (≥ 24 °C)
 HAUTEUR_NUITS = 350
-FOND_NUIT_CHAUDE = "rgba(140,134,184,0.16)"   # bande violette claire sur chaque nuit tropicale (graphique de l'année)
+# --- Graphique de l'année : bande des nuits sous les DH ---
+BLEU_NUIT_CLAIR = "#8A9BD6"           # nuit tropicale (≥ 20 °C)
+BLEU_NUIT_FONCE = "#111845"           # nuit très chaude (≥ 24 °C)
+PART_BANDE_NUITS = 0.10               # hauteur de la bande des nuits (part du tracé)
+HAUTEUR_NUIT_TROPICALE, HAUTEUR_NUIT_TRES_CHAUDE = 0.55, 0.95   # dans la bande (1 = toute la bande)
+LARGEUR_BARRE_NUIT_MS = 16 * 3600 * 1000   # largeur d'une barre de nuit (lisible au dézoom)
+DEGRES_BANDE_NUITS_ANNEE = 7          # °C ajoutés sous le minimum de température (place de la bande)
+DH_MAX_ANNEE, PAS_DH_ANNEE = 300, 50  # axe des DH du jour : haut vers 300 °C.h, graduations de 50
+MARGE_HAUT_DH = 1.06                  # l'axe monte 6 % au-dessus de la dernière graduation
 DEMI_HAUTEUR_CASE = 0.29              # demi-hauteur d'une rangée de cases (unités de l'axe Y) : cadre ajusté aux cases
 ECART_LIGNES_NUITS = 46               # px entre les deux rangées de nuits (place pour l'étiquette « de suite »)
 FORMAT_DATE = "%-d %B"                # « 10 juin » (mois en français grâce à CONFIG_PLOTLY)
@@ -222,13 +229,15 @@ def _ecart_texte(ecart):
 
 def serie_annuelle(analyse, lignes, fenetre, source, seuil_tropical=20.0, seuil_tres_chaud=24.0, nuit_debut=22,
                    nuit_fin=6):
-    """Moyenne journalière + bande min-max (rouge clair) + horaire fin + DH du jour en barres jaunes,
-    nuits ≥ 20 °C (bandes et points violets), extrêmes annotés, zoom."""
-    s, jours = analyse.serie, analyse.jours
+    """
+    Températures du fichier (moyenne du jour, bande min-max rouge clair, horaire fin), DH du jour en barres
+    caramel, et en bas une bande « nuits » : une barre bleue par nuit ≥ 20 °C (bleu nuit foncé si ≥ 24 °C).
+    Seul le Tmax est annoté. Zoom par la molette ou le curseur.
+    """
+    s, jours, nuits = analyse.serie, analyse.jours, analyse.nuits_detail
     midi = jours.index + pd.Timedelta(hours=12)
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    fig.add_trace(go.Bar(x=midi, y=jours["dh"], name="DH du jour", marker_color=CARAMEL, opacity=0.85,
-                         hovertemplate="DH du jour %{y:.0f} °C.h"), secondary_y=True)
+    # 1. Températures du fichier
     fig.add_trace(go.Scatter(x=midi, y=jours["tmax"], line=dict(width=0), showlegend=False, hoverinfo="skip"),
                   secondary_y=False)
     fig.add_trace(go.Scatter(x=midi, y=jours["tmin"], fill="tonexty", fillcolor=transparent(CORAIL, 0.18),
@@ -240,56 +249,52 @@ def serie_annuelle(analyse, lignes, fenetre, source, seuil_tropical=20.0, seuil_
     fig.add_trace(go.Scatter(x=midi, y=jours["tmoy"], mode="lines", name="Moyenne de la journée",
                              line=dict(color=CORAIL, width=2.4), hovertemplate="moyenne %{y:.1f} °C"),
                   secondary_y=False)
-    fig.add_trace(go.Scatter(x=s.horodatage, y=analyse.seuil, mode="lines", name="Seuil DH", visible="legendonly",
-                             line=dict(color=GRIS, width=1, shape="hv"), hovertemplate="seuil %{y:.0f} °C"),
-                  secondary_y=False)
-    # Nuits chaudes : bande violette claire sur la nuit + point au minimum de la nuit (couleurs de Comparer)
-    nuits = analyse.nuits_detail
-    for seuil, plafond, couleur, nom, taille in (
-            (seuil_tropical, seuil_tres_chaud, COULEURS_NUITS[1], f"Nuit tropicale (min ≥ {seuil_tropical:g} °C)", 7),
-            (seuil_tres_chaud, np.inf, COULEURS_NUITS[2], f"Nuit très chaude (min ≥ {seuil_tres_chaud:g} °C)", 8)):
-        choix = nuits[(nuits["tmin"] >= seuil) & (nuits["tmin"] < plafond)]
-        if choix.empty:
-            continue
-        fig.add_trace(go.Scatter(x=choix["quand"], y=choix["tmin"], mode="markers", name=nom,
-                                 marker=dict(color=couleur, size=taille, line=dict(color="white", width=1)),
-                                 customdata=[f"nuit du {jour_mois(d)}" for d in choix.index],
-                                 hovertemplate="%{customdata} : %{y:.1f} °C au plus bas<extra></extra>"),
-                      secondary_y=False)
-    for d in nuits.index[nuits["tmin"] >= seuil_tropical]:
-        fig.add_vrect(x0=d + pd.Timedelta(hours=nuit_debut), x1=d + pd.Timedelta(days=1, hours=nuit_fin),
-                      fillcolor=FOND_NUIT_CHAUDE, line_width=0, layer="below")
-    # Extrêmes : température maximale et nuit la plus chaude (minimum nocturne le plus élevé)
+    # 2. DH du jour (caramel plein), au-dessus de la bande des nuits
+    fig.add_trace(go.Bar(x=midi, y=jours["dh"], name="DH du jour", marker_color=CARAMEL,
+                         hovertemplate="DH du jour %{y:.0f} °C.h"), secondary_y=True)
+    # 3. Nuits ≥ 20 °C : une barre par nuit dans la bande basse (axe y3 propre aux nuits, invisible)
+    chaudes = nuits[nuits["tmin"] >= seuil_tropical]
+    tres_chaudes = chaudes["tmin"] >= seuil_tres_chaud
+    milieu_nuit = (24 - nuit_debut + nuit_fin) / 2
+    for masque, couleur, hauteur, nom in (
+            (~tres_chaudes, BLEU_NUIT_CLAIR, HAUTEUR_NUIT_TROPICALE, "Nuit tropicale"),
+            (tres_chaudes, BLEU_NUIT_FONCE, HAUTEUR_NUIT_TRES_CHAUDE, "Nuit très chaude")):
+        groupe = chaudes[masque]
+        fig.add_trace(go.Bar(x=groupe.index + pd.Timedelta(hours=nuit_debut + milieu_nuit), y=[hauteur] * len(groupe),
+                             width=LARGEUR_BARRE_NUIT_MS, marker_color=couleur, name=nom, yaxis="y3",
+                             customdata=[f"nuit du {jour_mois(d)} : {nombre(t)} °C au plus bas"
+                                         for d, t in groupe["tmin"].items()],
+                             hovertemplate="%{customdata}<extra></extra>", showlegend=True))
+    # 4. Tmax : la seule annotation
     i_max = int(np.argmax(s.t))
     t_max = s.horodatage[i_max]
     annoter(fig, t_max, s.t[i_max], f"<b>Tmax : {nombre(s.t[i_max])} °C</b><br>{jour_mois(t_max)} à {heure(t_max)}",
             CORAIL, ax=95, ay=-22, secondary_y=False)
-    if not analyse.nuits_detail.empty:
-        n = analyse.nuits_detail.loc[analyse.nuits_detail["tmin"].idxmax()]
-        # étiquette dans la bande libre du haut, à gauche (Tmax est à droite) : elle ne masque pas les courbes
-        fig.add_trace(go.Scatter(x=[n["quand"]], y=[n["tmin"]], mode="markers", showlegend=False, hoverinfo="skip",
-                                 marker=dict(color=INDIGO, size=9, line=dict(color="white", width=1.5))),
-                      secondary_y=False)
-        fig.add_annotation(x=n["quand"], y=n["tmin"], xref="x", yref="y", ax=-150, ayref="y",
-                           ay=float(np.max(s.t)) + DEGRES_ETIQUETTE_NUIT, showarrow=True, arrowhead=0,
-                           arrowwidth=1.2, arrowcolor=INDIGO, font=dict(size=12, color=GRIS), align="left",
-                           bgcolor="rgba(255,255,255,0.9)",
-                           text=f"<b>Nuit la plus chaude : {nombre(n['tmin'])} °C au plus bas</b><br>"
-                                f"nuit du {jour_mois(n.name)} ({heure(n['quand'])})")
-    styler(fig, f"Température extérieure · {s.libelle}",
-           "Courbe : moyenne de chaque journée · rouge clair : écart entre le minimum et le maximum du jour · "
-           "trait fin : heure par heure<br>"
-           f"barres jaunes : DH du jour · violet : nuits ≥ {seuil_tropical:g} °C (point au minimum de la nuit). "
-           "Molette ou curseur pour zoomer.",
-           HAUTEUR_PRINCIPAL, double_axe=True, source=source)
-    axe_dh(fig, jours["dh"].max() if len(jours) else 1)
+    styler(fig, f"Températures fichier · {s.libelle}",
+           f"Température fichier · DH du jour · Nuits tropicales (≥ {seuil_tropical:g} °C) et très chaudes "
+           f"(≥ {seuil_tres_chaud:g} °C)", HAUTEUR_PRINCIPAL, double_axe=True, source=source)
+    # Axe des DH : de la couleur des barres, haut vers 300 °C.h (plus si un jour dépasse), graduations de 50 ;
+    # son zéro est relevé pour laisser la bande des nuits dessous
+    haut_dh = max(DH_MAX_ANNEE, float(np.ceil(float(jours["dh"].max() or 0) * 1.1 / PAS_DH_ANNEE) * PAS_DH_ANNEE))
+    sommet = haut_dh * MARGE_HAUT_DH                      # la dernière graduation reste sous le titre « °C.h »
+    bas_dh = -sommet * PART_BANDE_NUITS / (1 - PART_BANDE_NUITS)
+    axe_dh(fig, haut_dh / PART_DH)
+    fig.update_yaxes(range=[bas_dh, sommet], secondary_y=True, tickvals=list(range(0, int(haut_dh) + 1, PAS_DH_ANNEE)))
+    fig.add_hline(y=0, line=dict(color="#C9C6BF", width=1), secondary_y=True)
+    fig.update_layout(yaxis3=dict(overlaying="y", range=[0, 1 / PART_BANDE_NUITS], visible=False, fixedrange=True),
+                      barmode="overlay", bargap=0.15)
+    for texte, couleur, y in ((f"nuits ≥ {seuil_tres_chaud:g} °C", BLEU_NUIT_FONCE, PART_BANDE_NUITS * 0.78),
+                              (f"nuits ≥ {seuil_tropical:g} °C", BLEU_NUIT_CLAIR, PART_BANDE_NUITS * 0.30)):
+        fig.add_annotation(x=0.004, xref="paper", y=y, yref="paper", xanchor="left", yanchor="middle",
+                           text=f"<b>{texte}</b>", showarrow=False, font=dict(size=11, color=couleur))
     lignes_horizontales(fig, lignes, sous_graphiques=True)
     axe_mois(fig, s.horodatage[0], s.horodatage[-1])
-    fig.update_yaxes(range=[float(np.floor(np.min(s.t) / 5) * 5), float(np.max(s.t)) + MARGE_HAUT_DEGRES],
-                     secondary_y=False)
+    # Températures : un peu de place sous le minimum pour la bande des nuits, pas de graduation dedans
+    bas_t = float(np.floor(np.min(s.t) / 5) * 5)
+    fig.update_yaxes(range=[bas_t - DEGRES_BANDE_NUITS_ANNEE, float(np.max(s.t)) + MARGE_HAUT_DEGRES],
+                     tickvals=list(range(int(bas_t) + 10, int(np.max(s.t)) + 10, 10)), secondary_y=False)
     fig.update_xaxes(type="date", rangeslider=dict(visible=True, thickness=0.07, bgcolor="#EEF8FF"),
                      range=list(fenetre) if fenetre else None)
-    fig.update_layout(bargap=0.15)
     return fig
 
 
@@ -576,7 +581,7 @@ def deux_temperatures_lissees(x, re2020, en16798, seuil):
                              line=dict(color=BLEU_MENU, width=2, dash="dash"), hovertemplate="%{y:.1f} °C"))
     fig.add_hline(y=seuil, line=dict(color=CORAIL, width=1, dash="dot"), annotation_text=f"{seuil:g} °C",
                   annotation_position="right", annotation_font=dict(color=CORAIL))
-    styler(fig, "Température extérieure lissée : deux façons de la calculer",
+    styler(fig, "Température fichier lissée : deux façons de la calculer",
            f"Au-dessus de {seuil:g} °C, la méthode RE2020 compte les DH (période de confort adaptatif)",
            HAUTEUR_SECONDAIRE)
     fig.update_xaxes(hoverformat="%A %-d %B")

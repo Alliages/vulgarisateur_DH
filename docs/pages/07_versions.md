@@ -10,3 +10,5 @@
 0.9.4 : version de test. Menu (bouton de repli toujours visible, carte du fichier entièrement cliquable), sources retirées sous les graphiques, nouveau pied de page avec le lien vers le code source, README réécrit.
 
 0.9.5 : corrections. Tuiles de la fenêtre de choix cliquables sur toute leur surface, retour de la carte du fichier de la 0.9.2 dans le menu, nuits ≥ 20 °C sur le graphique de l'année, message Windows sans conséquence masqué dans la console.
+
+0.9.7 : corrections. Graphique de l'année simplifié (nuits ≥ 20 °C en barres sous les DH, axe des DH jusqu'à 300 °C.h), « température fichier » à la place de « température extérieure ».

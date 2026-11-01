@@ -2,7 +2,7 @@
 ============================================================
  SÉRIE MÉTÉO — chargement, contrôle, heure légale
 ============================================================
- Une SerieMeteo est une température extérieure horaire avec :
+ Une SerieMeteo est une température fichier horaire avec :
    - ses horodatages en HEURE LÉGALE (toutes les définitions
      jour / nuit / occupation s'y appliquent) ;
    - le décalage UTC → légal (pour la méthode RE2020) ;
