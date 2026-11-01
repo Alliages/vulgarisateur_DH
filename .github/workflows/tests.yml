@@ -1,0 +1,33 @@
+# ============================================================
+#  TESTS — à chaque envoi sur GitHub (push) et proposition de modification (pull request)
+# ============================================================
+#  1. Documentation à jour : config/*.csv et docs/pages/ doivent correspondre à docs/sources/
+#     (sinon : lancer « python outils/convertir_docs.py » et envoyer le résultat).
+#  2. Tests automatiques (moteur, indicateurs, import, export, interface).
+#  3. Failles connues dans les dépendances de l'application (pip-audit).
+# ============================================================
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Installer les dépendances
+        run: python -m pip install -r requirements-dev.txt
+      - name: Documentation à jour (Word et Excel → pages et CSV)
+        run: |
+          python outils/convertir_docs.py
+          git diff --exit-code -- config docs/pages
+      - name: Tests
+        run: python -m pytest -q
+      - name: Failles connues dans les dépendances
+        run: pip-audit -r requirements.txt

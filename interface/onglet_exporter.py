@@ -10,10 +10,11 @@ import html
 import numpy as np
 import streamlit as st
 
-from config.reglages import COULEUR_FICHIER_1, COULEUR_FICHIER_2, LIBELLES_METHODE
+from calcul.format_fr import nombre
+from config.charte import COULEUR_FICHIER_1, COULEUR_FICHIER_2
+from config.reglages import LIBELLES_METHODE
 from export.export import (ENCODAGE_CSV, FichierExport, csv_export, excel_export, nom_de_fichier, tableau_copier,
                            tableau_horaire, texte_copier)
-from interface.format_fr import nombre
 
 # ============================================================
 # PARAMÈTRES

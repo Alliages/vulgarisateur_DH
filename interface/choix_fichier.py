@@ -26,10 +26,10 @@ from typing import Callable
 import pandas as pd
 import streamlit as st
 
-from config.reglages import (CARAMEL, CORAIL, COULEUR_FICHIER_1, COULEUR_FICHIER_2, FAMILLE_IMPORTES, FAMILLES,
-                             FICHIER_DEFAUT, ONGLET_ANALYSER, ONGLET_COMPARER)
-from interface.composants import melange
-from interface.format_fr import nombre
+from calcul.format_fr import nombre
+from config.charte import CARAMEL, CORAIL, COULEUR_FICHIER_1, COULEUR_FICHIER_2
+from config.reglages import FAMILLE_IMPORTES, FAMILLES, FICHIER_DEFAUT, ONGLET_ANALYSER, ONGLET_COMPARER
+from interface.couleurs import degrade, melange
 
 # ============================================================
 # PARAMÈTRES
@@ -42,6 +42,7 @@ CLE_IMPORTES = "importes"                # {nom : SerieMeteo} chargés pendant l
 CLE_FICHIER_C = "fichier_C"              # série créée dans l'onglet Créer
 PREFIXE_IMPORTE = "importe:"
 NB_RECENTS = 3
+NB_IMPORTS_MAX = 5                       # fichiers importés gardés par session (mémoire du serveur partagé)
 
 # --- Fenêtre de choix ---
 FAMILLE_CARTE = "RE2020"                 # famille présentée par zones sur la carte schématique
@@ -237,14 +238,6 @@ def _fermer():
     st.session_state[D_FERMER] = True
 
 
-def _degrade(part: float) -> str:
-    """Couleur de la barre : caramel (moins chaud) → corail (plus chaud)."""
-    a, b = CARAMEL.lstrip("#"), CORAIL.lstrip("#")
-    ca = [int(a[k:k + 2], 16) for k in (0, 2, 4)]
-    cb = [int(b[k:k + 2], 16) for k in (0, 2, 4)]
-    return "#" + "".join(f"{round(x + (y - x) * part):02x}" for x, y in zip(ca, cb))
-
-
 def _etape(numero: str, texte: str, petit: str = ""):
     st.markdown(f'<div class="etape"><span class="num">{numero}</span>{html.escape(texte)}'
                 f'{f"<small>{html.escape(petit)}</small>" if petit else ""}</div>', unsafe_allow_html=True)
@@ -276,7 +269,7 @@ def _carte_zones(src: Sources, couleur: str):
                         f'<div class="tuile zone{" choisie" if choisie else ""}" style="--c:{couleur};'
                         f'--fond-choisi:{melange(couleur, 0.07)}"><div class="code">{zone}</div>'
                         f'<div class="station">{html.escape(stations.get(zone, ""))}</div>'
-                        f'<div class="jauge"><div style="width:{100 * part:.0f}%;background:{_degrade(part)}"></div></div>'
+                        f'<div class="jauge"><div style="width:{100 * part:.0f}%;background:{degrade(CARAMEL, CORAIL, part)}"></div></div>'
                         f'<div class="chiffre">DH canicule <b>{nombre(dh[zone], 0)}</b></div></div>',
                         unsafe_allow_html=True)
                     st.button(f"Zone {zone}", key=f"b_zone_{zone}", on_click=_choisir_zone, args=(zone, src),
@@ -290,8 +283,8 @@ def _cartes_fichiers(cles: list, src: Sources, couleur: str, cle_en_cours: str, 
     colonnes = st.columns(nb_colonnes, gap="small")
     for n, cle in enumerate(cles):
         i, r = infos(cle, src), src.resume(cle)
-        badges = ("".join([f'<span class="badge defaut">par défaut</span>' if cle == FICHIER_DEFAUT else "",
-                           f'<span class="badge encours">en cours</span>' if cle == cle_en_cours else ""]))
+        badges = ("".join(['<span class="badge defaut">par défaut</span>' if cle == FICHIER_DEFAUT else "",
+                           '<span class="badge encours">en cours</span>' if cle == cle_en_cours else ""]))
         chiffres = (f'<div><b class="rouge">{"—" if r["dh"] is None else nombre(r["dh"], 0)}</b>DH (°C.h)</div>'
                     f'<div><b class="nuit">{"—" if r["nuits_20"] is None else nombre(r["nuits_20"], 0)}</b>'
                     f'nuits ≥ 20 °C</div><div><b>{nombre(r["tmax"], 1)} °C</b>T max</div>')
@@ -312,16 +305,29 @@ def _cartes_fichiers(cles: list, src: Sources, couleur: str, cle_en_cours: str, 
 def _importer(src: Sources):
     """Import d'un CSV horaire : il rejoint la famille « Importés » et devient le fichier choisi."""
     _etape("+", "Importer un fichier CSV horaire", "colonnes heure;T ou date;heure;T · gardé pendant la session")
+    if len(importes()) >= NB_IMPORTS_MAX:
+        st.info(f"{NB_IMPORTS_MAX} fichiers déjà importés pendant cette session : rechargez la page pour en importer "
+                "d'autres.")
+        return
     fichier = st.file_uploader("Fichier", type=["csv", "txt"], label_visibility="collapsed", key="dlg_fichier_import")
     base = st.radio("Base horaire du fichier", BASES_HORAIRES, horizontal=True, key="dlg_base_import")
     if fichier is not None and st.button("Charger ce fichier", type="primary", key="dlg_charger"):
         try:
             s = src.importer(fichier.getvalue(), fichier.name, base)
-        except ValueError as e:
+        except ValueError as e:                            # format reconnu mais incorrect : message en français
             st.error(str(e))
             return
-        importes()[s.libelle] = s
-        st.session_state[D_APRES_IMPORT] = PREFIXE_IMPORTE + s.libelle
+        except Exception as e:                             # autre cas : message clair, détail dans la console
+            print(f"Import de « {fichier.name} » impossible : {e!r}", flush=True)
+            st.error("Ce fichier n'a pas pu être lu. Formats acceptés : heure;T (une année), date;heure;T ou "
+                     "horodatage;T, séparateur « ; » ou « , ».")
+            return
+        nom, n = s.libelle, 2
+        while nom in importes():                           # deux imports du même nom : le second devient « (2) »
+            nom, n = f"{s.libelle} ({n})", n + 1
+        s.libelle = nom
+        importes()[nom] = s
+        st.session_state[D_APRES_IMPORT] = PREFIXE_IMPORTE + nom
         st.rerun(scope="fragment")
 
 

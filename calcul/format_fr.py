@@ -3,6 +3,10 @@
  FORMAT_FR — dates et nombres en français (sans dépendre de la
  locale du système ni de celle de Plotly)
 ============================================================
+ Rangé dans calcul/ (et non interface/) : les textes des
+ indicateurs (« du 3 août au 14 août ») sont écrits par le moteur,
+ qui ne dépend pas de Streamlit.
+============================================================
 """
 
 import pandas as pd
@@ -22,9 +26,20 @@ def jour_mois(d: pd.Timestamp) -> str:
     return f"{'1er' if d.day == 1 else d.day} {MOIS[d.month - 1]}"
 
 
+def jour_mois_court(d: pd.Timestamp) -> str:
+    """« 1er août », « 11 juil. » (textes courts des cartes)."""
+    return f"{'1er' if d.day == 1 else d.day} {MOIS_COURTS[d.month - 1]}"
+
+
+def jour_slash_mois(mm_jj: str) -> str:
+    """« 06-01 » (format des hypothèses) → « 1/06 »."""
+    mois, jour = str(mm_jj).split("-")
+    return f"{int(jour)}/{mois}"
+
+
 def date_longue(d: pd.Timestamp, avec_annee: bool = False) -> str:
     """« lundi 6 août » (+ « 2026 » pour un relevé daté)."""
-    return f"{JOURS[d.dayofweek]} {jour_mois(d)}" + (f" {d.year}" if avec_annee else "")
+    return f"{JOURS[d.day_of_week]} {jour_mois(d)}" + (f" {d.year}" if avec_annee else "")
 
 
 def periode_longue(debut: pd.Timestamp, fin: pd.Timestamp, avec_annee: bool = False) -> str:
@@ -33,7 +48,7 @@ def periode_longue(debut: pd.Timestamp, fin: pd.Timestamp, avec_annee: bool = Fa
 
 def jour_court(d: pd.Timestamp) -> str:
     """« lun. 6 août » pour les graduations de la semaine (date au format long)."""
-    return f"{JOURS_COURTS[d.dayofweek]} {jour_mois(d)}"
+    return f"{JOURS_COURTS[d.day_of_week]} {jour_mois(d)}"
 
 
 def heure(d: pd.Timestamp) -> str:

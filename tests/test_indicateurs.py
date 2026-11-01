@@ -3,7 +3,8 @@ import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from calcul.hypotheses import charger_hypotheses, charger_indicateurs
-from calcul.indicateurs import analyser, calculer_indicateurs
+from calcul.analyse import analyser
+from calcul.indicateurs import calculer_indicateurs
 from calcul.serie import charger_catalogue, charger_serie
 from config.reglages import REGLAGE_RE2020
 

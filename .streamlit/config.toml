@@ -7,6 +7,8 @@ font = "sans serif"
 
 [server]
 headless = true
+# Import d'un fichier météo : 5 Mo au plus (une année horaire pèse environ 0,2 Mo)
+maxUploadSize = 5
 
 [browser]
 gatherUsageStats = false

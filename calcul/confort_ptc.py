@@ -3,12 +3,13 @@
  CONFORT_PTC — SEUL POINT DE CONTACT AVEC PYTHERMALCOMFORT
 ============================================================
  Toutes les fonctions de la librairie pythermalcomfort utilisées
- par Météo et Chaleur passent par ce fichier. Si une mise à jour
- de la librairie change un comportement, on ne corrige qu'ici
- (et tests/test_confort_ptc.py le détecte).
+ par Météo et Chaleur passent par ce fichier.
 
- Si pythermalcomfort n'est pas installé, des formules de repli
- équivalentes sont utilisées (signalées par PTC_DISPONIBLE = False).
+ Depuis la 0.9.8, la librairie n'est PLUS installée avec l'outil
+ (requirements.txt) : son chargement retardait le démarrage en ligne
+ d'environ 11 s. Les formules de repli ci-dessous, identiques, sont
+ alors utilisées (PTC_DISPONIBLE = False). La librairie reste la
+ référence des tests (requirements-dev.txt, tests/test_confort_ptc.py).
 ============================================================
 """
 

@@ -1,3 +1,15 @@
+# Python
 __pycache__/
 *.pyc
+.pytest_cache/
+# Environnements locaux (README : python -m venv .venv)
+.venv/
+venv/
+env/
+# Secrets et réglages locaux : ne jamais publier
+.env
+.streamlit/secrets.toml
+# Paquets Git et fichiers système
+*.bundle
 .DS_Store
+Thumbs.db

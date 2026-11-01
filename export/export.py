@@ -139,7 +139,7 @@ def tableau_horaire(fichiers) -> pd.DataFrame:
                                                                                    np.ones(len(a.serie.t), bool))
         blocs.append(pd.DataFrame({f"T {f.nom} (°C)": a.serie.t[garde], f"seuil {f.nom} (°C)": a.seuil[garde],
                                    f"DH {f.nom} (°C.h)": a.dh_h[garde]}, index=horo))
-    df = pd.concat(blocs, axis=1).sort_index()
+    df = pd.concat(blocs, axis=1, sort=True)
     seul_annee_type = len(fichiers) == 1 and fichiers[0].analyse.serie.meta.get("periode", "").startswith("année type")
     format_date = "%d/%m" if (len(fichiers) > 1 or seul_annee_type) else "%d/%m/%Y"
     df.insert(0, "heure", df.index.hour)

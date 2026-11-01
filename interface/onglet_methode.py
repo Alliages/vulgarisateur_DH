@@ -9,11 +9,11 @@ import streamlit as st
 
 from calcul.confort_ptc import theta_rm_en16798
 from calcul.dh_re2020 import moyenne_glissante_exterieure
+from calcul.format_fr import nombre
 from calcul.hypotheses import RACINE, remplacer_reperes, valeur
-from interface import graphiques as g
-from interface.format_fr import nombre
+from interface import graphiques_analyse as ga
 from interface.composants import tableau_html
-from interface.onglet_analyser import CONFIG_PLOTLY
+from interface.graphiques_communs import afficher as afficher_graphique
 from interface.outils import PYARROW_DISPONIBLE
 
 # ============================================================
@@ -22,6 +22,8 @@ from interface.outils import PYARROW_DISPONIBLE
 DOSSIER_PAGES = os.path.join(RACINE, "docs", "pages")
 PAGE_HYPOTHESES = "Hypothèses (tableau)"
 PAGE_THETA = "Température fichier lissée (graphique)"
+JOURS_ECART_MAX = slice(120, 273)        # page « température lissée » : écart maximal calculé de mai à septembre
+JOUR_ZOOM_DEBUT, JOUR_ZOOM_FIN = 90, 300  # zoom par défaut du graphique : d'avril à octobre (numéro du jour)
 
 
 @st.cache_data
@@ -78,11 +80,11 @@ def afficher(analyse_a, hyp):
             en = theta_rm_en16798(tm)
             st.write("La température fichier lissée est une moyenne des jours précédents, où chaque jour compte un "
                      "peu moins que le suivant (notée θrm dans la méthode). La RE2020 la calcule par récurrence "
-                     "(valeur 0 le 1er janvier) ; la norme EN 16798-1 et pythermalcomfort sur les 7 derniers jours. "
+                     "(valeur 0 le 1er janvier) ; la norme EN 16798-1 sur les 7 derniers jours. "
                      f"Écart maximal de mai à septembre pour ce fichier : "
-                     f"{nombre(np.nanmax(np.abs(re - en)[120:273]))} °C.")
-            fig = g.deux_temperatures_lissees(x, re, en, valeur(hyp, "seuil_periode_adaptative"))
-            fig.update_xaxes(range=[x[90], x[300]], rangeslider=dict(visible=True, thickness=0.08))
-            st.plotly_chart(fig, width="stretch", config=CONFIG_PLOTLY, theme=None)
+                     f"{nombre(np.nanmax(np.abs(re - en)[JOURS_ECART_MAX]))} °C.")
+            fig = ga.deux_temperatures_lissees(x, re, en, valeur(hyp, "seuil_periode_adaptative"))
+            fig.update_xaxes(range=[x[JOUR_ZOOM_DEBUT], x[JOUR_ZOOM_FIN]], rangeslider=dict(visible=True, thickness=0.08))
+            afficher_graphique(fig)
         else:
             st.markdown(remplacer_reperes(pages[choix], hyp).replace("\n# ", "\n### ").replace("# ", "### ", 1))

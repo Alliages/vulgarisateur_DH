@@ -4,15 +4,15 @@ import pandas as pd
 import streamlit as st
 
 from calcul import generateur
-from calcul.indicateurs import semaine_la_plus_chaude
-from calcul.hypotheses import masque_occupation
+from calcul.analyse import journees_de_la_periode_chaude, occupation_affichee
+from calcul.format_fr import date_longue, periode_longue
+from calcul.hypotheses import valeur
 from calcul.serie import serie_depuis_generateur
-from interface.format_fr import date_longue, periode_longue
-from interface import graphiques as g
-from interface.composants import cartes
-from interface.onglet_analyser import CONFIG_PLOTLY
 from config.reglages import ONGLET_COMPARER
+from interface import graphiques_analyse as ga
+from interface.cartes import cartes
 from interface.choix_fichier import CLE_FICHIER_C, CLE_SECOND
+from interface.graphiques_communs import afficher as afficher_graphique
 from interface.outils import PYARROW_DISPONIBLE
 
 # ============================================================
@@ -25,27 +25,22 @@ SEMAINE_EXEMPLE = [(28, 34.8, 19), (29, 36.2, 23.7), (29, 36.8, 23.6), (29.4, 38
 DEBUT_DEFAUT = pd.Timestamp("2026-06-22")          # un lundi
 COLONNES = ["Jour", "T° minuit", "T° pic haut", "T° pic bas", "Heure du pic", "Courbe"]
 LARGEURS_FORMULAIRE = [1.1, 1, 1, 1, 1, 1]          # formulaire de secours (sans pyarrow)
+PIC_DEFAUT, COURBE_DEFAUT = "15h", "lissée"
+SOUS_TITRE = "Courbe générée avec les formules de l'Excel Vulgarisation_DH · barres : DH de chaque heure"
 
 
 def _tableau_defaut(nb_jours):
-    return pd.DataFrame([[JOURS[i % 7], a, b, c, "15h", "lissée"] for i, (a, b, c) in
-                         enumerate(SEMAINE_EXEMPLE[:nb_jours])], columns=COLONNES)
+    return pd.DataFrame([[JOURS[i % 7], *SEMAINE_EXEMPLE[i % len(SEMAINE_EXEMPLE)], PIC_DEFAUT, COURBE_DEFAUT]
+                         for i in range(nb_jours)], columns=COLONNES)
 
 
-def _depuis_semaine_chaude(analyse_a, reglage, nb_jours):
+def _depuis_periode_chaude(analyse_a, reglage, nb_jours, jours_semaine):
     """Préremplit avec la semaine (ou la journée) la plus chaude du fichier de l'onglet Analyser."""
-    debut = semaine_la_plus_chaude(analyse_a, reglage["critere_semaine"], 7)
-    if debut is None:
+    jours = journees_de_la_periode_chaude(analyse_a, reglage["critere_semaine"], nb_jours, jours_semaine)
+    if jours is None:
         return None
-    s = analyse_a.serie
-    df = pd.DataFrame({"t": s.t}, index=s.horodatage)
-    lignes = []
-    for k in range(nb_jours):
-        d = debut + pd.Timedelta(days=k)
-        jour = df.loc[d:d + pd.Timedelta(hours=23), "t"]
-        lignes.append([JOURS[d.dayofweek], round(float(jour.iloc[0]), 1), round(float(jour.max()), 1),
-                       round(float(jour.min()), 1), "15h", "lissée"])
-    return pd.DataFrame(lignes, columns=COLONNES)
+    return pd.DataFrame([[JOURS[d.day_of_week], t0, tmax, tmin, PIC_DEFAUT, COURBE_DEFAUT] for d, t0, tmax, tmin in jours],
+                        columns=COLONNES)
 
 
 def _tableau_editable(df, cle):
@@ -66,7 +61,7 @@ def _formulaire(df, cle):
         c.caption(t)
     pics, courbes = list(generateur.H_PIC), list(generateur.COURBES)
     lignes = []
-    for i, r in df.reset_index(drop=True).iterrows():
+    for i, r in enumerate(df.to_dict("records")):
         cols = st.columns(LARGEURS_FORMULAIRE, vertical_alignment="center")
         cols[0].markdown(f"**{r['Jour']}**")
         temperatures = [cols[k].number_input(COLONNES[k], value=float(r[COLONNES[k]]), step=0.5, format="%.1f",
@@ -86,14 +81,15 @@ def _comparer_fichier_c(serie_c):
     st.session_state["onglet"] = ONGLET_COMPARER
 
 
-def afficher(analyse_a, reglage, hyp, definitions, analyser_serie, calculer):
+def afficher(analyse_a, reglage, hyp, analyser_serie, calculer):
+    jours_semaine = int(valeur(hyp, "semaine_jours"))
     mode = st.radio("Créer", ["Semaine", "Journée"], horizontal=True, key="creer_mode")
-    nb = 7 if mode == "Semaine" else 1
+    nb = jours_semaine if mode == "Semaine" else 1
     if st.session_state.get("creer_nb") != nb:
         st.session_state["creer_tableau"] = _tableau_defaut(nb)
         st.session_state["creer_nb"] = nb
     if st.button(f"↻ Préremplir avec la période la plus chaude de « {analyse_a.serie.libelle} »"):
-        t = _depuis_semaine_chaude(analyse_a, reglage, nb)
+        t = _depuis_periode_chaude(analyse_a, reglage, nb, jours_semaine)
         if t is not None:
             st.session_state["creer_tableau"] = t
             st.session_state["creer_version"] = st.session_state.get("creer_version", 0) + 1   # rafraîchit la saisie
@@ -106,17 +102,16 @@ def afficher(analyse_a, reglage, hyp, definitions, analyser_serie, calculer):
         tableau = _formulaire(st.session_state["creer_tableau"], f"form_{nb}_{version}")
 
     params = [dict(t0=r["T° minuit"], tmax=r["T° pic haut"], tmin=r["T° pic bas"], pic=r["Heure du pic"],
-                   courbe=r["Courbe"]) for _, r in tableau.iterrows()]
+                   courbe=r["Courbe"]) for r in tableau.to_dict("records")]
     t = generateur.plusieurs_jours(params, graine=1)
     serie_c = serie_depuis_generateur(t, str(DEBUT_DEFAUT.date()), f"{mode.lower()} créée")
     analyse_c = analyser_serie(serie_c)
     cartes(calculer(analyse_c), hyp)
     x = serie_c.horodatage
-    occupe = masque_occupation(x.hour.to_numpy(), x.dayofweek.to_numpy()) if reglage["occupation"] else None
-    titre = f"{mode} créée · {periode_longue(x[0], x[-1].normalize()) if nb > 1 else date_longue(x[0])} · {analyse_c.dh_h.sum():.0f} °C.h"
-    st.plotly_chart(g.courbe_dh(t, analyse_c.seuil, analyse_c.dh_h, x, titre,
-                                "Courbe générée avec les formules de l'Excel Vulgarisation_DH · barres : DH de chaque heure",
-                                "semaine" if nb > 1 else "jour", occupe), width="stretch", config=CONFIG_PLOTLY, theme=None)
+    periode = periode_longue(x[0], x[-1].normalize()) if nb > 1 else date_longue(x[0])
+    titre = f"{mode} créée · {periode} · {analyse_c.dh_h.sum():.0f} °C.h"
+    afficher_graphique(ga.courbe_dh(t, analyse_c.seuil, analyse_c.dh_h, x, titre, SOUS_TITRE,
+                                    "semaine" if nb > 1 else "jour", occupation_affichee(x, reglage["occupation"])))
     if analyse_c.message_methode:
         st.caption(f"⚠ {analyse_c.message_methode}")
     st.button("+ Comparer comme fichier C", type="primary", on_click=_comparer_fichier_c, args=(serie_c,),

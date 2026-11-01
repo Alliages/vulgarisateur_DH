@@ -1,0 +1,6 @@
+# Outils de développement et de relecture (pas nécessaires pour utiliser l'outil)
+-r requirements.txt
+pytest>=8
+pythermalcomfort==4.6.2   # référence des tests : la droite de confort du code = celle de la librairie
+mammoth>=1.6              # outils/convertir_docs.py : Word → pages Markdown
+pip-audit>=2.7            # recherche de failles connues dans les dépendances

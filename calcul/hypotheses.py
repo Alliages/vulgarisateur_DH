@@ -15,6 +15,10 @@ import re
 
 import numpy as np
 
+# Occupation conventionnelle logement (PROVISOIRE, source CEREMA, à vérifier par Guigui) : une seule
+# définition, celle de dh_re2020.py (jour de la semaine, 0 = lundi → (début, fin) d'absence, heure légale)
+from calcul.dh_re2020 import ABSENCES_LOGEMENT_RE2020 as ABSENCES_LOGEMENT
+
 # ============================================================
 # PARAMÈTRES
 # ============================================================
@@ -22,10 +26,6 @@ RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHEMIN_HYPOTHESES = os.path.join(RACINE, "config", "hypotheses.csv")
 CHEMIN_INDICATEURS = os.path.join(RACINE, "config", "indicateurs.csv")
 MOTIF_REPERE = re.compile(r"\[\[hyp:([a-z0-9_]+)\]\]")
-
-# Occupation conventionnelle logement (PROVISOIRE, source CEREMA, à vérifier par Guigui)
-# jour de la semaine (0 = lundi) → (début, fin) d'absence, fin exclue, heure légale
-ABSENCES_LOGEMENT = {0: (10, 18), 1: (10, 18), 2: (10, 14), 3: (10, 18), 4: (10, 18)}
 
 
 # ============================================================

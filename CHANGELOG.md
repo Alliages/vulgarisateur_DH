@@ -3,6 +3,59 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.8 — version de test (01/11/2026), audit du code
+
+Résultats inchangés : les 10 indicateurs des 18 fichiers du catalogue, sous 4 réglages, et les 8 graphiques ont
+été comparés avant / après (valeurs, textes, mini-graphiques et graphiques identiques ; non-régression
+839,145 °C.h). Seul ajout visible : la bulle « i » des cartes de nuit signale que les heures de nuit (22h-6h)
+sont une hypothèse de l'outil.
+
+**Indicateurs « en plugin »**
+- Un fichier par indicateur dans `calcul/indicateurs/` (`dh.py`, `nuits_20.py`…), découvert automatiquement ;
+  la teinte, l'icône et la carte principale sont déclarées dans le fichier. Modèle commenté : `_modele.py`.
+  Marche à suivre dans le README (« Ajouter un indicateur »).
+- Le contexte de calcul commun (DH horaire, jours, nuits, journée et semaine les plus chaudes, plus longue suite
+  de nuits) est dans `calcul/analyse.py` ; le calcul qui était dans l'interface y a été déplacé.
+
+**Import de fichiers plus sûr**
+- Dates `01/06/2026` lues au format français (1er juin), avec un avertissement : elles étaient lues comme le
+  6 janvier, sans message.
+- Messages clairs en français pour un fichier vide, d'une seule colonne, de longueur inattendue, avec une
+  température ou une date illisible (un fichier d'une colonne faisait planter la page).
+- Taille limitée à 5 Mo, 5 imports par visite ; nom du fichier nettoyé ; deux imports du même nom ne
+  s'écrasent plus.
+
+**Rapidité**
+- `pythermalcomfort` n'est plus installé avec l'outil : son chargement retardait d'environ 11 s chaque
+  démarrage en ligne. La formule (identique) est dans `calcul/confort_ptc.py` ; la librairie reste la
+  référence des tests (`requirements-dev.txt`, `tests/test_confort_ptc.py`).
+- Graphiques gardés en mémoire (cache) : un graphique déjà construit se réaffiche en ≈ 15 ms au lieu de
+  ≈ 200 ms (annuel, cumul des DH…).
+- Les caches se renouvellent quand un CSV de `config/` est régénéré, sans redémarrer l'outil.
+
+**Sécurité, robustesse**
+- En ligne, une erreur n'affiche plus la trace Python (chemins du serveur) mais une courte référence ;
+  `METEO_DEBUG=1` remet la trace complète en local.
+- `.gitignore` complété (`.venv/`, `.env`, `.streamlit/secrets.toml`, paquets Git…).
+- Versions de pandas, numpy et openpyxl bornées ; `requirements-dev.txt` pour les tests et la documentation.
+- Séries du catalogue partagées entre visiteurs en lecture seule.
+
+**Lisibilité**
+- `config/charte.py` : couleurs, police et dimensions (retirées de `config/reglages.py`) ;
+  `interface/style.css` : la feuille de style, sortie du code Python.
+- `graphiques.py` découpé en `graphiques_communs.py`, `graphiques_analyse.py` et `graphiques_comparaison.py` ;
+  cartes d'indicateurs dans `interface/cartes.py` ; menu des réglages dans `interface/menu_reglages.py`.
+- Valeurs écrites en dur passées dans `hypotheses.xlsx` : repères 350 / 1 250 °C.h du cumul des DH (statut
+  « à préciser » : article de l'arrêté à citer), heures de nuit et période d'été des textes des cartes,
+  durée de la semaine de l'onglet Créer.
+- Un seul scénario d'occupation (celui de `calcul/dh_re2020.py`) au lieu de deux copies.
+- README : lien vers l'outil en ligne, formats d'import, « Ajouter un indicateur », « pythermalcomfort ».
+
+**Tests**
+- 57 tests (33 avant) : registre des indicateurs, import de fichiers mal formés, plus longue suite de nuits,
+  ouverture de chaque onglet (Streamlit AppTest), référence pythermalcomfort.
+- GitHub Actions (`.github/workflows/tests.yml`) : documentation à jour, tests et pip-audit à chaque envoi.
+
 ## 0.9.7 — version de test (01/11/2026), corrections
 
 - Graphique de l'année (Analyser) simplifié : plus de bandes ni de points violets, ni d'étiquette « nuit la plus

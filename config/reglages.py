@@ -1,16 +1,22 @@
 """
 ============================================================
- RÉGLAGES — valeurs par défaut de l'outil et charte graphique
+ RÉGLAGES — version, valeurs par défaut et libellés de l'outil
 ============================================================
  Le réglage par défaut est celui de la RE2020. Les hypothèses
  chiffrées ne sont PAS ici : elles viennent de
  config/hypotheses.csv (généré depuis docs/sources/hypotheses.xlsx).
+ Couleurs, police et dimensions : config/charte.py.
 ============================================================
 """
 
 # --- Version (dernier chiffre pair = gros changement, impair = correction) ---
-VERSION = "0.9.7"
+VERSION = "0.9.8"
 STATUT_VERSION = "version de test"
+
+# --- Auteur et liens (pied de page, README) ---
+AUTEUR = "Guillaume Meunier"
+LIEN_CODE_SOURCE = "https://github.com/Alliages/vulgarisateur_DH"
+LIEN_EN_LIGNE = "https://vulgarisateurdh.streamlit.app/"
 
 # --- Réglage par défaut (= RE2020) ---------------------------------------
 REGLAGE_RE2020 = {
@@ -37,24 +43,8 @@ LIBELLES_METHODE = {"RE2020": "RE2020", "basic": "Basic 26/28"}
 LIBELLES_CRITERE_JOURNEE = {"moyenne": "T moyenne", "max": "T max"}
 LIBELLES_CRITERE_SEMAINE = {"moyenne": "T moyenne", "moyenne_max": "Moyenne des T max",
                             "pointe_max": "Pointe T max"}
-
-# --- Palette du projet ------------------------------------------------------
-CARAMEL = "#f7b267"      # barres de DH, écart entre fichiers, hypothèses
-CORAIL = "#f05d5e"       # température, DH (cartes), fichier de l'onglet Analyser
-TEAL = "#0f7173"         # second fichier (Comparer), température moyenne
-GRIS = "#272932"         # texte, axes, seuils
-INDIGO = "#2e294e"       # nuit (indicateurs nocturnes), barre des onglets, titres
-BLEU_MENU = "#48BEFF"    # couleur complémentaire du menu
-BLEU_CLAIR = "#E4F4FF"   # fond clair (champs de saisie)
-CARAMEL_CLAIR = "#FDF0E1"
-FOND = "#ECEAE5"          # fond de page gris chaud (les cartes blanches ressortent)
-BLANC = "#FFFFFF"
-OMBRE = "0 1px 2px rgba(39,41,50,.04), 0 6px 18px rgba(39,41,50,.07)"   # ombre douce des cartes
-RAYON = "18px"            # arrondi des cartes
-BLEU_FRAIS = "#1C6E9C"    # texte « plus frais » (pastilles d'écart, bande < 20 °C)
-
-# --- Couleurs des deux fichiers de l'onglet Comparer (option A, 28/10/2026) ---
-COULEUR_FICHIER_1 = CORAIL   # fichier de l'onglet Analyser (même couleur que dans l'onglet 1)
-COULEUR_FICHIER_2 = TEAL     # second fichier
-GRIS_DOUX = "#6B6B76"
-TRAIT = "#D5D3CF"
+# --- … et leur explication sous les graphiques de la semaine et de la journée ---
+CRITERES_SEMAINE_TEXTE = {"moyenne": "température moyenne la plus élevée sur {n} jours",
+                          "moyenne_max": "moyenne des maximales la plus élevée sur {n} jours",
+                          "pointe_max": "semaine centrée sur la pointe de chaleur"}
+CRITERES_JOURNEE_TEXTE = {"moyenne": "température moyenne la plus élevée", "max": "température maximale la plus élevée"}

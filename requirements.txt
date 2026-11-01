@@ -1,9 +1,9 @@
+# Dépendances de l'application (Streamlit Community Cloud et installation locale)
 streamlit==1.66.1
-plotly==7.1.0   # >= 5.23 exigé par streamlit-extras ; version utilisée pour tester la 0.9.2
-pandas
-numpy
-openpyxl
-pythermalcomfort==4.6.2
-mammoth
-pyarrow==26.0.0   # tableaux interactifs Streamlit (facultatif : l'outil fonctionne sans, cf. README)
+plotly==7.1.0             # >= 5.23 exigé par streamlit-extras ; version utilisée pour tester la 0.9.2
+pandas>=2.2,<4            # testé avec pandas 3.1
+numpy>=2,<3
+openpyxl>=3.1,<4          # export Excel
+pyarrow==26.0.0           # tableaux interactifs Streamlit (facultatif : l'outil fonctionne sans, cf. README)
 streamlit-extras==1.6.0   # mémoire du navigateur (récents, lignes, ordre des cartes)
+# pythermalcomfort n'est plus nécessaire (0.9.8) : voir requirements-dev.txt et le README

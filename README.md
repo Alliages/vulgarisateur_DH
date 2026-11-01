@@ -4,15 +4,15 @@ Un outil pour lire un fichier météo sous l'angle de l'inconfort d'été : degr
 méthode RE2020, nuits tropicales, journée et semaine les plus chaudes. Il compare deux fichiers, crée
 des journées ou des semaines types, et exporte les résultats.
 
-**Utiliser l'outil : pas encore en ligne.** En attendant, il se lance sur votre ordinateur (voir
-« Installer et lancer en local » dans la partie 2).
+**Utiliser l'outil en ligne : [vulgarisateurdh.streamlit.app](https://vulgarisateurdh.streamlit.app/)**
+(rien à installer). Il se lance aussi sur votre ordinateur (« Installer et lancer en local », partie 2).
 
 > Document non officiel. Les DH sont calculés sur la **température du fichier**, prise comme si c'était
 > la température intérieure. L'outil est fait, en base, pour des fichiers de températures extérieures
 > (fichiers météo) : c'est alors un indicateur de sévérité du climat, pas le DH d'un bâtiment. Il peut
 > aussi s'utiliser avec n'importe quel fichier horaire, y compris des résultats de simulation de
 > températures intérieures.
-> Version 0.9.7, version de test.
+> Version 0.9.8, version de test.
 
 ![Capture d'écran de l'outil](docs/capture-accueil.png)
 
@@ -82,9 +82,22 @@ Le détail de chaque méthode est dans l'onglet **Méthode & sources**.
   - fichier CSV prêt pour Excel (séparateur « ; », virgule décimale) ou classeur Excel : indicateurs
     et 8 760 heures (température, seuil, DH), avec le réglage, la version et les sources.
 
+## Importer votre fichier
+
+Fenêtre « Changer de fichier » › « + Importer » : un CSV horaire (5 Mo au plus, 5 fichiers par visite),
+séparateur « ; » ou « , », virgule ou point décimal. Trois formes sont reconnues :
+
+| Colonnes | Exemple de ligne | Pour |
+|---|---|---|
+| `heure;T` | `0;14,2` | une année type de 8 760 ou 8 784 heures |
+| `date;heure;T` | `2026-06-01;14:00;31,5` ou `01/06/2026;14:00;31,5` | un relevé, même de quelques jours |
+| `horodatage;T` | `01/06/2026 14:00;31,5` | idem |
+
+Les dates `01/06/2026` sont lues au format français (1er juin) et l'outil le signale. Un trou de 3 heures
+au plus est comblé ; un fichier mal formé est refusé avec un message qui dit ce qui ne va pas.
+
 ## Ce que l'outil ne fait pas encore
 
-- **Mise en ligne** : l'outil se lance pour l'instant en local.
 - **Fichiers TRACC** (trajectoire de réchauffement de référence) : la famille est prévue, les fichiers
   restent à intégrer.
 - **Proposer un fichier au catalogue** : un fichier importé ne dure que le temps de la session.
@@ -94,7 +107,8 @@ Le détail de chaque méthode est dans l'onglet **Méthode & sources**.
 
 - [Site officiel de la RE2020](https://rt-re-batiment.developpement-durable.gouv.fr/re2020-r320.html)
 - [Carte des zones climatiques de la RE2020](https://alliages.github.io/zones-climatiques-re2020/)
-- [pythermalcomfort](https://pythermalcomfort.readthedocs.io/) (confort adaptatif, norme EN 16798-1)
+- [pythermalcomfort](https://pythermalcomfort.readthedocs.io/) (confort adaptatif, norme EN 16798-1) :
+  la référence des tests de l'outil (voir « pythermalcomfort » dans la partie 2)
 
 ## Remerciements
 
@@ -113,15 +127,15 @@ flowchart TB
     sources["<b>docs/sources/</b><br/>documentation.docx · hypotheses.xlsx"]
     meteo["<b>donnees/meteo/</b><br/>fichiers horaires + catalogue"]
     config["<b>config/</b><br/>hypothèses, indicateurs, catalogue (CSV)"]
-    tests["<b>tests/</b><br/>non-régression et export"]
+    tests["<b>tests/</b><br/>non-régression, import, export, interface"]
     subgraph moteur["Moteur Python : calcul/"]
         serie["<b>serie.py</b><br/>lecture, heure légale"]
         dh["<b>dh_re2020.py</b><br/>DH RE2020 (autonome)"]
-        indicateurs["<b>indicateurs.py</b><br/>registre des indicateurs"]
-        confort["<b>confort_ptc.py</b><br/>pythermalcomfort"]
+        analyse["<b>analyse.py</b><br/>contexte de calcul commun"]
+        indicateurs["<b>indicateurs/</b><br/>un fichier par indicateur"]
     end
     app["<b>app.py + interface/ + export/</b><br/>Streamlit : onglets, graphiques, export"]
-    navigateur["<b>Navigateur</b><br/>localhost:8501"]
+    navigateur["<b>Navigateur</b><br/>vulgarisateurdh.streamlit.app<br/>ou localhost:8501"]
 
     textes --> dh
     sources -- "outils/convertir_docs.py" --> config
@@ -138,7 +152,7 @@ flowchart TB
     classDef enligne fill:#2e294e,stroke:#2e294e,color:#ffffff
     class textes,sources source
     class meteo,config,tests donnee
-    class serie,dh,indicateurs,confort code
+    class serie,dh,analyse,indicateurs code
     class app ecran
     class navigateur enligne
     style moteur fill:#ffffff,stroke:#bdbea9,stroke-width:2px,stroke-dasharray:6 4,color:#272932
@@ -173,8 +187,15 @@ python3 -m venv .venv
 L'application s'ouvre sur http://localhost:8501. Pour l'arrêter : `Ctrl + C`.
 
 pyarrow ne sert qu'aux tableaux interactifs : s'il ne se charge pas, l'outil le remplace par un
-formulaire simple (onglet Créer) et des tableaux fixes. Pour tester ce mode :
-variable d'environnement `METEO_SANS_PYARROW=1`.
+formulaire simple (onglet Créer) et des tableaux fixes.
+
+Variables d'environnement utiles (valeur `1`) :
+
+| Variable | Effet |
+|---|---|
+| `METEO_DEBUG` | en cas d'erreur, affiche la trace Python complète à l'écran (sinon : une courte référence, la trace restant dans la console) |
+| `METEO_SANS_PYARROW` | force le mode sans tableaux interactifs, pour le tester |
+| `METEO_SANS_MEMOIRE` | désactive la mémoire du navigateur (tests) |
 
 ## Utiliser le moteur sans interface
 
@@ -183,12 +204,15 @@ Le calcul est indépendant de Streamlit et s'utilise directement en Python :
 ```python
 from calcul.serie import charger_catalogue, charger_serie
 from calcul.hypotheses import charger_hypotheses
-from calcul.indicateurs import analyser
+from calcul.analyse import analyser
+from calcul.indicateurs import REGISTRE
 from config.reglages import REGLAGE_RE2020
 
+hyp = charger_hypotheses()
 ligne = charger_catalogue().set_index("id").loc["H1a_th_d"].to_dict() | {"id": "H1a_th_d"}
-analyse = analyser(charger_serie(ligne), REGLAGE_RE2020, charger_hypotheses())
-print(round(analyse.dh_h.sum(), 3))   # 839.145 °C.h
+analyse = analyser(charger_serie(ligne), REGLAGE_RE2020, hyp)
+print(round(analyse.dh_h.sum(), 3))                                           # 839.145 °C.h
+print(REGISTRE["nuits_20"].calculer(analyse, REGLAGE_RE2020, hyp).valeur)    # 16 nuits ≥ 20 °C
 ```
 
 `calcul/dh_re2020.py` est autonome (seule dépendance : numpy) et se réutilise dans d'autres projets :
@@ -196,25 +220,59 @@ print(round(analyse.dh_h.sum(), 3))   # 839.145 °C.h
 occupation="logement_re2020", details=True)` le DH RE2020 détaillé. La méthode est décrite en tête
 du fichier, avec les numéros de formule de l'annexe III.
 
+## Ajouter un indicateur
+
+Chaque indicateur est un petit fichier de `calcul/indicateurs/`, découvert automatiquement au démarrage :
+rien d'autre à modifier dans l'outil (cartes, tableau de Comparer, export suivent).
+
+1. Copier `calcul/indicateurs/_modele.py` sous le nom de l'identifiant, par exemple `heures_32.py`.
+2. Y écrire la fonction `calculer` (et `profil` pour un mini-graphique), puis la déclaration
+   `INDICATEUR = Indicateur(id="heures_32", calculer=calculer, teinte="chaud", icone="horloge")`.
+   Teintes : `chaud` (rouge), `nuit` (foncé), `moyenne` (bleu canard). Un seuil nouveau va dans
+   l'onglet « hypotheses » du classeur et se lit avec `valeur(hyp, "<id>")`, jamais en dur.
+3. Ajouter la ligne `heures_32` dans `docs/sources/hypotheses.xlsx`, onglet « indicateurs » : libellé,
+   unité, ordre, affiché ou non, bulle « i », décimales. Puis `python outils/convertir_docs.py`.
+4. `python -m pytest` : les tests vérifient que chaque fichier a sa ligne dans l'Excel (et inversement),
+   et que l'indicateur se calcule.
+
+Le contexte de calcul (`calcul/analyse.py`) donne déjà les températures, seuils et DH heure par heure,
+les jours, les nuits et les masques jour / nuit / été : un indicateur tient en général en quelques lignes.
+
+## pythermalcomfort
+
+Depuis la 0.9.8, l'outil **n'installe plus** la librairie [pythermalcomfort](https://pythermalcomfort.readthedocs.io/)
+(licence MIT, CBE Berkeley). Elle ne servait qu'à la droite de confort adaptatif (0,33 × température lissée
++ 18,8 + Δ), une formule d'une ligne déjà écrite dans `calcul/confort_ptc.py`, et son chargement (numba,
+scipy) retardait d'environ 11 secondes chaque démarrage de l'outil en ligne. Les résultats ne changent pas
+(non-régression 839,145 °C.h).
+
+Elle reste la **référence** : `requirements-dev.txt` l'installe et `tests/test_confort_ptc.py` vérifie que la
+formule de l'outil donne les mêmes valeurs que la librairie. Partager les indicateurs de l'outil avec la
+librairie reste un objectif.
+
 ## Organisation du dépôt
 
 ```
-app.py                  interface Streamlit (point d'entrée)
+app.py                  point d'entrée Streamlit : chargement des données (en cache) et aiguillage des onglets
 calcul/                 moteur de calcul, sans dépendance à Streamlit
-  serie.py              lecture des fichiers, heure légale, contrôles
+  serie.py              lecture des fichiers (catalogue et imports), heure légale, contrôles
   dh_re2020.py          DH selon l'annexe III (module autonome)
-  indicateurs.py        analyse d'une série, registre paramétrique des indicateurs
-  confort_ptc.py        seul point de contact avec pythermalcomfort
+  analyse.py            contexte de calcul commun : DH horaire, jours, nuits, semaine et journée les plus chaudes
+  indicateurs/          UN FICHIER PAR INDICATEUR (dh.py, nuits_20.py…), modèle _modele.py, socle base.py
+  confort_ptc.py        droite de confort adaptatif (pythermalcomfort en référence des tests)
   hypotheses.py         lecture des hypothèses et des indicateurs
   generateur.py         journées et semaines types (onglet Créer)
-config/                 réglages (reglages.py), catalogue des fichiers, CSV générés depuis hypotheses.xlsx
-interface/              onglets, fenêtre de choix des fichiers, graphiques Plotly, style, mémoire du navigateur
+  format_fr.py          dates et nombres en français
+config/                 reglages.py (version, réglage par défaut, libellés), charte.py (couleurs, dimensions),
+                        catalogue des fichiers, CSV générés depuis hypotheses.xlsx
+interface/              onglets, menu des réglages, fenêtre de choix, cartes, graphiques (communs / analyse /
+                        comparaison), style.css, mémoire du navigateur
 export/                 copier-coller, CSV et Excel
 docs/sources/           À MODIFIER : documentation.docx (textes) et hypotheses.xlsx (valeurs)
 docs/pages/             pages Markdown générées depuis le Word (onglet Méthode & sources)
 donnees/meteo/<zone>/   fichiers météo du catalogue
 outils/                 convertir_docs.py, comparaison Excel ↔ Python
-tests/                  tests automatiques
+tests/                  tests automatiques (lancés aussi par GitHub à chaque envoi : .github/workflows/tests.yml)
 CHANGELOG.md            journal des versions
 ```
 
@@ -246,15 +304,17 @@ Dans les textes du Word, `[[hyp:identifiant]]` affiche la valeur à jour d'une h
   seuils fixes 26/28 °C sans occupation = 1 074,935 °C.h.
 - **Comparaison Excel ↔ Python** : `outils/construire_excel_dh.py` reconstruit le calcul en formules
   Excel ; `outils/comparer_excel_python.py` compare heure par heure (écart ≤ 10⁻¹⁴).
-- **Tests** : 33 tests (méthode DH, indicateurs, fenêtre de choix des fichiers, export).
+- **Tests** : 57 tests (méthode DH, indicateurs et leur registre, import de fichiers, fenêtre de choix,
+  export, ouverture de chaque onglet, référence pythermalcomfort). GitHub les relance à chaque envoi,
+  avec la recherche de failles connues dans les dépendances (pip-audit).
 
 ```
-python -m pip install pytest
+python -m pip install -r requirements-dev.txt
 python -m pytest
 ```
 
 **Fichiers à relire en priorité** : `docs/sources/hypotheses.xlsx` (valeurs et sources),
-`calcul/dh_re2020.py` (méthode DH) et `calcul/indicateurs.py` (définition des indicateurs).
+`calcul/dh_re2020.py` (méthode DH) et `calcul/indicateurs/` (un fichier par indicateur).
 
 ## Limites connues
 
@@ -270,8 +330,8 @@ Chiffre pair = évolution importante, chiffre impair = correction. Détail dans 
 
 ## Licence et crédits
 
-GNU GPL v3 (fichier `LICENSE`). Bibliothèque pythermalcomfort pour le confort adaptatif ; fichiers
-météo RE2020 de la DHUP et de Météo-France ; relevés Infoclimat.
+GNU GPL v3 (fichier `LICENSE`). Bibliothèque pythermalcomfort en référence du confort adaptatif ;
+fichiers météo RE2020 de la DHUP et de Météo-France ; relevés Infoclimat.
 
 Guillaume Meunier, d'après son classeur Excel « Vulgarisation_DH ».
 Code source : [github.com/Alliages/vulgarisateur_DH](https://github.com/Alliages/vulgarisateur_DH).

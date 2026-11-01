@@ -9,19 +9,21 @@ import html
 import pandas as pd
 import streamlit as st
 
+from calcul.analyse import jour_le_plus_chaud, semaine_la_plus_chaude
 from calcul.hypotheses import remplacer_reperes, valeur
-from calcul.indicateurs import jour_le_plus_chaud, semaine_la_plus_chaude
-from config.reglages import COULEUR_FICHIER_1, COULEUR_FICHIER_2, GRIS
-from interface import graphiques as g
-from interface.composants import cartouche, pastille_ecart, valeur_texte
+from config.charte import COULEUR_FICHIER_1, COULEUR_FICHIER_2, GRIS
+from interface import graphiques_comparaison as gc
+from interface.cartes import valeur_texte
+from interface.composants import cartouche, pastille_ecart
+from interface.graphiques_communs import afficher as afficher_graphique
 
 # ============================================================
 # PARAMÈTRES
 # ============================================================
-ANNEE = g.ANNEE_SUPERPOSITION
-CONFIG_PLOTLY = g.CONFIG_PLOTLY
+ANNEE = gc.ANNEE_SUPERPOSITION
 ROLE_A, ROLE_B = "Fichier de l'onglet Analyser", "Second fichier"
 SEUIL_FRAIS, SEUIL_CHAUD = "seuil_nuit_tropicale", "seuil_heures_chaudes"   # bandes bleu / orangé (20 / 28 °C)
+REPERES_DH = ("repere_dh_bas", "repere_dh_haut")                            # repères du cumul des DH (350 / 1 250)
 
 
 # ============================================================
@@ -78,26 +80,21 @@ def afficher(analyse_a, res_a, serie_b, analyser_b, reglage, hyp, ouvrir_choix_s
 
     # 1. L'été superposé
     fenetre = [pd.Timestamp(f"{ANNEE}-{valeur(hyp, 'ete_debut')}"), pd.Timestamp(f"{ANNEE}-{valeur(hyp, 'ete_fin')} 23:00")]
-    st.plotly_chart(g.ete_superpose(analyse_a, analyse_b, nom_a, nom_b, reglage["lignes"], fenetre, sources),
-                    width="stretch", config=CONFIG_PLOTLY, theme=None)
+    afficher_graphique(gc.ete_superpose(analyse_a, analyse_b, nom_a, nom_b, reglage["lignes"], fenetre, sources))
     # 2. Les nuits chaudes, nuit par nuit (dont la plus longue suite de nuits tropicales)
-    st.plotly_chart(g.nuits_comparees(analyse_a, analyse_b, nom_a, nom_b, fenetre, bas,
-                                      valeur(hyp, "seuil_nuit_tres_chaude"), sources),
-                    width="stretch", config=CONFIG_PLOTLY, theme=None)
+    afficher_graphique(gc.nuits_comparees(analyse_a, analyse_b, nom_a, nom_b, fenetre, bas,
+                                          valeur(hyp, "seuil_nuit_tres_chaude"), sources))
     # 3. Journées les plus chaudes, 4. semaines les plus chaudes (chacune selon le critère des réglages)
     ja, jb = jour_le_plus_chaud(analyse_a, reglage["critere_journee"]), jour_le_plus_chaud(analyse_b, reglage["critere_journee"])
     if ja is not None and jb is not None:
-        st.plotly_chart(g.journees_superposees(analyse_a, analyse_b, nom_a, nom_b, ja, jb, bas, haut, sources),
-                        width="stretch", config=CONFIG_PLOTLY, theme=None)
+        afficher_graphique(gc.journees_superposees(analyse_a, analyse_b, nom_a, nom_b, ja, jb, bas, haut, sources))
     n = int(valeur(hyp, "semaine_jours"))
     sa = semaine_la_plus_chaude(analyse_a, reglage["critere_semaine"], n)
     sb = semaine_la_plus_chaude(analyse_b, reglage["critere_semaine"], n)
     if sa is not None and sb is not None:
-        st.plotly_chart(g.semaines_superposees(analyse_a, analyse_b, nom_a, nom_b, sa, sb, n, bas, haut, sources),
-                        width="stretch", config=CONFIG_PLOTLY, theme=None)
+        afficher_graphique(gc.semaines_superposees(analyse_a, analyse_b, nom_a, nom_b, sa, sb, n, bas, haut, sources))
     else:
         st.caption(f"Semaine la plus chaude : il faut au moins {n} jours complets dans chaque fichier.")
-    # 5. Cumul des DH
-    st.plotly_chart(g.cumul_dh(analyse_a, analyse_b, nom_a, nom_b, sources), width="stretch", config=CONFIG_PLOTLY,
-                    theme=None)
+    # 5. Cumul des DH (repères RE2020 lus dans les hypothèses)
+    afficher_graphique(gc.cumul_dh(analyse_a, analyse_b, nom_a, nom_b, sources, *(valeur(hyp, r) for r in REPERES_DH)))
     st.caption("Les deux fichiers sont ramenés sur une même année pour être superposés jour par jour.")

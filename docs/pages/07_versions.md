@@ -12,3 +12,5 @@
 0.9.5 : corrections. Tuiles de la fenêtre de choix cliquables sur toute leur surface, retour de la carte du fichier de la 0.9.2 dans le menu, nuits ≥ 20 °C sur le graphique de l'année, message Windows sans conséquence masqué dans la console.
 
 0.9.7 : corrections. Graphique de l'année simplifié (nuits ≥ 20 °C en barres sous les DH, axe des DH jusqu'à 300 °C.h), « température fichier » à la place de « température extérieure ».
+
+0.9.8 : version de test. Indicateurs rangés un par fichier (un nouvel indicateur s'ajoute sans toucher au reste de l'outil) ; import de fichiers plus sûr (dates jour/mois/année, messages d'erreur clairs, taille limitée) ; graphiques gardés en mémoire et démarrage plus rapide (pythermalcomfort n'est plus chargé) ; code réorganisé, sans changement des résultats.
