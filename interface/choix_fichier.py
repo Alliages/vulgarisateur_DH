@@ -168,12 +168,13 @@ def menu(src: Sources, serie, ouvrir_choix: Callable[[], None]):
     st.sidebar.markdown('<div class="titre-menu">Fichier météo</div>', unsafe_allow_html=True)
     recents = [c for c in st.session_state.get(CLE_RECENTS, []) if c != cle and c in cles_disponibles(src)]
     with st.sidebar.container(key="panneau_fichier"):          # panneau bleu clair : fichier en cours + récents
-        with st.container(key="fichier_actuel"):
-            st.markdown(f'<div class="nom-actuel"><span class="point" style="background:{COULEUR_FICHIER_1}"></span>'
-                        f'{html.escape(serie.libelle)}</div>'
+        # toute la carte est cliquable : bouton transparent posé dessus (même principe que les tuiles de la fenêtre)
+        with st.container(key="tuile_fichier_actuel", gap=None):
+            st.markdown(f'<div class="carte-actuel"><div class="nom-actuel">{html.escape(serie.libelle)}</div>'
                         f'<div class="meta-actuel">{html.escape(" · ".join(x for x in (i["station"], i["desc"]) if x))}'
-                        f'</div><div class="etiquettes">{_etiquettes(serie, i)}</div>', unsafe_allow_html=True)
-            if st.button("⌕  Changer de fichier", key="ouvrir_choix", width="stretch"):
+                        f'</div><div class="etiquettes">{_etiquettes(serie, i)}</div>'
+                        f'<div class="faux-bouton">⌕&nbsp; Changer de fichier</div></div>', unsafe_allow_html=True)
+            if st.button("Changer de fichier", key="ouvrir_choix", width="stretch"):
                 ouvrir_choix()
         if recents:
             with st.container(key="recents"):

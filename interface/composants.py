@@ -21,7 +21,6 @@ import pandas as pd
 import streamlit as st
 
 from calcul.hypotheses import MOTIF_REPERE, remplacer_reperes
-from calcul.confort_ptc import PTC_VERSION
 from config.reglages import (BLEU_CLAIR, BLEU_FRAIS, BLEU_MENU, CARAMEL, CARAMEL_CLAIR, CORAIL, FOND, GRIS,
                              GRIS_DOUX, INDIGO, OMBRE, RAYON, STATUT_VERSION, TEAL, TRAIT, VERSION)
 from interface.format_fr import MOIS_COURTS, nombre
@@ -40,6 +39,9 @@ COULEURS_STATUT = {"sourcé": TEAL, "provisoire": "#C77D2E", "à préciser": COR
 
 # --- En-tête ---
 TRACE_LOGO = "M2 12 C3.2 12 3.6 9.5 4.8 9.5 S6.4 14.5 7.6 14.5 S9.2 6 10.6 6 S12.4 18 13.8 18 S15.6 3.5 17.2 3.5 S19.2 20.5 22 12"
+AUTEUR = "Guillaume Meunier"
+LIEN_CODE_SOURCE = "https://github.com/Alliages/vulgarisateur_DH"
+INDIGO_SURVOL = "#4A4480"               # indigo éclairci (survol des boutons et de « Réglages »)
 CONTOUR_ONGLET = "#2C5E6E"              # contour des pastilles de la barre des onglets (bleu canard sombre)
 
 # --- Mini-graphique des cartes (px) ---
@@ -69,14 +71,18 @@ CSS = f"""
   .titre-menu {{ background: {INDIGO}; color: white; border-radius: 16px; text-align: center; font-weight: 800;
                  font-size: 1.15rem; letter-spacing: .08em; padding: 7px 10px; text-transform: uppercase; }}
   .st-key-panneau_fichier {{ background: rgba(255,255,255,.28); border-radius: 18px; padding: 10px 10px 12px; }}
+  /*   bouton de repli : toujours visible (Streamlit ne le montre qu'au survol du menu), flèche blanche */
+  [data-testid="stSidebarCollapseButton"], [data-testid="stSidebarCollapseButton"] button {{
+      visibility: visible !important; opacity: 1 !important; }}
   [data-testid="stSidebarCollapseButton"] button, [data-testid="stExpandSidebarButton"] {{ background: {INDIGO};
       color: white; border-radius: 10px; }}
   [data-testid="stSidebarCollapseButton"] button:hover, [data-testid="stExpandSidebarButton"]:hover {{
-      background: #45407a; color: white; }}
+      background: {INDIGO_SURVOL}; color: white; }}
+  [data-testid="stSidebarCollapseButton"] span, [data-testid="stExpandSidebarButton"] span {{ color: white !important; }}
   .st-key-reglages {{ border: none; }}
   .st-key-reglages details {{ border: none; background: transparent; }}
-  .st-key-reglages summary {{ background: {INDIGO}; border-radius: 16px; padding: 7px 14px; color: white; }}
-  .st-key-reglages summary:hover {{ color: white; }}
+  .st-key-reglages summary {{ background: {INDIGO} !important; border-radius: 16px; padding: 7px 14px; color: white; }}
+  .st-key-reglages summary:hover {{ background: {INDIGO_SURVOL} !important; color: white; }}  /* survol : indigo éclairci */
   .st-key-reglages summary p {{ color: white; font-weight: 800; font-size: 1.15rem; letter-spacing: .08em;
                                 text-align: center; width: 100%; }}
   .st-key-reglages summary svg {{ fill: white; color: white; }}
@@ -165,16 +171,20 @@ CSS = f"""
   .cartouche .nom {{ font-size: 1.35rem; font-weight: 700; line-height: 1.2; }}
   .cartouche .meta {{ color: {GRIS_DOUX}; font-size: .82rem; }}
   /* --- Menu de gauche : carte du fichier en cours + récents (0.9.0) --- */
-  .st-key-fichier_actuel {{ background: white; border-radius: 16px; padding: 14px 14px 12px; box-shadow: {OMBRE}; }}
+  .carte-actuel {{ background: white; border-radius: 16px; padding: 14px 14px 12px; box-shadow: {OMBRE}; }}
+  .faux-bouton {{ margin-top: 10px; background: {INDIGO}; color: white; border-radius: 22px; padding: 8px 12px;
+                  text-align: center; font-weight: 600; font-size: .95rem; }}
+  .st-key-tuile_fichier_actuel:hover .faux-bouton {{ background: {INDIGO_SURVOL}; }}
+  .st-key-tuile_fichier_actuel:hover .carte-actuel {{ box-shadow: 0 2px 4px rgba(39,41,50,.08), 0 10px 24px rgba(39,41,50,.14); }}
   .nom-actuel {{ font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; line-height: 1.2; }}
-  .nom-actuel .point, .tuile .point {{ width: 11px; height: 11px; border-radius: 50%; flex: none; display: inline-block; }}
+  .tuile .point {{ width: 11px; height: 11px; border-radius: 50%; flex: none; display: inline-block; }}
   .meta-actuel {{ color: {GRIS_DOUX}; font-size: .8rem; margin: 4px 0 8px; line-height: 1.35; }}
   .etiquettes {{ display: flex; flex-wrap: wrap; gap: 5px; }}
   .tag {{ font-size: .7rem; padding: 2px 8px; border-radius: 10px; background: #F1EFEA; color: {GRIS_DOUX}; }}
   .tag.famille {{ background: {BLEU_CLAIR}; color: #13628f; font-weight: 600; }}
-  .st-key-fichier_actuel button, .st-key-ouvrir_choix_second button {{ background: {INDIGO}; color: white;
+  .st-key-ouvrir_choix_second button {{ background: {INDIGO}; color: white;
       border: none; border-radius: 22px; font-weight: 600; }}
-  .st-key-fichier_actuel button:hover, .st-key-ouvrir_choix_second button:hover {{ background: #45407a; color: white; }}
+  .st-key-ouvrir_choix_second button:hover {{ background: {INDIGO_SURVOL}; color: white; }}
   .st-key-recents {{ gap: .45rem; margin-top: 4px; }}
   .st-key-recents [data-testid="stMarkdownContainer"] {{ margin-bottom: 0; }}
   .lib-recents {{ font-size: .8rem; color: {INDIGO}; font-weight: 600; padding-bottom: 2px; }}
@@ -281,7 +291,8 @@ CSS = f"""
   .nom-export {{ font-size: .78rem; color: {GRIS_DOUX}; line-height: 1.4; word-break: break-all; }}
   .nom-export b {{ color: {GRIS}; font-family: monospace; font-weight: 600; }}
   .pied {{ color: {GRIS_DOUX}; font-size: .75rem; border-top: 1px solid {TRAIT}; margin-top: 18px; padding-top: 6px;
-           display: flex; justify-content: space-between; }}
+           text-align: center; }}
+  .pied a {{ color: {TEAL}; font-weight: 600; }}
 </style>
 """
 
@@ -341,9 +352,8 @@ def description_fichier(serie) -> str:
 
 
 def titre_fichier(serie, couleur=CORAIL):
-    """Nom du fichier en gros entre la barre des onglets et les cartes (point de la couleur du fichier)."""
-    st.markdown(f'<div class="fichier"><div class="nom"><span class="point" style="background:{couleur}"></span>'
-                f'{html.escape(serie.libelle)}</div>'
+    """Nom du fichier en gros entre la barre des onglets et les cartes."""
+    st.markdown(f'<div class="fichier"><div class="nom">{html.escape(serie.libelle)}</div>'
                 f'<div class="meta">{html.escape(description_fichier(serie))}</div></div>', unsafe_allow_html=True)
 
 
@@ -497,7 +507,8 @@ def tableau_html(df: pd.DataFrame) -> str:
 
 
 def pied():
+    """Pied de page : nature des indicateurs, version, auteur, lien vers le code source."""
     st.markdown(
-        f'<div class="pied"><span>Note : indicateur climatique — DH calculés sur la température extérieure, '
-        f'pas le DH d\'un bâtiment · méthode RE2020 (arrêté du 4 août 2021, annexe III)</span>'
-        f'<span>outil v{VERSION} · pythermalcomfort {PTC_VERSION}</span></div>', unsafe_allow_html=True)
+        f'<div class="pied">Indicateurs calculés sur la base de fichiers climatiques - Météo &amp; Chaleur version '
+        f'{VERSION} - {AUTEUR} - <a href="{LIEN_CODE_SOURCE}" target="_blank">Code Source</a></div>',
+        unsafe_allow_html=True)

@@ -42,6 +42,9 @@ SEPARATEUR = "#E2E0DB"                # traits verticaux entre jours / mois
 FOND_BANDE_CHAUDE = "rgba(247,178,103,0.22)"   # caramel clair : au-dessus du seuil chaud (28 °C)
 FOND_BANDE_FRAICHE = "rgba(72,190,255,0.13)"   # bleu clair : en dessous du seuil frais (20 °C)
 
+# --- Contenu ---
+AFFICHER_SOURCES = False              # source sous chaque graphique : retirée (01/11) ; elle reste dans l'export et la doc
+
 # --- Dimensions (px) ---
 HAUTEUR_PRINCIPAL = 540
 HAUTEUR_SECONDAIRE = 400
@@ -130,7 +133,7 @@ def styler(fig, titre, sous_titre="", hauteur=HAUTEUR_SECONDAIRE, titre_y="°C",
                      gridcolor=GRILLE, zeroline=False, tickformat=".0f", title_text="",
                      **({"secondary_y": False} if double_axe else {}))
     titre_axe(fig, titre_y)
-    if source:
+    if source and AFFICHER_SOURCES:
         # la source sert de titre à l'axe des X : Plotly la place toujours sous les graduations
         # et sous le curseur de zoom, sans chevauchement (marge du bas ajustée automatiquement)
         fig.update_xaxes(title=dict(text=f"Source : {source}", font=dict(size=10, color=GRIS_DOUX), standoff=12))

@@ -3,6 +3,17 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.4 — version de test (01/11/2026)
+
+- Bouton de repli du menu toujours visible, flèche blanche ; survol de « Réglages » : indigo éclairci.
+- Sources retirées sous les graphiques (elles restent dans l'export et l'onglet Méthode & sources).
+- Toute la carte du fichier en cours (menu de gauche) ouvre la fenêtre de choix, pas seulement son bouton.
+- Pastilles rouges retirées devant le nom du fichier (menu et en-tête).
+- Nouveau pied de page : « Indicateurs calculés sur la base de fichiers climatiques - Météo & Chaleur
+  version … - Guillaume Meunier - Code Source » (lien vers le dépôt GitHub).
+- README réécrit (partie utilisateurs / partie développeurs, schéma, installation sans activation sous
+  Windows) avec une capture `docs/capture-accueil.png`.
+
 ## 0.9.2 — version de test (01/11/2026)
 
 Retours du 31/10 et du 01/11, avec le style de l'image envoyée (logo en onde, titres de menu en pastilles indigo,
