@@ -8,3 +8,5 @@
 0.9.2 : version de test. Onglet Exporter (copier-coller des indicateurs, CSV et Excel, 1 ou 2 fichiers) ; haut de page fixe ; réglages repliés ; nouvel ordre des cartes ; graphique des nuits chaudes dans Comparer ; seul l'onglet ouvert est calculé (plus rapide) ; choix gardés dans le navigateur.
 
 0.9.4 : version de test. Menu (bouton de repli toujours visible, carte du fichier entièrement cliquable), sources retirées sous les graphiques, nouveau pied de page avec le lien vers le code source, README réécrit.
+
+0.9.5 : corrections. Tuiles de la fenêtre de choix cliquables sur toute leur surface, retour de la carte du fichier de la 0.9.2 dans le menu, nuits ≥ 20 °C sur le graphique de l'année, message Windows sans conséquence masqué dans la console.

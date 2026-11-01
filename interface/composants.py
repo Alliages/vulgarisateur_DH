@@ -171,11 +171,10 @@ CSS = f"""
   .cartouche .nom {{ font-size: 1.35rem; font-weight: 700; line-height: 1.2; }}
   .cartouche .meta {{ color: {GRIS_DOUX}; font-size: .82rem; }}
   /* --- Menu de gauche : carte du fichier en cours + récents (0.9.0) --- */
-  .carte-actuel {{ background: white; border-radius: 16px; padding: 14px 14px 12px; box-shadow: {OMBRE}; }}
-  .faux-bouton {{ margin-top: 10px; background: {INDIGO}; color: white; border-radius: 22px; padding: 8px 12px;
-                  text-align: center; font-weight: 600; font-size: .95rem; }}
-  .st-key-tuile_fichier_actuel:hover .faux-bouton {{ background: {INDIGO_SURVOL}; }}
-  .st-key-tuile_fichier_actuel:hover .carte-actuel {{ box-shadow: 0 2px 4px rgba(39,41,50,.08), 0 10px 24px rgba(39,41,50,.14); }}
+  .st-key-fichier_actuel {{ background: white; border-radius: 16px; padding: 14px 14px 12px; box-shadow: {OMBRE}; }}
+  .st-key-fichier_actuel button {{ background: {INDIGO}; color: white; border: none; border-radius: 22px;
+                                   font-weight: 600; }}
+  .st-key-fichier_actuel button:hover {{ background: {INDIGO_SURVOL}; color: white; }}
   .nom-actuel {{ font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; line-height: 1.2; }}
   .tuile .point {{ width: 11px; height: 11px; border-radius: 50%; flex: none; display: inline-block; }}
   .meta-actuel {{ color: {GRIS_DOUX}; font-size: .8rem; margin: 4px 0 8px; line-height: 1.35; }}
@@ -211,11 +210,15 @@ CSS = f"""
   /* tuile = dessin HTML + bouton Streamlit transparent posé par-dessus (toute la tuile est cliquable) */
   [class*="st-key-tuile_"] {{ position: relative; }}
   /*   l'enveloppe Streamlit du bouton (stElementContainer) couvre toute la tuile ; le bouton la remplit */
-  [class*="st-key-tuile_"] > [data-testid="stElementContainer"]:has([data-testid="stButton"]) {{
-      position: absolute; inset: 0; margin: 0; z-index: 2; }}
-  [class*="st-key-tuile_"] [data-testid="stButton"], [class*="st-key-tuile_"] [data-testid="stButton"] > div,
-  [class*="st-key-tuile_"] [data-testid="stButton"] button {{ width: 100%; height: 100%; }}
-  [class*="st-key-tuile_"] [data-testid="stButton"] button {{ opacity: 0; cursor: pointer; }}
+  /*   (classe de la clé du bouton : b_zone_… / b_fichier_… ; Streamlit donnait au bouton la largeur de son
+       texte, d'où une tuile cliquable seulement à gauche : largeur forcée à 100 %) */
+  [class*="st-key-b_zone_"], [class*="st-key-b_fichier_"] {{
+      position: absolute !important; top: 0; left: 0; right: 0; bottom: 0; width: 100% !important;
+      max-width: none !important; margin: 0; z-index: 2; }}
+  [class*="st-key-b_zone_"] [data-testid="stButton"], [class*="st-key-b_fichier_"] [data-testid="stButton"],
+  [class*="st-key-b_zone_"] button, [class*="st-key-b_fichier_"] button {{
+      width: 100% !important; max-width: none !important; height: 100% !important; }}
+  [class*="st-key-b_zone_"] button, [class*="st-key-b_fichier_"] button {{ opacity: 0; cursor: pointer; }}
   [class*="st-key-tuile_"]:hover .tuile:not(.choisie) {{ border-color: #C9C6BF; background: white; }}
   .tuile {{ border-radius: 14px; border: 1.5px solid #EEECE7; background: #FAF9F6; padding: 9px 12px; }}
   .tuile.choisie {{ border: 2.5px solid var(--c); background: var(--fond-choisi); }}

@@ -27,12 +27,15 @@ from interface.composants import haut_de_page, pied
 # PARAMÈTRES
 # ============================================================
 TITRE_PAGE = "Météo et Chaleur"
-CLES_REGLAGE = {"methode": "r_methode", "occupation": "r_occupation",
+CLES_REGLAGE = {"methode": "r_methode", "occupation": "r_occupation",           # clés des boutons du menu
                 "critere_journee": "r_journee", "critere_semaine": "r_semaine"}
+CLE_REGLAGE_COURANT = "reglage_courant"  # réglage de référence, gardé à part des boutons (voir _reglage_courant)
+CLE_GENERATION_BOUTONS = "generation_boutons"   # change à chaque retour au réglage RE2020
 CLE_INDICATEURS = "r_indicateurs"        # ordre des cartes choisi dans le menu
 INDICATEURS_RESUME = ["dh", "nuits_20"]  # chiffres clés des cartes de la fenêtre de choix (+ T max)
 
 st.set_page_config(page_title=TITRE_PAGE, page_icon="☀", layout="wide")
+erreurs.filtrer_bruit_windows()          # console PowerShell : masque « ConnectionResetError [WinError 10054] »
 
 
 # ============================================================
@@ -81,9 +84,29 @@ CATALOGUE = _catalogue()
 # RÉGLAGES (barre latérale)
 # ============================================================
 
+def _reglage_courant() -> dict:
+    """
+    Réglage de référence (méthode, occupation, critères), gardé À PART des boutons du menu.
+    Raison : au premier chargement, la mémoire du navigateur relance la page pendant le calcul ; Streamlit
+    pouvait alors perdre l'état d'un bouton de la partie repliée (l'occupation repassait à « 24h/24 »).
+    Les calculs lisent ce réglage ; il ne change que quand l'utilisateur clique sur un bouton (_copier_bouton).
+    """
+    return st.session_state.setdefault(CLE_REGLAGE_COURANT, {k: REGLAGE_RE2020[k] for k in CLES_REGLAGE})
+
+
+def _cle_bouton(cle) -> str:
+    """Clé du bouton du menu ; elle change à chaque « Revenir au réglage RE2020 » (boutons recréés, affichage juste)."""
+    return f"{CLES_REGLAGE[cle]}_{st.session_state.setdefault(CLE_GENERATION_BOUTONS, 0)}"
+
+
+def _copier_bouton(cle):
+    """Clic sur un bouton du menu : sa valeur devient le réglage de référence."""
+    _reglage_courant()[cle] = st.session_state[_cle_bouton(cle)]
+
+
 def _reinitialiser():
-    for cle, cle_widget in CLES_REGLAGE.items():
-        st.session_state[cle_widget] = REGLAGE_RE2020[cle]
+    st.session_state[CLE_REGLAGE_COURANT] = {k: REGLAGE_RE2020[k] for k in CLES_REGLAGE}
+    st.session_state[CLE_GENERATION_BOUTONS] = st.session_state.get(CLE_GENERATION_BOUTONS, 0) + 1
     st.session_state["lignes"] = list(REGLAGE_RE2020["lignes"])
     st.session_state[CLE_INDICATEURS] = list(ORDRE_DEFAUT)
 
@@ -147,19 +170,21 @@ def barre_laterale():
     serie = serie_par_cle(choix_fichier.cle_courante(SOURCES))
     choix_fichier.menu(SOURCES, serie, lambda: choix_fichier.ouvrir("analyser", SOURCES))
 
-    for cle, cle_widget in CLES_REGLAGE.items():
-        st.session_state.setdefault(cle_widget, REGLAGE_RE2020[cle])
+    courant = _reglage_courant()
     st.session_state.setdefault("lignes", list(REGLAGE_RE2020["lignes"]))
     with st.sidebar.expander("RÉGLAGES", expanded=False, key="reglages"):
-        reglage = {
-            "methode": st.radio(LIBELLE_SEUILS_DH, list(LIBELLES_METHODE), format_func=LIBELLES_METHODE.get,
-                                horizontal=True, key="r_methode"),
-            "occupation": st.toggle("DH en occupation (logement)", key="r_occupation"),
-            "critere_journee": st.radio("Journée la + chaude selon", list(LIBELLES_CRITERE_JOURNEE),
-                                        format_func=LIBELLES_CRITERE_JOURNEE.get, horizontal=True, key="r_journee"),
-            "critere_semaine": st.radio("Semaine la + chaude selon", list(LIBELLES_CRITERE_SEMAINE),
-                                        format_func=LIBELLES_CRITERE_SEMAINE.get, key="r_semaine"),
-        }
+        methodes, journees, semaines = list(LIBELLES_METHODE), list(LIBELLES_CRITERE_JOURNEE), list(LIBELLES_CRITERE_SEMAINE)
+        st.radio(LIBELLE_SEUILS_DH, methodes, index=methodes.index(courant["methode"]), format_func=LIBELLES_METHODE.get,
+                 horizontal=True, key=_cle_bouton("methode"), on_change=_copier_bouton, args=("methode",))
+        st.toggle("DH en occupation (logement)", value=courant["occupation"], key=_cle_bouton("occupation"),
+                  on_change=_copier_bouton, args=("occupation",))
+        st.radio("Journée la + chaude selon", journees, index=journees.index(courant["critere_journee"]),
+                 format_func=LIBELLES_CRITERE_JOURNEE.get, horizontal=True, key=_cle_bouton("critere_journee"),
+                 on_change=_copier_bouton, args=("critere_journee",))
+        st.radio("Semaine la + chaude selon", semaines, index=semaines.index(courant["critere_semaine"]),
+                 format_func=LIBELLES_CRITERE_SEMAINE.get, key=_cle_bouton("critere_semaine"),
+                 on_change=_copier_bouton, args=("critere_semaine",))
+        reglage = dict(courant)                     # les calculs lisent le réglage de référence
         lignes = st.multiselect("Lignes horizontales (°C)", st.session_state["lignes"],
                                 default=st.session_state["lignes"], format_func=lambda v: f"{v:g} °C")
         col1, col2 = st.columns([3, 2])

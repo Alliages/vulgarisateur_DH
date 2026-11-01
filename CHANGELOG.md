@@ -3,6 +3,21 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.5 — version de test (01/11/2026), corrections
+
+- Fenêtre de choix : les tuiles de zone et de fichier sont cliquables sur toute leur surface (le bouton
+  transparent n'avait que la largeur de son texte : seule la partie gauche réagissait).
+- Menu : retour à la carte du fichier en cours de la 0.9.2 (seul le bouton « Changer de fichier » l'ouvre),
+  sans pastille rouge.
+- Graphique de l'année (Analyser) : nuits ≥ 20 °C en bandes violettes claires, avec un point au minimum de
+  chaque nuit (plus foncé pour les nuits ≥ 24 °C).
+- Console Windows : le message sans conséquence « ConnectionResetError [WinError 10054] » (connexion fermée
+  par le navigateur) n'est plus affiché.
+- **Réglage d'occupation** : à la première ouverture après le démarrage, l'outil pouvait passer en « 24h/24 »
+  (DH 1 133 au lieu de 839 pour H1a Th-D) : la mémoire du navigateur relançait la page pendant le premier calcul
+  et Streamlit perdait l'état du bouton replié. Le réglage est maintenant gardé à part des boutons (8 premières
+  ouvertures sur 8 correctes) ; « Revenir au réglage RE2020 » remet aussi l'affichage des boutons.
+
 ## 0.9.4 — version de test (01/11/2026)
 
 - Bouton de repli du menu toujours visible, flèche blanche ; survol de « Réglages » : indigo éclairci.

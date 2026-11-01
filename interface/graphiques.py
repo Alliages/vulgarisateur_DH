@@ -66,6 +66,7 @@ PART_DH_PERIODE = 1.5                 # semaine et journée : barres sur les deu
 # --- Nuits chaudes (Comparer) : une case par nuit, du clair au foncé ---
 COULEURS_NUITS = ["#ECEAF3", "#8C86B8", INDIGO]   # < 20 °C · tropicale (≥ 20 °C) · très chaude (≥ 24 °C)
 HAUTEUR_NUITS = 350
+FOND_NUIT_CHAUDE = "rgba(140,134,184,0.16)"   # bande violette claire sur chaque nuit tropicale (graphique de l'année)
 DEMI_HAUTEUR_CASE = 0.29              # demi-hauteur d'une rangée de cases (unités de l'axe Y) : cadre ajusté aux cases
 ECART_LIGNES_NUITS = 46               # px entre les deux rangées de nuits (place pour l'étiquette « de suite »)
 FORMAT_DATE = "%-d %B"                # « 10 juin » (mois en français grâce à CONFIG_PLOTLY)
@@ -219,9 +220,10 @@ def _ecart_texte(ecart):
 # ANALYSER — série de l'année
 # ============================================================
 
-def serie_annuelle(analyse, lignes, fenetre, source):
+def serie_annuelle(analyse, lignes, fenetre, source, seuil_tropical=20.0, seuil_tres_chaud=24.0, nuit_debut=22,
+                   nuit_fin=6):
     """Moyenne journalière + bande min-max (rouge clair) + horaire fin + DH du jour en barres jaunes,
-    extrêmes annotés, zoom."""
+    nuits ≥ 20 °C (bandes et points violets), extrêmes annotés, zoom."""
     s, jours = analyse.serie, analyse.jours
     midi = jours.index + pd.Timedelta(hours=12)
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -241,6 +243,22 @@ def serie_annuelle(analyse, lignes, fenetre, source):
     fig.add_trace(go.Scatter(x=s.horodatage, y=analyse.seuil, mode="lines", name="Seuil DH", visible="legendonly",
                              line=dict(color=GRIS, width=1, shape="hv"), hovertemplate="seuil %{y:.0f} °C"),
                   secondary_y=False)
+    # Nuits chaudes : bande violette claire sur la nuit + point au minimum de la nuit (couleurs de Comparer)
+    nuits = analyse.nuits_detail
+    for seuil, plafond, couleur, nom, taille in (
+            (seuil_tropical, seuil_tres_chaud, COULEURS_NUITS[1], f"Nuit tropicale (min ≥ {seuil_tropical:g} °C)", 7),
+            (seuil_tres_chaud, np.inf, COULEURS_NUITS[2], f"Nuit très chaude (min ≥ {seuil_tres_chaud:g} °C)", 8)):
+        choix = nuits[(nuits["tmin"] >= seuil) & (nuits["tmin"] < plafond)]
+        if choix.empty:
+            continue
+        fig.add_trace(go.Scatter(x=choix["quand"], y=choix["tmin"], mode="markers", name=nom,
+                                 marker=dict(color=couleur, size=taille, line=dict(color="white", width=1)),
+                                 customdata=[f"nuit du {jour_mois(d)}" for d in choix.index],
+                                 hovertemplate="%{customdata} : %{y:.1f} °C au plus bas<extra></extra>"),
+                      secondary_y=False)
+    for d in nuits.index[nuits["tmin"] >= seuil_tropical]:
+        fig.add_vrect(x0=d + pd.Timedelta(hours=nuit_debut), x1=d + pd.Timedelta(days=1, hours=nuit_fin),
+                      fillcolor=FOND_NUIT_CHAUDE, line_width=0, layer="below")
     # Extrêmes : température maximale et nuit la plus chaude (minimum nocturne le plus élevé)
     i_max = int(np.argmax(s.t))
     t_max = s.horodatage[i_max]
@@ -260,7 +278,9 @@ def serie_annuelle(analyse, lignes, fenetre, source):
                                 f"nuit du {jour_mois(n.name)} ({heure(n['quand'])})")
     styler(fig, f"Température extérieure · {s.libelle}",
            "Courbe : moyenne de chaque journée · rouge clair : écart entre le minimum et le maximum du jour · "
-           "trait fin : heure par heure · barres jaunes : DH du jour. Molette ou curseur pour zoomer.",
+           "trait fin : heure par heure<br>"
+           f"barres jaunes : DH du jour · violet : nuits ≥ {seuil_tropical:g} °C (point au minimum de la nuit). "
+           "Molette ou curseur pour zoomer.",
            HAUTEUR_PRINCIPAL, double_axe=True, source=source)
     axe_dh(fig, jours["dh"].max() if len(jours) else 1)
     lignes_horizontales(fig, lignes, sous_graphiques=True)

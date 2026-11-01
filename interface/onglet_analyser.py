@@ -56,7 +56,9 @@ def afficher(analyse, resultats, reglage, hyp, aller_methode):
 
     s = analyse.serie
     avec_annee = not s.meta.get("periode", "").startswith("année type")
-    st.plotly_chart(g.serie_annuelle(analyse, reglage["lignes"], fenetre_ete(s, hyp), source(s)),
+    st.plotly_chart(g.serie_annuelle(analyse, reglage["lignes"], fenetre_ete(s, hyp), source(s),
+                                     valeur(hyp, "seuil_nuit_tropicale"), valeur(hyp, "seuil_nuit_tres_chaude"),
+                                     int(valeur(hyp, "nuit_debut")), int(valeur(hyp, "nuit_fin"))),
                     width="stretch", config=CONFIG_PLOTLY, theme=None)
 
     col_s, col_j = st.columns([2, 1])

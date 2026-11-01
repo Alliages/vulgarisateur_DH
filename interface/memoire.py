@@ -14,6 +14,7 @@
 ============================================================
 """
 
+import os
 from typing import Callable
 
 import streamlit as st
@@ -22,6 +23,7 @@ import streamlit as st
 # PARAMÈTRES
 # ============================================================
 CLE_COMPOSANT = "memoire_navigateur"
+VARIABLE_SANS_MEMOIRE = "METEO_SANS_MEMOIRE"   # variable d'environnement : =1 désactive la mémoire
 CLE_CHARGEE = "memoire_chargee"           # vrai quand le navigateur a été lu pour cette session
 CLE_ENVOYE = "memoire_envoyee"            # dernières valeurs envoyées au navigateur (évite les relances en boucle)
 # clé de session → nom dans le navigateur
@@ -30,6 +32,8 @@ A_GARDER = {"fichier_courant": "fichier", "fichiers_recents": "recents", "lignes
 
 
 def _gestionnaire():
+    if os.environ.get(VARIABLE_SANS_MEMOIRE) == "1":       # pour les tests : pas de mémoire du navigateur
+        return None
     try:
         from streamlit_extras.local_storage_manager import local_storage_manager
         return local_storage_manager(key=CLE_COMPOSANT)

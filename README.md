@@ -9,7 +9,7 @@ des journées ou des semaines types, et exporte les résultats.
 
 > Document non officiel. Les DH sont calculés sur la **température extérieure** : c'est un indicateur
 > de sévérité du climat, pas le DH d'un bâtiment.
-> Version 0.9.4, version de test.
+> Version 0.9.5, version de test.
 
 ![Capture d'écran de l'outil](docs/capture-accueil.png)
 
@@ -28,11 +28,12 @@ Par défaut, tout suit la méthode RE2020 (arrêté du 4 août 2021, annexe III,
 
 ## Comment l'utiliser en quatre étapes
 
-1. **Choisir le fichier météo** : dans le menu de gauche, cliquer sur la carte du fichier en cours.
+1. **Choisir le fichier météo** : dans le menu de gauche, bouton « Changer de fichier ».
    La fenêtre de choix propose une recherche, les familles de fichiers (RE2020, relevés…), les zones
    placées comme sur la carte de France, puis les fichiers de la zone avec leurs chiffres clés.
 2. **Lire l'onglet ① Analyser** : huit cartes d'indicateurs, l'année heure par heure (zoom à la
-   molette ou avec le curseur), puis la semaine et la journée les plus chaudes. La pastille « i » de
+   molette ou avec le curseur ; les nuits ≥ 20 °C en violet), puis la semaine et la journée les plus
+   chaudes. La pastille « i » de
    chaque carte donne la définition.
 3. **Comparer dans l'onglet ②** : le fichier en cours face à un second fichier (bouton « Changer le
    second fichier »). Tableau des écarts, été superposé, nuits chaudes nuit par nuit, journées et

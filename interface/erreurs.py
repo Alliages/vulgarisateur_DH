@@ -14,6 +14,8 @@
 ============================================================
 """
 
+import logging
+import sys
 import traceback
 
 import streamlit as st
@@ -35,3 +37,25 @@ def afficher(ex: Exception):
     st.error(MESSAGE, icon="⚠️")
     with st.expander("Détail de l'erreur (à copier)", expanded=False):
         st.code(detail, language=None)
+
+
+# ============================================================
+# BRUIT WINDOWS DANS LA CONSOLE
+# ============================================================
+# Sous Windows, quand le navigateur ferme ou recharge sa connexion, Python (asyncio) écrit dans la console
+# « Exception in callback _ProactorBasePipeTransport._call_connection_lost … ConnectionResetError
+# [WinError 10054] ». C'est sans conséquence pour l'outil : ces messages-là sont simplement filtrés.
+
+class _FiltreConnexionFermee(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        exception = record.exc_info[1] if record.exc_info else None
+        return not isinstance(exception, (ConnectionResetError, ConnectionAbortedError))
+
+
+def filtrer_bruit_windows():
+    """À appeler au démarrage ; sans effet hors Windows, et posé une seule fois."""
+    if sys.platform != "win32":
+        return
+    journal = logging.getLogger("asyncio")
+    if not any(type(f).__name__ == "_FiltreConnexionFermee" for f in journal.filters):
+        journal.addFilter(_FiltreConnexionFermee())
