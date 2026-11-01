@@ -3,6 +3,30 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.2 — version de test (01/11/2026)
+
+Retours du 31/10 et du 01/11, avec le style de l'image envoyée (logo en onde, titres de menu en pastilles indigo,
+onglets cerclés).
+
+- **Onglet ④ Exporter** (`interface/onglet_exporter.py`, `export/export.py`) : 1 ou 2 fichiers (le 2ᵉ = second
+  fichier de Comparer), avec ou sans indicateurs, avec ou sans données horaires ; copier-coller en tableau (Excel,
+  Word) ou en texte (mail) ; CSV « Excel français » (indicateurs en tête, 8 760 heures, valeurs au millième) ou
+  Excel .xlsx. Réglage, version et sources inscrits. L'export du menu de gauche est retiré.
+- **Haut de page fixe** jusqu'au nom du fichier (en-tête, barre des onglets, nom du fichier).
+- **Plus rapide** : seul l'onglet ouvert est calculé ; la navigation dans Méthode & sources ne recalcule que la page
+  de documentation (fragment).
+- Menu : réglages dans une partie repliée par défaut ; titres « Fichier météo » / « Réglages » en pastilles indigo.
+- Ordre par défaut des cartes : DH, heures > 28 °C, DH nuit, nuits tropicales, nuits tropicales consécutives,
+  nuits ≥ 24 °C, température moyenne, température moyenne nocturne (hypotheses.xlsx).
+- Semaine la plus chaude : sans légende (couleurs expliquées dans le sous-titre) ; semaine et journée : axe des DH
+  plus bas, barres plus hautes.
+- Comparer : **graphique des nuits chaudes, nuit par nuit**, avec la plus longue suite de nuits tropicales encadrée.
+- Mémoire du navigateur (`streamlit-extras` local_storage_manager) : dernier fichier, récents, lignes, ordre des cartes.
+- Erreurs lisibles : message en français + détail copiable (try/except natif ; l'extra « exception_handler »
+  ne fonctionne plus avec Streamlit 1.66).
+- Tests : `tests/test_export.py`.
+- requirements.txt : Plotly 7.1.0 (Plotly 5.22.0 bloquait l'installation de streamlit-extras, qui exige 5.23 ou plus).
+
 ## 0.9.0 — version de test (29/10/2026)
 
 On approche d'une version finale. Validé : fond teinté des cartes, DH par jour sur l'année, heure légale des maximums.

@@ -57,7 +57,14 @@ DEGRES_BANDE_NUITS = 10              # °C libres sous les courbes de l'été su
 Y_ECART_ETE = 0.72                    # position (paper) de l'écart moyen écrit : haut gauche, sous les étiquettes Tmax
 DEGRES_ETIQUETTE_NUIT = 2.5           # °C au-dessus du maximum : hauteur de l'étiquette « nuit la plus chaude »
 MARGE_HAUT_DEGRES = 9                 # °C libres au-dessus du maximum (noms des mois + étiquettes)
-PART_DH = 3.2                         # l'axe des DH monte à PART_DH × max : barres dans le tiers bas
+PART_DH = 3.2                         # année : l'axe des DH monte à PART_DH × max (barres dans le tiers bas)
+PART_DH_PERIODE = 1.5                 # semaine et journée : barres sur les deux tiers de la hauteur
+
+# --- Nuits chaudes (Comparer) : une case par nuit, du clair au foncé ---
+COULEURS_NUITS = ["#ECEAF3", "#8C86B8", INDIGO]   # < 20 °C · tropicale (≥ 20 °C) · très chaude (≥ 24 °C)
+HAUTEUR_NUITS = 350
+DEMI_HAUTEUR_CASE = 0.29              # demi-hauteur d'une rangée de cases (unités de l'axe Y) : cadre ajusté aux cases
+ECART_LIGNES_NUITS = 46               # px entre les deux rangées de nuits (place pour l'étiquette « de suite »)
 FORMAT_DATE = "%-d %B"                # « 10 juin » (mois en français grâce à CONFIG_PLOTLY)
 FORMAT_SURVOL = "%A %-d %B, %-H h"    # « lundi 6 août, 16 h » au survol
 ANNEE_SUPERPOSITION = 2018            # années ramenées sur une même année pour superposer
@@ -131,9 +138,9 @@ def styler(fig, titre, sous_titre="", hauteur=HAUTEUR_SECONDAIRE, titre_y="°C",
     return fig
 
 
-def axe_dh(fig, maximum):
-    """Axe de droite des DH (jaune foncé), barres cantonnées au tiers bas du graphique."""
-    haut_dh = max(float(maximum) * PART_DH, 1)
+def axe_dh(fig, maximum, part=PART_DH):
+    """Axe de droite des DH (jaune foncé) ; l'axe monte à part × maximum (plus part est faible, plus les barres sont hautes)."""
+    haut_dh = max(float(maximum) * part, 1)
     fig.update_yaxes(title_text="", secondary_y=True, showgrid=False, showline=True, zeroline=False,
                      linecolor=JAUNE_FONCE, linewidth=EPAISSEUR_AXE, tickcolor=JAUNE_FONCE, ticks="outside",
                      tickfont=dict(color=JAUNE_FONCE), range=[0, haut_dh], dtick=pas_rond(haut_dh), tick0=0,
@@ -284,7 +291,7 @@ def courbe_dh(t, seuil, dh, x, titre, sous_titre="", echelle="semaine", occupe=N
     _zones_inoccupees(fig, x, occupe)   # après les courbes : sa trace vide ne doit pas fixer le type de l'axe
     styler(fig, titre, sous_titre, double_axe=True, source=source, legende=legende)
     fig.update_xaxes(type="date")
-    axe_dh(fig, np.max(dh))
+    axe_dh(fig, np.max(dh), PART_DH_PERIODE)
     if echelle == "semaine":
         midis = [d + pd.Timedelta(hours=12) for d in pd.date_range(x[0].normalize(), x[-1].normalize(), freq="D")]
         fig.update_xaxes(tickvals=midis, ticktext=[jour_court(d) for d in midis])
@@ -441,6 +448,72 @@ def semaines_superposees(a, b, nom_a, nom_b, debut_a, debut_b, nb_jours, bas, ha
     bandes_confort(fig, bas, haut, y_min, y_max)
     fig.update_xaxes(tickvals=[24 * k + 12 for k in range(nb_jours)],
                      ticktext=[f"jour {k + 1}" for k in range(nb_jours)], range=[-0.5, n - 0.5])
+    fig.update_layout(hovermode="closest")
+    return fig
+
+
+def _plus_longue_suite(chaudes: pd.Series):
+    """(début, fin, longueur) de la plus longue suite de nuits consécutives à True (None si aucune)."""
+    meilleure, debut, n = (None, None, 0), None, 0
+    for d, oui in chaudes.items():
+        if oui:
+            debut, n = (d if n == 0 else debut), n + 1
+            if n > meilleure[2]:
+                meilleure = (debut, d, n)
+        else:
+            n = 0
+    return meilleure if meilleure[2] else None
+
+
+def nuits_comparees(a, b, nom_a, nom_b, fenetre, seuil_tropical, seuil_tres_chaud, source):
+    """
+    Les nuits chaudes des deux fichiers, nuit par nuit sur l'été : une case par nuit (température minimale
+    22h-6h), claire sous le seuil tropical, moyenne au-dessus, foncée au-dessus du seuil « très chaude ».
+    La plus longue suite de nuits tropicales est encadrée de la couleur du fichier.
+    """
+    f0, f1 = pd.Timestamp(fenetre[0]).normalize(), pd.Timestamp(fenetre[1]).normalize()
+    jours = pd.date_range(f0, f1, freq="D")
+    fig = go.Figure()
+    noms, z, textes, etiquettes = [], [], [], []
+    for k, (an, nom, c) in enumerate(_deux(a, b, nom_a, nom_b)):
+        n = an.nuits.copy()
+        n.index = _superposable(n.index)
+        n = n[~n.index.duplicated()].reindex(jours)
+        categorie = np.where(n.isna(), np.nan, np.where(n >= seuil_tres_chaud, 2, np.where(n >= seuil_tropical, 1, 0)))
+        noms.append(nom)
+        z.append(categorie)
+        textes.append([f"nuit du {jour_mois(d)} : {nombre(v)} °C au plus bas" if pd.notna(v) else
+                       f"nuit du {jour_mois(d)} : pas de donnée" for d, v in n.items()])
+        suite = _plus_longue_suite(n >= seuil_tropical)
+        nb_20, nb_24 = int((n >= seuil_tropical).sum()), int((n >= seuil_tres_chaud).sum())
+        etiquettes.append(f"<b style='color:{c}'>{nom}</b><br><span style='font-size:11px'>{nb_20} nuits ≥ "
+                          f"{seuil_tropical:g} °C · {nb_24} ≥ {seuil_tres_chaud:g} °C en été</span>")
+        if suite:
+            debut, fin, longueur = suite
+            fig.add_shape(type="rect", x0=debut - pd.Timedelta(hours=12), x1=fin + pd.Timedelta(hours=12),
+                          y0=k - DEMI_HAUTEUR_CASE, y1=k + DEMI_HAUTEUR_CASE, xref="x", yref="y", line=dict(color=c, width=3),
+                          fillcolor="rgba(0,0,0,0)")
+            fig.add_annotation(x=debut + (fin - debut) / 2, y=k - DEMI_HAUTEUR_CASE, xref="x", yref="y", yanchor="bottom",
+                               showarrow=False, font=dict(size=12, color=c),
+                               text=f"<b>{longueur} nuit{'s' if longueur > 1 else ''} tropicale{'s' if longueur > 1 else ''}"
+                                    f" de suite</b> · {jour_mois(debut)} → {jour_mois(fin)}")
+    pas = 2 / 3
+    echelle = [[0, COULEURS_NUITS[0]], [pas / 2, COULEURS_NUITS[0]], [pas / 2, COULEURS_NUITS[1]],
+               [1 - pas / 4, COULEURS_NUITS[1]], [1 - pas / 4, COULEURS_NUITS[2]], [1, COULEURS_NUITS[2]]]
+    fig.add_trace(go.Heatmap(x=jours, y=list(range(len(noms))), z=z, text=textes, zmin=0, zmax=2,
+                             colorscale=echelle, showscale=False, xgap=1, ygap=ECART_LIGNES_NUITS,
+                             hovertemplate="%{text}<extra></extra>"))
+    # légende : trois carrés
+    for nom_cat, c in zip((f"moins de {seuil_tropical:g} °C", f"tropicale (≥ {seuil_tropical:g} °C)",
+                           f"très chaude (≥ {seuil_tres_chaud:g} °C)"), COULEURS_NUITS):
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name=nom_cat,
+                                 marker=dict(symbol="square", size=13, color=c, line=dict(color="#C9C6BF", width=1))))
+    styler(fig, "Les nuits chaudes, nuit par nuit",
+           "Une case par nuit (température minimale entre 22 h et 6 h) · cadre : plus longue suite de nuits tropicales",
+           HAUTEUR_NUITS, titre_y="", source=source)
+    fig.update_xaxes(type="date", range=[f0 - pd.Timedelta(hours=12), f1 + pd.Timedelta(hours=12)])
+    fig.update_yaxes(tickvals=list(range(len(noms))), ticktext=etiquettes, autorange="reversed", showgrid=False,
+                     tickformat=None, automargin=True, range=None)
     fig.update_layout(hovermode="closest")
     return fig
 

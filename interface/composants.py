@@ -38,6 +38,10 @@ PART_TEINTE_FOND = 0.09                 # fond des cartes : couleur de la carte 
 PART_TEINTE_ICONE = 0.20                # rond de l'icône
 COULEURS_STATUT = {"sourcé": TEAL, "provisoire": "#C77D2E", "à préciser": CORAIL, "hypothèse": GRIS_DOUX}
 
+# --- En-tête ---
+TRACE_LOGO = "M2 12 C3.2 12 3.6 9.5 4.8 9.5 S6.4 14.5 7.6 14.5 S9.2 6 10.6 6 S12.4 18 13.8 18 S15.6 3.5 17.2 3.5 S19.2 20.5 22 12"
+CONTOUR_ONGLET = "#2C5E6E"              # contour des pastilles de la barre des onglets (bleu canard sombre)
+
 # --- Mini-graphique des cartes (px) ---
 LARGEUR_MINI, HAUTEUR_MINI, HAUTEUR_LIBELLES = 104, 34, 11
 NB_MOIS_LIBELLES = 5                    # au-delà, pas de nom de mois sous les barres
@@ -61,9 +65,25 @@ CSS = f"""
   .stApp {{ background: {FOND}; }}
   [data-testid="stSidebar"] {{ background: {BLEU_MENU}; }}
   [data-testid="stSidebar"] h3 {{ color: {INDIGO}; font-size: 0.85rem; letter-spacing: .06em; margin-top: .6rem; }}
+  /* Menu de gauche : titres de partie en pastille indigo, panneau bleu clair, bouton de repli indigo */
+  .titre-menu {{ background: {INDIGO}; color: white; border-radius: 16px; text-align: center; font-weight: 800;
+                 font-size: 1.15rem; letter-spacing: .08em; padding: 7px 10px; text-transform: uppercase; }}
+  .st-key-panneau_fichier {{ background: rgba(255,255,255,.28); border-radius: 18px; padding: 10px 10px 12px; }}
+  [data-testid="stSidebarCollapseButton"] button, [data-testid="stExpandSidebarButton"] {{ background: {INDIGO};
+      color: white; border-radius: 10px; }}
+  [data-testid="stSidebarCollapseButton"] button:hover, [data-testid="stExpandSidebarButton"]:hover {{
+      background: #45407a; color: white; }}
+  .st-key-reglages {{ border: none; }}
+  .st-key-reglages details {{ border: none; background: transparent; }}
+  .st-key-reglages summary {{ background: {INDIGO}; border-radius: 16px; padding: 7px 14px; color: white; }}
+  .st-key-reglages summary:hover {{ color: white; }}
+  .st-key-reglages summary p {{ color: white; font-weight: 800; font-size: 1.15rem; letter-spacing: .08em;
+                                text-align: center; width: 100%; }}
+  .st-key-reglages summary svg {{ fill: white; color: white; }}
+  .sous-titre-menu {{ font-size: .8rem; font-weight: 700; color: {INDIGO}; letter-spacing: .05em; margin-top: 4px; }}
   header[data-testid="stHeader"] {{ background: transparent; }}
   [data-testid="stToolbarActions"], [data-testid="stMainMenu"], [data-testid="stAppDeployButton"] {{ display: none; }}
-  .block-container {{ padding-top: 2.2rem; max-width: 1500px; }}
+  .block-container {{ padding-top: 1.2rem; max-width: 1500px; }}
   /* En-tête clair : logo rond + nom + sous-titre + version */
   .entete {{ display: flex; align-items: center; gap: 16px; margin: 0 0 14px; }}
   .entete .logo {{ width: 52px; height: 52px; border-radius: 50%; background: {INDIGO}; display: flex;
@@ -73,13 +93,20 @@ CSS = f"""
   .entete .version {{ margin-left: auto; background: white; color: {INDIGO}; border-radius: 22px;
                       padding: 8px 16px; font-size: .85rem; font-weight: 600; box-shadow: {OMBRE}; }}
   .entete .version b {{ color: {BLEU_MENU}; }}
-  /* Barre des onglets (indigo, onglet actif en bleu) */
-  .stTabs [role="tablist"] {{ background: {INDIGO}; border-radius: {RAYON}; padding: 7px 10px; gap: 8px; }}
-  .stTabs [role="tab"] {{ color: #CFCBE6 !important; border-radius: 18px; padding: 6px 18px !important;
-                          height: auto; background: transparent; }}
-  .stTabs [role="tab"] p {{ font-size: 1rem; font-weight: 600; color: inherit; }}
-  .stTabs [role="tab"][aria-selected="true"] {{ background: {BLEU_MENU}; color: {INDIGO} !important; }}
-  .stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"] {{ display: none; }}
+  /* Bloc fixe en haut : en-tête + barre des onglets + nom du fichier (le reste défile dessous) */
+  /*   Streamlit enveloppe le bloc dans un conteneur de même hauteur : c'est l'enveloppe qui doit être collante */
+  [data-testid="stLayoutWrapper"]:has(> .st-key-haut_fixe) {{ position: sticky; top: 0; z-index: 990; }}
+  .st-key-haut_fixe {{ background: {FOND}; padding-top: .9rem; border-bottom: 1px solid {TRAIT}; padding-bottom: 4px; }}
+  /* Barre des onglets (indigo) : pastilles cerclées, onglet actif en bleu */
+  .st-key-barre_onglets {{ background: {INDIGO}; border-radius: {RAYON}; padding: 8px 10px; }}
+  .st-key-barre_onglets [data-testid="stButtonGroup"] {{ gap: 8px; }}
+  .st-key-barre_onglets [data-testid="stButtonGroup"] button {{ background: transparent; color: #CFCBE6;
+      border: 2px solid {CONTOUR_ONGLET} !important; border-radius: 22px !important; padding: 5px 18px; }}
+  .st-key-barre_onglets [data-testid="stButtonGroup"] button p {{ font-size: 1.02rem; font-weight: 600; }}
+  .st-key-barre_onglets [data-testid="stButtonGroup"] button:hover {{ color: white; border-color: {BLEU_MENU} !important; }}
+  .st-key-barre_onglets [data-testid="stButtonGroup"] button[aria-checked="true"],
+  .st-key-barre_onglets [data-testid="stButtonGroup"] button[aria-checked="true"]:hover {{
+      background: {BLEU_MENU}; color: {INDIGO}; border-color: {BLEU_MENU} !important; }}
   /* Nom du fichier en gros, sous les onglets */
   .fichier {{ margin: 8px 0 12px; }}
   .fichier .nom {{ font-size: 2rem; font-weight: 700; color: {GRIS}; line-height: 1.15; }}
@@ -212,6 +239,47 @@ CSS = f"""
   .st-key-dlg_analyser button {{ background: {CORAIL}; }}
   .st-key-dlg_comparer_second button {{ background: {TEAL}; }}
   .st-key-dlg_comparer button {{ border-radius: 22px; border: 1.5px solid {INDIGO}; color: {INDIGO}; font-weight: 600; }}
+  /* --- Onglet Exporter --- */
+  .titre-onglet {{ font-size: 1.9rem; font-weight: 800; margin: 10px 0 0; }}
+  .sous-onglet {{ color: {GRIS_DOUX}; font-size: .95rem; margin-bottom: 10px; }}
+  .st-key-choix_export, .st-key-carte_copier, .st-key-carte_csv {{ background: white; border-radius: {RAYON};
+      box-shadow: {OMBRE}; padding: 14px 18px; }}
+  .lib-groupe {{ font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: {GRIS_DOUX};
+                 font-weight: 700; margin-bottom: 4px; }}
+  .puces-export {{ display: flex; flex-wrap: wrap; gap: 6px; }}
+  .puces-export .puce {{ background: {CARAMEL_CLAIR}; border: 1px solid {CARAMEL}; border-radius: 12px;
+                         padding: 1px 9px; font-size: .78rem; }}
+  .entete-carte {{ display: flex; align-items: center; gap: 10px; }}
+  .entete-carte .num {{ width: 26px; height: 26px; border-radius: 50%; background: {BLEU_MENU}; color: {INDIGO};
+                        font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex: none; }}
+  .entete-carte h3 {{ margin: 0; padding: 0; font-size: 1.2rem; }}
+  .st-key-choix_export [data-testid="stButtonGroup"] button, .st-key-carte_copier [data-testid="stButtonGroup"] button,
+  .st-key-carte_csv [data-testid="stButtonGroup"] button {{ border-radius: 20px !important; border: none;
+      background: #F1EFEA; color: {GRIS}; font-weight: 600; }}
+  .st-key-choix_export [data-testid="stButtonGroup"] button[aria-checked="true"],
+  .st-key-carte_copier [data-testid="stButtonGroup"] button[aria-checked="true"],
+  .st-key-carte_csv [data-testid="stButtonGroup"] button[aria-checked="true"],
+  .st-key-choix_export [data-testid="stButtonGroup"] button[aria-checked="true"]:hover,
+  .st-key-carte_copier [data-testid="stButtonGroup"] button[aria-checked="true"]:hover,
+  .st-key-carte_csv [data-testid="stButtonGroup"] button[aria-checked="true"]:hover {{ background: {INDIGO}; color: white; }}
+  .st-key-carte_copier [data-testid="stCode"] code {{ font-size: .78rem; }}
+  .bloc-tete {{ background: {CARAMEL_CLAIR}; padding: 8px 12px; border-radius: 12px; font: .74rem/1.55 monospace;
+                color: #7a5a2c; white-space: nowrap; overflow-x: auto; margin-bottom: 8px; }}
+  .bloc-tete b {{ color: {GRIS}; }}
+  .apercu {{ border: 1px solid #E6E4DF; border-radius: 12px; overflow-x: auto; font-size: .74rem; margin-bottom: 10px; }}
+  .bloc-tete + div .apercu, .bloc-tete ~ .apercu {{ border-top-left-radius: 0; border-top-right-radius: 0; }}
+  .apercu table {{ width: 100%; border-collapse: collapse; font-family: monospace; }}
+  .apercu th {{ background: #F7F6F3; text-align: right; padding: 5px 7px; border-bottom: 1.5px solid {TRAIT};
+                white-space: nowrap; font-weight: 700; }}
+  .apercu td {{ text-align: right; padding: 3px 7px; border-bottom: 1px solid #F0EEEA; white-space: nowrap; }}
+  .apercu th:nth-child(-n+2), .apercu td:nth-child(-n+2) {{ text-align: left; }}
+  .apercu td.dh {{ color: #9C5A12; }}
+  .apercu tr.trous td {{ color: {GRIS_DOUX}; text-align: left; background: #FBFAF8; font-family: Inter, sans-serif;
+                         padding-left: 120px; }}
+  .st-key-export_telecharger button {{ background: {CORAIL}; border: none; border-radius: 22px; font-weight: 700;
+                                        color: white; }}
+  .nom-export {{ font-size: .78rem; color: {GRIS_DOUX}; line-height: 1.4; word-break: break-all; }}
+  .nom-export b {{ color: {GRIS}; font-family: monospace; font-weight: 600; }}
   .pied {{ color: {GRIS_DOUX}; font-size: .75rem; border-top: 1px solid {TRAIT}; margin-top: 18px; padding-top: 6px;
            display: flex; justify-content: space-between; }}
 </style>
@@ -234,22 +302,34 @@ def _icone(nom: str, taille: int = 18, epaisseur: float = 2) -> str:
             f'stroke-width="{epaisseur}" stroke-linecap="round" stroke-linejoin="round">{ICONES[nom]}</svg>')
 
 
-def logo_soleil() -> str:
-    return (f'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="{CARAMEL}" stroke-width="2.2" '
-            f'stroke-linecap="round">{ICONES["soleil"]}</svg>')
+def logo_onde() -> str:
+    """Logo : une onde de température (oscillation qui s'amplifie), trait blanc sur rond indigo."""
+    return ('<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" '
+            f'stroke-linecap="round" stroke-linejoin="round"><path d="{TRACE_LOGO}"/></svg>')
 
 
 # ============================================================
 # EN-TÊTE ET NOM DU FICHIER
 # ============================================================
 
-def entete():
+def haut_de_page(serie, onglets: list, cle_onglet: str) -> str:
+    """
+    Bloc fixé en haut de la page : en-tête, barre des onglets, nom du fichier en cours.
+    Renvoie l'onglet choisi (seul son contenu est calculé ensuite).
+    """
     st.markdown(CSS, unsafe_allow_html=True)
-    st.markdown(
-        f'<div class="entete"><div class="logo">{logo_soleil()}</div>'
-        f'<div><div class="nom">Météo et Chaleur</div>'
-        f'<div class="sous">Analyser la météo sous l\'angle de l\'inconfort d\'été</div></div>'
-        f'<div class="version">v<b>{VERSION}</b> · {STATUT_VERSION}</div></div>', unsafe_allow_html=True)
+    st.session_state.setdefault(cle_onglet, onglets[0])
+    with st.container(key="haut_fixe"):
+        st.markdown(
+            f'<div class="entete"><div class="logo">{logo_onde()}</div>'
+            f'<div><div class="nom">Météo et Chaleur</div>'
+            f'<div class="sous">Analyser la météo sous l\'angle de l\'inconfort d\'été</div></div>'
+            f'<div class="version">v<b>{VERSION}</b> · {STATUT_VERSION}</div></div>', unsafe_allow_html=True)
+        with st.container(key="barre_onglets"):
+            onglet = st.segmented_control("Onglets", onglets, key=cle_onglet, required=True,
+                                          label_visibility="collapsed")
+        titre_fichier(serie)
+    return onglet or onglets[0]
 
 
 def description_fichier(serie) -> str:

@@ -6,7 +6,7 @@ journée et semaine les plus chaudes), comparer deux fichiers et créer des jour
 > Les DH sont calculés sur la **température extérieure** : c'est un indicateur de sévérité du climat,
 > pas le DH d'un bâtiment.
 
-Version : voir `CHANGELOG.md` (0.9.0, version de test).
+Version : voir `CHANGELOG.md` (0.9.2, version de test).
 
 ## Lancer en local
 
@@ -30,6 +30,12 @@ streamlit run app.py
 Sans cet environnement, l'outil reste utilisable : s'il ne peut pas charger pyarrow, il remplace les tableaux
 interactifs par un formulaire simple (onglet Créer) et des tableaux fixes (onglet Méthode).
 Pour tester ce mode : variable d'environnement `METEO_SANS_PYARROW=1`.
+
+## Ce que l'outil garde dans le navigateur
+
+Le dernier fichier ouvert, les fichiers récents, les lignes horizontales et l'ordre des cartes sont gardés dans le
+navigateur (stockage local, via `streamlit-extras`) d'une visite à l'autre. Rien n'est envoyé ailleurs ; si le
+stockage est bloqué (navigation privée), l'outil repart simplement des réglages RE2020.
 
 ## Organisation
 

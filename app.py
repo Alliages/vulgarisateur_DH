@@ -3,7 +3,8 @@
  MÉTÉO ET CHALEUR — point d'entrée Streamlit
 ============================================================
  Lancement local :  streamlit run app.py
- Onglets : ① Analyser · ② Comparer · ③ Créer · Méthode & sources
+ Onglets : ① Analyser · ② Comparer · ③ Créer · ④ Exporter · Méthode & sources
+ Seul l'onglet ouvert est calculé (navigation dans le bloc fixe du haut).
  Réglage par défaut : RE2020 (config/reglages.py).
 ============================================================
 """
@@ -15,10 +16,12 @@ from calcul.hypotheses import charger_hypotheses, charger_indicateurs, remplacer
 from calcul.indicateurs import analyser, calculer_indicateurs
 from calcul.serie import charger_catalogue, charger_serie, lire_fichier_importe
 from config.reglages import (FAMILLE_IMPORTES, LIBELLE_SEUILS_DH, LIBELLES_CRITERE_JOURNEE, LIBELLES_CRITERE_SEMAINE,
-                             LIBELLES_METHODE, ONGLETS, REGLAGE_RE2020, VERSION)
-from export.export import csv_horaire, excel_complet
-from interface import choix_fichier, onglet_analyser, onglet_comparer, onglet_creer, onglet_methode
-from interface.composants import entete, pied
+                             LIBELLES_METHODE, ONGLET_ANALYSER, ONGLET_COMPARER, ONGLET_CREER, ONGLET_EXPORTER,
+                             ONGLET_METHODE, ONGLETS, REGLAGE_RE2020)
+from export.export import FichierExport
+from interface import (choix_fichier, erreurs, memoire, onglet_analyser, onglet_comparer, onglet_creer, onglet_exporter,
+                       onglet_methode)
+from interface.composants import haut_de_page, pied
 
 # ============================================================
 # PARAMÈTRES
@@ -87,7 +90,7 @@ def _reinitialiser():
 
 def _aller_methode():
     """Lien « Méthode & sources › » du bandeau des hypothèses."""
-    st.session_state["onglet"] = ONGLETS[3]
+    st.session_state["onglet"] = ONGLET_METHODE
 
 
 def _mettre_en_tete():
@@ -128,45 +131,58 @@ SOURCES = choix_fichier.Sources(catalogue=CATALOGUE, charger=serie_par_cle, resu
 def _choisir_indicateurs():
     """Indicateurs affichés et leur ordre (l'ordre de la liste = l'ordre des cartes)."""
     st.session_state.setdefault(CLE_INDICATEURS, list(ORDRE_DEFAUT))
-    with st.sidebar.expander("Indicateurs affichés (ordre des cartes)"):
-        choisis = st.multiselect("Indicateurs", list(INDICATEURS), key=CLE_INDICATEURS,
-                                 format_func=_libelle_indicateur, label_visibility="collapsed")
-        col1, col2 = st.columns([4, 1], vertical_alignment="bottom")
-        col1.selectbox("Placer en tête", choisis, index=None, placeholder="Placer en tête…", key="indicateur_tete",
-                       format_func=_libelle_indicateur, label_visibility="collapsed")
-        col2.button("↑", on_click=_mettre_en_tete, help="Mettre l'indicateur choisi en première carte")
-        st.caption("L'ordre de la liste est l'ordre des cartes. Un indicateur retiré puis remis passe en dernier.")
+    st.markdown('<div class="sous-titre-menu">INDICATEURS AFFICHÉS (ORDRE DES CARTES)</div>', unsafe_allow_html=True)
+    choisis = st.multiselect("Indicateurs", list(INDICATEURS), key=CLE_INDICATEURS,
+                             format_func=_libelle_indicateur, label_visibility="collapsed")
+    col1, col2 = st.columns([4, 1], vertical_alignment="bottom")
+    col1.selectbox("Placer en tête", choisis, index=None, placeholder="Placer en tête…", key="indicateur_tete",
+                   format_func=_libelle_indicateur, label_visibility="collapsed")
+    col2.button("↑", on_click=_mettre_en_tete, help="Mettre l'indicateur choisi en première carte")
+    st.caption("L'ordre de la liste est l'ordre des cartes. Un indicateur retiré puis remis passe en dernier.")
     return [INDICATEURS[i] for i in (choisis or ORDRE_DEFAUT)]
 
 
 def barre_laterale():
+    """Fichier météo (toujours visible) puis réglages, repliés par défaut."""
     serie = serie_par_cle(choix_fichier.cle_courante(SOURCES))
     choix_fichier.menu(SOURCES, serie, lambda: choix_fichier.ouvrir("analyser", SOURCES))
 
-    st.sidebar.markdown("### RÉGLAGES")
     for cle, cle_widget in CLES_REGLAGE.items():
         st.session_state.setdefault(cle_widget, REGLAGE_RE2020[cle])
     st.session_state.setdefault("lignes", list(REGLAGE_RE2020["lignes"]))
-    reglage = {
-        "methode": st.sidebar.radio(LIBELLE_SEUILS_DH, list(LIBELLES_METHODE), format_func=LIBELLES_METHODE.get,
-                                    horizontal=True, key="r_methode"),
-        "occupation": st.sidebar.toggle("DH en occupation (logement)", key="r_occupation"),
-        "critere_journee": st.sidebar.radio("Journée la + chaude selon", list(LIBELLES_CRITERE_JOURNEE),
-                                            format_func=LIBELLES_CRITERE_JOURNEE.get, horizontal=True, key="r_journee"),
-        "critere_semaine": st.sidebar.radio("Semaine la + chaude selon", list(LIBELLES_CRITERE_SEMAINE),
-                                            format_func=LIBELLES_CRITERE_SEMAINE.get, key="r_semaine"),
-    }
-    lignes = st.sidebar.multiselect("Lignes horizontales (°C)", st.session_state["lignes"],
-                                    default=st.session_state["lignes"], format_func=lambda v: f"{v:g} °C")
-    col1, col2 = st.sidebar.columns([3, 2])
-    nouvelle = col1.number_input("Nouvelle ligne", value=35.0, step=1.0, format="%.0f", label_visibility="collapsed")
-    if col2.button("+ ligne"):
-        lignes = sorted(set(lignes) | {float(nouvelle)})
-    st.session_state["lignes"] = lignes
-    reglage["lignes"] = lignes
-    reglage["indicateurs"] = _choisir_indicateurs()
-    st.sidebar.button("↺ Revenir au réglage RE2020", on_click=_reinitialiser)
+    with st.sidebar.expander("RÉGLAGES", expanded=False, key="reglages"):
+        reglage = {
+            "methode": st.radio(LIBELLE_SEUILS_DH, list(LIBELLES_METHODE), format_func=LIBELLES_METHODE.get,
+                                horizontal=True, key="r_methode"),
+            "occupation": st.toggle("DH en occupation (logement)", key="r_occupation"),
+            "critere_journee": st.radio("Journée la + chaude selon", list(LIBELLES_CRITERE_JOURNEE),
+                                        format_func=LIBELLES_CRITERE_JOURNEE.get, horizontal=True, key="r_journee"),
+            "critere_semaine": st.radio("Semaine la + chaude selon", list(LIBELLES_CRITERE_SEMAINE),
+                                        format_func=LIBELLES_CRITERE_SEMAINE.get, key="r_semaine"),
+        }
+        lignes = st.multiselect("Lignes horizontales (°C)", st.session_state["lignes"],
+                                default=st.session_state["lignes"], format_func=lambda v: f"{v:g} °C")
+        col1, col2 = st.columns([3, 2])
+        nouvelle = col1.number_input("Nouvelle ligne", value=35.0, step=1.0, format="%.0f",
+                                     label_visibility="collapsed")
+        if col2.button("+ ligne"):
+            lignes = sorted(set(lignes) | {float(nouvelle)})
+        st.session_state["lignes"] = lignes
+        reglage["lignes"] = lignes
+        reglage["indicateurs"] = _choisir_indicateurs()
+        st.button("↺ Revenir au réglage RE2020", on_click=_reinitialiser)
     return serie, reglage
+
+
+# ============================================================
+# MÉMOIRE DU NAVIGATEUR : ce qu'on accepte de relire
+# ============================================================
+VALIDATEURS_MEMOIRE = {
+    "fichier_courant": lambda c: c if c in set(CATALOGUE["id"]) else None,
+    "fichiers_recents": memoire.liste_valide(lambda c: c in set(CATALOGUE["id"])),   # les imports ne durent pas
+    "lignes": memoire.liste_valide(lambda v: isinstance(v, (int, float))),
+    CLE_INDICATEURS: memoire.liste_valide(lambda i: i in INDICATEURS),
+}
 
 
 # ============================================================
@@ -174,8 +190,9 @@ def barre_laterale():
 # ============================================================
 
 def main():
-    entete()
+    stockage = memoire.charger(VALIDATEURS_MEMOIRE)          # avant les widgets du menu
     serie_a, reglage = barre_laterale()
+    onglet = haut_de_page(serie_a, ONGLETS, "onglet")       # en-tête, onglets, nom du fichier : bloc fixe
 
     def analyser_serie(serie):
         return analyser(serie, reglage, HYP)
@@ -183,26 +200,32 @@ def main():
     def calculer(analyse):
         return calculer_indicateurs(analyse, reglage, HYP, reglage["indicateurs"])
 
+    def analyser_et_calculer(serie):
+        a = analyser_serie(serie)
+        return a, calculer(a)
+
     analyse_a = analyser_serie(serie_a)
-    res_a = calculer(analyse_a)
-
-    with st.sidebar.expander("⤓ Exporter (CSV · Excel)"):
-        st.download_button("Série horaire (CSV)", csv_horaire(analyse_a), f"{serie_a.id}_horaire.csv", "text/csv")
-        st.download_button("Classeur complet (Excel)", excel_complet(analyse_a, res_a, HYP, reglage, remplacer_reperes),
-                           f"{serie_a.id}_meteo_et_chaleur_v{VERSION}.xlsx")
-
-    onglets = st.tabs(ONGLETS, key="onglet", on_change="rerun")
-    with onglets[0]:
-        onglet_analyser.afficher(analyse_a, res_a, reglage, HYP, _aller_methode)
-    with onglets[1]:
+    # Seul l'onglet ouvert est calculé
+    if onglet == ONGLET_ANALYSER:
+        onglet_analyser.afficher(analyse_a, calculer(analyse_a), reglage, HYP, _aller_methode)
+    elif onglet == ONGLET_COMPARER:
         serie_b = serie_par_cle(choix_fichier.cle_seconde(SOURCES))
-        onglet_comparer.afficher(analyse_a, res_a, serie_b, lambda s: (lambda a: (a, calculer(a)))(analyser_serie(s)),
-                                 reglage, HYP, lambda: choix_fichier.ouvrir("comparer", SOURCES))
-    with onglets[2]:
+        onglet_comparer.afficher(analyse_a, calculer(analyse_a), serie_b, analyser_et_calculer, reglage, HYP,
+                                 lambda: choix_fichier.ouvrir("comparer", SOURCES))
+    elif onglet == ONGLET_CREER:
         onglet_creer.afficher(analyse_a, reglage, HYP, reglage["indicateurs"], analyser_serie, calculer)
-    with onglets[3]:
+    elif onglet == ONGLET_EXPORTER:
+        analyse_b, res_b = analyser_et_calculer(serie_par_cle(choix_fichier.cle_seconde(SOURCES)))
+        onglet_exporter.afficher(FichierExport(serie_a.libelle, analyse_a, calculer(analyse_a)),
+                                 FichierExport(analyse_b.serie.libelle, analyse_b, res_b), reglage, HYP,
+                                 remplacer_reperes)
+    else:
         onglet_methode.afficher(analyse_a, HYP)
     pied()
+    memoire.enregistrer(stockage)
 
 
-main()
+try:
+    main()
+except Exception as erreur:              # message clair en français + détail copiable (version de test)
+    erreurs.afficher(erreur)

@@ -24,7 +24,9 @@ PAGE_HYPOTHESES = "Hypothèses (tableau)"
 PAGE_THETA = "Température extérieure lissée (graphique)"
 
 
+@st.cache_data
 def _pages():
+    """Pages Markdown de la documentation (lues une seule fois)."""
     pages = {}
     for chemin in sorted(glob.glob(os.path.join(DOSSIER_PAGES, "*.md"))):
         with open(chemin, encoding="utf-8") as f:
@@ -34,7 +36,12 @@ def _pages():
     return pages
 
 
+@st.fragment
 def afficher(analyse_a, hyp):
+    """
+    Fragment : changer de page dans le sommaire ne recalcule que cet onglet,
+    pas toute l'application (c'était la cause de la lenteur).
+    """
     pages = _pages()
     titres = list(pages)
     sommaire = titres[:2] + [PAGE_HYPOTHESES] + titres[2:3] + [PAGE_THETA] + titres[3:]

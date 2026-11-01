@@ -27,7 +27,7 @@ import pandas as pd
 import streamlit as st
 
 from config.reglages import (CARAMEL, CORAIL, COULEUR_FICHIER_1, COULEUR_FICHIER_2, FAMILLE_IMPORTES, FAMILLES,
-                             FICHIER_DEFAUT, ONGLETS)
+                             FICHIER_DEFAUT, ONGLET_ANALYSER, ONGLET_COMPARER)
 from interface.composants import melange
 from interface.format_fr import nombre
 
@@ -165,20 +165,22 @@ def menu(src: Sources, serie, ouvrir_choix: Callable[[], None]):
     """Carte du fichier en cours + bouton « Changer de fichier » + récents (barre latérale)."""
     cle = cle_courante(src)
     i = infos(cle, src)
-    st.sidebar.markdown("### FICHIER MÉTÉO")
-    with st.sidebar.container(key="fichier_actuel"):
-        st.markdown(f'<div class="nom-actuel"><span class="point" style="background:{COULEUR_FICHIER_1}"></span>'
-                    f'{html.escape(serie.libelle)}</div>'
-                    f'<div class="meta-actuel">{html.escape(" · ".join(x for x in (i["station"], i["desc"]) if x))}</div>'
-                    f'<div class="etiquettes">{_etiquettes(serie, i)}</div>', unsafe_allow_html=True)
-        if st.button("⌕  Changer de fichier", key="ouvrir_choix", width="stretch"):
-            ouvrir_choix()
+    st.sidebar.markdown('<div class="titre-menu">Fichier météo</div>', unsafe_allow_html=True)
     recents = [c for c in st.session_state.get(CLE_RECENTS, []) if c != cle and c in cles_disponibles(src)]
-    if recents:
-        with st.sidebar.container(key="recents"):
-            st.markdown('<div class="lib-recents">Récents</div>', unsafe_allow_html=True)
-            for n, c in enumerate(recents[:NB_RECENTS]):
-                st.button(f":gray[●] {infos(c, src)['titre']}", key=f"recent_{n}", on_click=_choisir_recent, args=(c,))
+    with st.sidebar.container(key="panneau_fichier"):          # panneau bleu clair : fichier en cours + récents
+        with st.container(key="fichier_actuel"):
+            st.markdown(f'<div class="nom-actuel"><span class="point" style="background:{COULEUR_FICHIER_1}"></span>'
+                        f'{html.escape(serie.libelle)}</div>'
+                        f'<div class="meta-actuel">{html.escape(" · ".join(x for x in (i["station"], i["desc"]) if x))}'
+                        f'</div><div class="etiquettes">{_etiquettes(serie, i)}</div>', unsafe_allow_html=True)
+            if st.button("⌕  Changer de fichier", key="ouvrir_choix", width="stretch"):
+                ouvrir_choix()
+        if recents:
+            with st.container(key="recents"):
+                st.markdown('<div class="lib-recents">Récents</div>', unsafe_allow_html=True)
+                for n, c in enumerate(recents[:NB_RECENTS]):
+                    st.button(f":gray[●] {infos(c, src)['titre']}", key=f"recent_{n}", on_click=_choisir_recent,
+                              args=(c,))
 
 
 # ============================================================
@@ -225,10 +227,10 @@ def _valider(action: str, cle: str):
             _ajouter_recent(ancien)
         st.session_state[CLE_COURANT] = cle
         _ajouter_recent(cle)
-        st.session_state["onglet"] = ONGLETS[0]
+        st.session_state["onglet"] = ONGLET_ANALYSER
     else:
         st.session_state[CLE_SECOND] = cle
-        st.session_state["onglet"] = ONGLETS[1]
+        st.session_state["onglet"] = ONGLET_COMPARER
     st.session_state[D_FERMER] = True                      # fermeture au passage suivant (st.rerun)
 
 

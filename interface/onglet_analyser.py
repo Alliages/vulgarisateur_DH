@@ -8,8 +8,7 @@ from calcul.hypotheses import masque_occupation, valeur
 from calcul.indicateurs import jour_le_plus_chaud, semaine_la_plus_chaude
 from config.reglages import LIBELLES_CRITERE_JOURNEE, LIBELLES_CRITERE_SEMAINE
 from interface import graphiques as g
-from interface.composants import bandeau_hypotheses, cartes, titre_fichier
-from config.reglages import COULEUR_FICHIER_1
+from interface.composants import bandeau_hypotheses, cartes
 from interface.format_fr import date_longue, periode_longue
 
 # ============================================================
@@ -52,7 +51,6 @@ def source(serie):
 
 
 def afficher(analyse, resultats, reglage, hyp, aller_methode):
-    titre_fichier(analyse.serie, COULEUR_FICHIER_1)      # nom du fichier en gros, point de sa couleur
     cartes(resultats, hyp)
     bandeau_hypotheses(reglage, analyse, hyp, LIBELLES_CRITERE_SEMAINE, aller_methode)
 
@@ -71,8 +69,11 @@ def afficher(analyse, resultats, reglage, hyp, aller_methode):
             t, seuil, dh, x = tranche(analyse, debut, 24 * n)
             fin = debut + pd.Timedelta(days=n - 1)
             titre = f"Semaine la plus chaude · {periode_longue(debut, fin, avec_annee)} · {np.sum(dh):.0f} °C.h"
-            sous = f"Critère : {CRITERES_SEMAINE_TEXTE[reglage['critere_semaine']]} · barres : DH de chaque heure"
-            st.plotly_chart(g.courbe_dh(t, seuil, dh, x, titre, sous, "semaine", occupation_tranche(x, reglage), source(s)),
+            sous = (f"Critère : {CRITERES_SEMAINE_TEXTE[reglage['critere_semaine']]}<br>courbe rouge : température · "
+                    f"trait gris : seuil · barres : DH de chaque heure"
+                    + (" · fond gris : absents (scénario RE2020)" if reglage["occupation"] else ""))
+            st.plotly_chart(g.courbe_dh(t, seuil, dh, x, titre, sous, "semaine", occupation_tranche(x, reglage), source(s),
+                                        legende=False),
                             width="stretch", config=CONFIG_PLOTLY, theme=None)
     d = jour_le_plus_chaud(analyse, reglage["critere_journee"])
     with col_j:

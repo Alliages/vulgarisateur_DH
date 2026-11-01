@@ -11,7 +11,7 @@ from interface.format_fr import date_longue, periode_longue
 from interface import graphiques as g
 from interface.composants import cartes
 from interface.onglet_analyser import CONFIG_PLOTLY
-from config.reglages import ONGLETS
+from config.reglages import ONGLET_COMPARER
 from interface.choix_fichier import CLE_FICHIER_C, CLE_SECOND
 from interface.outils import PYARROW_DISPONIBLE
 
@@ -83,7 +83,7 @@ def _comparer_fichier_c(serie_c):
     """Le fichier créé devient le second fichier de Comparer, et l'onglet Comparer s'ouvre."""
     st.session_state[CLE_FICHIER_C] = serie_c
     st.session_state[CLE_SECOND] = CLE_FICHIER_C
-    st.session_state["onglet"] = ONGLETS[1]
+    st.session_state["onglet"] = ONGLET_COMPARER
 
 
 def afficher(analyse_a, reglage, hyp, definitions, analyser_serie, calculer):

@@ -80,7 +80,11 @@ def afficher(analyse_a, res_a, serie_b, analyser_b, reglage, hyp, ouvrir_choix_s
     fenetre = [pd.Timestamp(f"{ANNEE}-{valeur(hyp, 'ete_debut')}"), pd.Timestamp(f"{ANNEE}-{valeur(hyp, 'ete_fin')} 23:00")]
     st.plotly_chart(g.ete_superpose(analyse_a, analyse_b, nom_a, nom_b, reglage["lignes"], fenetre, sources),
                     width="stretch", config=CONFIG_PLOTLY, theme=None)
-    # 2. Journées les plus chaudes, 3. semaines les plus chaudes (chacune selon le critère des réglages)
+    # 2. Les nuits chaudes, nuit par nuit (dont la plus longue suite de nuits tropicales)
+    st.plotly_chart(g.nuits_comparees(analyse_a, analyse_b, nom_a, nom_b, fenetre, bas,
+                                      valeur(hyp, "seuil_nuit_tres_chaude"), sources),
+                    width="stretch", config=CONFIG_PLOTLY, theme=None)
+    # 3. Journées les plus chaudes, 4. semaines les plus chaudes (chacune selon le critère des réglages)
     ja, jb = jour_le_plus_chaud(analyse_a, reglage["critere_journee"]), jour_le_plus_chaud(analyse_b, reglage["critere_journee"])
     if ja is not None and jb is not None:
         st.plotly_chart(g.journees_superposees(analyse_a, analyse_b, nom_a, nom_b, ja, jb, bas, haut, sources),
@@ -93,7 +97,7 @@ def afficher(analyse_a, res_a, serie_b, analyser_b, reglage, hyp, ouvrir_choix_s
                         width="stretch", config=CONFIG_PLOTLY, theme=None)
     else:
         st.caption(f"Semaine la plus chaude : il faut au moins {n} jours complets dans chaque fichier.")
-    # 4. Cumul des DH
+    # 5. Cumul des DH
     st.plotly_chart(g.cumul_dh(analyse_a, analyse_b, nom_a, nom_b, sources), width="stretch", config=CONFIG_PLOTLY,
                     theme=None)
     st.caption("Les deux fichiers sont ramenés sur une même année pour être superposés jour par jour.")
