@@ -142,6 +142,6 @@ def tableau_html(df: pd.DataFrame) -> str:
 def pied():
     """Pied de page : nature des indicateurs, version, auteur, lien vers le code source."""
     st.markdown(
-        f'<div class="pied">Indicateurs calculés sur la base de fichiers climatiques - Météo &amp; Chaleur version '
-        f'{VERSION} - {AUTEUR} - <a href="{LIEN_CODE_SOURCE}" target="_blank">Code Source</a></div>',
+        f'<div class="pied">Indicateurs calculés sur la base de fichiers climatiques · licence GNU GPL v3 · Météo &amp; Chaleur · version '
+        f'{VERSION} · {AUTEUR} · <a href="{LIEN_CODE_SOURCE}" target="_blank">Code Source</a></div>',
         unsafe_allow_html=True)
