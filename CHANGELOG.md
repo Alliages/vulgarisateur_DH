@@ -10,6 +10,8 @@ Dernier chiffre **pair** = gros changement, **impair** = correction.
   zone : **Trappes**, **Paris-Montsouris**, Roubaix, Lille-Lesquin (H1a), Nancy-Essey (H1b), Lyon Tête d'Or,
   Mâcon (H1c), Rennes (H2a), Tours, Angers, Nantes (H2b), Agen, Bordeaux-Paulin (H2c), Carpentras (H2d),
   Marignane (H3). Trappes : température reconstituée du 6/07 7h au 17/07 8h UTC (trou de mesure).
+- Onglet Comparer : le haut de page affiche les deux fichiers, chacun dans sa couleur (fichier 1 à gauche,
+  second fichier à droite).
 - Relevés Trappes et Paris-Montsouris de mai 2026 **retirés du catalogue** : 16 fichiers RE2020 restent.
   Le relevé Trappes reste dans `tests/donnees/` comme jeu de test d'un relevé partiel (tests inchangés).
 
