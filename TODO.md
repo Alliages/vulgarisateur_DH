@@ -37,7 +37,7 @@ Numéro de la prochaine version : à demander à Guigui avant de lancer.
 mois en gras, source en pied, axes noirs fléchés.
 
 ## Fichiers météo — Observations (03/11/2026)
-- [x] Paris-Montsouris et Trappes 2026 (01/05–30/09, UTC, Météo-France) intégrés en 0.9.9.
+- [x] 15 stations Météo-France 2026 (01/05–30/09, UTC), dont Trappes et Paris-Montsouris, intégrées en 0.9.9.
 
 ## Points ouverts
 - Heure des maximums : affichée en heure légale (16 h) ; l'image de référence est en UTC (14 h). À trancher.

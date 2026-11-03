@@ -6,8 +6,10 @@ Dernier chiffre **pair** = gros changement, **impair** = correction.
 ## 0.9.9 — correction (03/11/2026), fichiers météo
 
 - Famille « Relevés » renommée **« Observations »** ; dossier `donnees/meteo/Observations/`.
-- 2 observations ajoutées : **Trappes** et **Paris-Montsouris**, 1er mai – 30 septembre 2026, horaires,
-  Météo-France, heure UTC. Trappes : température reconstituée du 6/07 7h au 17/07 8h UTC (trou de mesure).
+- 15 observations ajoutées, 1er mai – 30 septembre 2026, horaires, Météo-France, heure UTC, au moins une par
+  zone : **Trappes**, **Paris-Montsouris**, Roubaix, Lille-Lesquin (H1a), Nancy-Essey (H1b), Lyon Tête d'Or,
+  Mâcon (H1c), Rennes (H2a), Tours, Angers, Nantes (H2b), Agen, Bordeaux-Paulin (H2c), Carpentras (H2d),
+  Marignane (H3). Trappes : température reconstituée du 6/07 7h au 17/07 8h UTC (trou de mesure).
 - Relevés Trappes et Paris-Montsouris de mai 2026 **retirés du catalogue** : 16 fichiers RE2020 restent.
   Le relevé Trappes reste dans `tests/donnees/` comme jeu de test d'un relevé partiel (tests inchangés).
 

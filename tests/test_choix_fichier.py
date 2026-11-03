@@ -35,7 +35,7 @@ def test_second_fichier_par_defaut():
 
 def test_recherche_par_station():
     trouves = [c for c in cf.cles_disponibles(SRC) if "agen" in cf._texte_recherche(c, SRC)]
-    assert sorted(trouves) == ["H2c_th_bc", "H2c_th_d"]
+    assert sorted(trouves) == ["H2c_th_bc", "H2c_th_d", "Obs_agen_2026"]   # RE2020 + observation
 
 
 if __name__ == "__main__":
