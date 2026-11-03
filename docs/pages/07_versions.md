@@ -15,4 +15,4 @@
 
 0.9.8 : version de test. Indicateurs rangés un par fichier (un nouvel indicateur s'ajoute sans toucher au reste de l'outil) ; import de fichiers plus sûr (dates jour/mois/année, messages d'erreur clairs, taille limitée) ; graphiques gardés en mémoire et démarrage plus rapide (pythermalcomfort n'est plus chargé) ; code réorganisé, sans changement des résultats.
 
-0.9.9 : correction. Famille « Relevés » renommée « Observations » ; relevés Trappes et Paris-Montsouris de mai 2026 retirés du catalogue (16 fichiers RE2020).
+0.9.9 : correction. Famille « Relevés » renommée « Observations » ; relevés de mai 2026 remplacés par les observations horaires Météo-France de Trappes et Paris-Montsouris, du 1er mai au 30 septembre 2026.

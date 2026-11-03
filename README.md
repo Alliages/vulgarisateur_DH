@@ -285,7 +285,8 @@ hypothèse porte sa source et son statut (sourcé, provisoire, à préciser).
 - **Fichiers RE2020** : 8 zones × fichier « Th-BC » (climat moyen) et « Th-D » (canicule), scénarios
   météo RE2020, DHUP / Météo-France (mesures 2000-2018), repris de
   [zones-climatiques-re2020](https://github.com/Alliages/zones-climatiques-re2020).
-- **Observations** : famille prévue (dossier `donnees/meteo/Observations/`), fichiers à venir.
+- **Observations** : Trappes et Paris-Montsouris, 1er mai – 30 septembre 2026, observations horaires
+  Météo-France (heure UTC). À Trappes, la température du 6/07 7h au 17/07 8h UTC est reconstituée.
 - **Catalogue** : `config/catalogue_fichiers.csv` (famille, zone, station, base horaire, source).
 
 Après une modification du Word ou du classeur, régénérer les fichiers puis relancer les tests :
