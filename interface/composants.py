@@ -20,7 +20,7 @@ import streamlit as st
 
 from calcul.format_fr import nombre
 from config import charte
-from config.charte import BLEU_CLAIR, BLEU_FRAIS, CORAIL, GRIS_DOUX
+from config.charte import BLEU_CLAIR, BLEU_FRAIS, CORAIL, COULEUR_FICHIER_1, COULEUR_FICHIER_2, GRIS_DOUX
 from config.reglages import AUTEUR, LIEN_CODE_SOURCE, STATUT_VERSION, VERSION
 from interface.couleurs import melange
 
@@ -56,9 +56,10 @@ def logo_onde() -> str:
 # EN-TÊTE ET NOM DU FICHIER
 # ============================================================
 
-def haut_de_page(serie, onglets: list, cle_onglet: str) -> str:
+def haut_de_page(serie, onglets: list, cle_onglet: str, serie_b=None) -> str:
     """
     Bloc fixé en haut de la page : en-tête, barre des onglets, nom du fichier en cours.
+    serie_b (onglet Comparer) : les deux noms côte à côte, chacun dans sa couleur.
     Renvoie l'onglet choisi (seul son contenu est calculé ensuite).
     """
     st.markdown(css(), unsafe_allow_html=True)
@@ -72,7 +73,7 @@ def haut_de_page(serie, onglets: list, cle_onglet: str) -> str:
         with st.container(key="barre_onglets"):
             onglet = st.segmented_control("Onglets", onglets, key=cle_onglet, required=True,
                                           label_visibility="collapsed")
-        titre_fichier(serie)
+        titre_fichier(serie, serie_b)
     return onglet or onglets[0]
 
 
@@ -84,9 +85,19 @@ def description_fichier(serie) -> str:
     return " · ".join(str(x) for x in morceaux if x)
 
 
-def titre_fichier(serie):
-    """Nom du fichier en gros entre la barre des onglets et les cartes."""
-    st.markdown(f'<div class="fichier"><div class="nom">{html.escape(serie.libelle)}</div>'
+def titre_fichier(serie, serie_b=None):
+    """
+    Nom du fichier en gros entre la barre des onglets et les cartes.
+    Avec serie_b (onglet Comparer) : fichier 1 à gauche, fichier 2 à droite, dans leurs couleurs ;
+    la ligne de description reste celle du fichier 1.
+    """
+    if serie_b is None:
+        noms = f'<div class="nom">{html.escape(serie.libelle)}</div>'
+    else:
+        noms = (f'<div class="noms">'
+                f'<div class="nom" style="color:{COULEUR_FICHIER_1}">{html.escape(serie.libelle)}</div>'
+                f'<div class="nom nom-b" style="color:{COULEUR_FICHIER_2}">{html.escape(serie_b.libelle)}</div></div>')
+    st.markdown(f'<div class="fichier">{noms}'
                 f'<div class="meta">{html.escape(description_fichier(serie))}</div></div>', unsafe_allow_html=True)
 
 

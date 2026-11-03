@@ -136,7 +136,10 @@ def main():
     serie_a = serie_par_cle(choix_fichier.cle_courante(SOURCES))
     choix_fichier.menu(SOURCES, serie_a, lambda: choix_fichier.ouvrir("analyser", SOURCES))
     reglage = menu_reglages.afficher(INDICATEURS, ORDRE_DEFAUT, HYP)
-    onglet = haut_de_page(serie_a, ONGLETS, "onglet")       # en-tête, onglets, nom du fichier : bloc fixe
+    # Onglet Comparer : le second fichier est chargé tôt pour afficher son nom dans le haut de page
+    serie_b = serie_par_cle(choix_fichier.cle_seconde(SOURCES)) if st.session_state.get("onglet") == ONGLET_COMPARER \
+        else None
+    onglet = haut_de_page(serie_a, ONGLETS, "onglet", serie_b)   # en-tête, onglets, nom(s) du fichier : bloc fixe
 
     def analyser_serie(serie):
         return analyser(serie, reglage, HYP)
@@ -153,7 +156,7 @@ def main():
     if onglet == ONGLET_ANALYSER:
         onglet_analyser.afficher(analyse_a, calculer(analyse_a), reglage, HYP, _aller_methode)
     elif onglet == ONGLET_COMPARER:
-        serie_b = serie_par_cle(choix_fichier.cle_seconde(SOURCES))
+        serie_b = serie_b or serie_par_cle(choix_fichier.cle_seconde(SOURCES))
         onglet_comparer.afficher(analyse_a, calculer(analyse_a), serie_b, analyser_et_calculer, reglage, HYP,
                                  lambda: choix_fichier.ouvrir("comparer", SOURCES))
     elif onglet == ONGLET_CREER:
