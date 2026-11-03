@@ -20,6 +20,14 @@ Dernier chiffre **pair** = gros changement, **impair** = correction.
 centre du département puis de la zone). Coordonnées renseignées pour les 8 stations de la carte
 zones-climatiques-re2020 ; département renseigné pour tous les fichiers.
 
+**Observations** (20 stations) :
+- 5 stations ajoutées : Strasbourg-Botanique (centre-ville, H1b), Clermont-Ferrand (aéroport, H1c),
+  Toulouse-Blagnac (aéroport, H2c), Montpellier et Perpignan (aéroport, H3).
+- Noms clairs « Station (emplacement) » : ville, centre-ville, périphérie, aéroport ou aérodrome ; nouvelle colonne
+  `emplacement` ; fichiers et identifiants renommés en conséquence (ex. `lille_lesquin_aeroport_2026.csv`).
+- Coordonnées, altitude, emplacement et distance au centre-ville de toutes les stations repris de la synthèse
+  Météo-France du 03/11/2026 (description du fichier).
+
 ## 0.9.9 — correction (03/11/2026), fichiers météo
 
 - Famille « Relevés » renommée **« Observations »** ; dossier `donnees/meteo/Observations/`.

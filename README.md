@@ -286,10 +286,10 @@ hypothèse porte sa source et son statut (sourcé, provisoire, à préciser).
 - **Fichiers RE2020** : 8 zones × fichier « Th-BC » (climat moyen) et « Th-D » (canicule), scénarios
   météo RE2020, DHUP / Météo-France (mesures 2000-2018), repris de
   [zones-climatiques-re2020](https://github.com/Alliages/zones-climatiques-re2020).
-- **Observations** : 15 stations Météo-France, 1er mai – 30 septembre 2026, observations horaires
-  (heure UTC), au moins une par zone : Trappes, Paris-Montsouris, Roubaix, Lille-Lesquin (H1a), Nancy-Essey (H1b),
-  Lyon Tête d'Or, Mâcon (H1c), Rennes (H2a), Tours, Angers, Nantes (H2b), Agen, Bordeaux-Paulin (H2c),
-  Carpentras (H2d), Marignane (H3). À Trappes, la température du 6/07 7h au 17/07 8h UTC est reconstituée.
+- **Observations** : 20 stations Météo-France, 1er mai – 30 septembre 2026, observations horaires
+  (heure UTC), au moins une par zone. Le nom dit où est la station : « (ville) », « (centre-ville) »,
+  « (périphérie) », « (aéroport) » ou « (aérodrome) » ; une station d'aéroport sous-estime la chaleur urbaine,
+  surtout la nuit. Coordonnées, altitude et emplacement : API Météo-France (synthèse du 03/11/2026). À Trappes, la température du 6/07 7h au 17/07 8h UTC est reconstituée.
 - **Catalogue** : `config/catalogue_fichiers.csv` (famille, zone, station, base horaire, source ; facultatif :
   `departement`, `latitude`, `longitude` pour placer la station sur la carte de la fenêtre de choix).
 - **Carte des zones** : `config/carte_france.json`, contours des départements et projection repris de

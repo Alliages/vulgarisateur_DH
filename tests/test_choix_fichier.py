@@ -38,12 +38,20 @@ def test_positions_des_stations():
     assert carte_zones.projeter(48.7733, 2.0097) == (486.4, 252.1)        # Trappes, comme sur la carte d'origine
 
 
+def test_noms_des_observations():
+    """Chaque observation dit où est la station : « Nom (ville / centre-ville / périphérie / aéroport / aérodrome) »."""
+    obs = CAT[CAT["famille"] == "Observations"]
+    assert set(obs["emplacement"]) <= {"ville", "centre-ville", "périphérie", "aéroport", "aérodrome"}
+    assert all(s.endswith(f"({e})") for s, e in zip(obs["station"], obs["emplacement"]))
+    assert obs["latitude"].astype(bool).all() and obs["chemin"].is_unique
+
+
 def test_donnees_de_la_liste():
     """Observations : une ligne par station, groupées par zone ; RE2020 : 2 fichiers par zone, station en en-tête."""
     resumes = {i: {"dh": 1000, "nuits_20": 10, "tmax": 30} for i in CAT["id"]}
     obs = carte_zones.donnees_famille(CAT[CAT["famille"] == "Observations"].to_dict("records"), resumes, {}, None, None,
                                       "#f05d5e", "station", "titre")
-    assert sum(len(g["lignes"]) for g in obs["groupes"]) == 15 and obs["compte"]["H1a"] == 4
+    assert sum(len(g["lignes"]) for g in obs["groupes"]) == 20 and obs["compte"]["H1a"] == 4
     re2020 = carte_zones.donnees_famille(CAT[CAT["famille"] == "RE2020"].to_dict("records"), resumes, {}, "H1a_th_d",
                                          None, "#f05d5e", "fichier", "titre")
     h1a = next(g for g in re2020["groupes"] if g["zone"] == "H1a")
@@ -59,7 +67,7 @@ def test_second_fichier_par_defaut():
 
 def test_recherche_par_station():
     trouves = [c for c in cf.cles_disponibles(SRC) if "agen" in cf._texte_recherche(c, SRC)]
-    assert sorted(trouves) == ["H2c_th_bc", "H2c_th_d", "Obs_agen_2026"]   # RE2020 + observation
+    assert sorted(trouves) == ["H2c_th_bc", "H2c_th_d", "Obs_agen_la_garenne_aeroport_2026"]   # RE2020 + observation
 
 
 if __name__ == "__main__":

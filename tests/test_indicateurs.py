@@ -80,7 +80,7 @@ def test_familles_du_catalogue():
     """Chaque fichier appartient à une famille connue du menu."""
     from config.reglages import FAMILLES
     assert set(CAT["famille"]) <= set(FAMILLES)
-    assert (CAT["famille"] == "RE2020").sum() == 16 and (CAT["famille"] == "Observations").sum() == 15
+    assert (CAT["famille"] == "RE2020").sum() == 16 and (CAT["famille"] == "Observations").sum() == 20
 
 
 if __name__ == "__main__":

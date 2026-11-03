@@ -42,8 +42,10 @@ mois en gras, source en pied, axes noirs fléchés.
 ## Fenêtre de choix en carte (0.9.10)
 - [ ] **TRACC** : même carte + liste ; rien à coder, il suffit d'inscrire les fichiers au catalogue (famille TRACC,
   zone, département, et si possible latitude / longitude).
-- [ ] Coordonnées à compléter (colonnes `latitude`, `longitude`) : Paris-Montsouris, Roubaix, Lille-Lesquin,
-  Lyon Tête d'Or, Angers ville, Nantes ville, Bordeaux-Paulin (placées pour l'instant au centre du département).
+- [x] Coordonnées des 20 observations (synthèse Météo-France du 03/11/2026).
+- [ ] Emplacement à confirmer (déduit dans la synthèse) : Agen, Carpentras, Nancy-Essey, Tours, Trappes.
+- [ ] Clermont-Ferrand, Montpellier, Perpignan, Toulouse : pas de poste de centre-ville ; l'aéroport sous-estime
+  la chaleur urbaine (surtout la nuit). À signaler dans l'outil ?
 
 ## Points ouverts
 - Heure des maximums : affichée en heure légale (16 h) ; l'image de référence est en UTC (14 h). À trancher.

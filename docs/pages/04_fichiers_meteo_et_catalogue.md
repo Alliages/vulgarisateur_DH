@@ -1,7 +1,7 @@
 # Fichiers météo et catalogue
 Les fichiers enregistrés sont rangés par zone climatique dans donnees/meteo/ et décrits dans config/catalogue_fichiers.csv.
 
-Les fichiers RE2020 sont des années types en heure UTC ; les observations Météo-France (1er mai – 30 septembre 2026) sont aussi en heure UTC.
+Les fichiers RE2020 sont des années types en heure UTC. Les observations Météo-France (20 stations, 1er mai – 30 septembre 2026) sont aussi en heure UTC ; leur nom dit où est la station : ville, centre-ville, périphérie, aéroport ou aérodrome. Une station d'aéroport, loin du centre, sous-estime la chaleur urbaine, surtout la nuit.
 
 Un relevé de moins d'un an permet le DH basic, pas le DH RE2020 (la moyenne glissante a besoin de l'année).
 

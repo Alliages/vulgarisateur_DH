@@ -53,7 +53,7 @@ UNITE_FAMILLE = {"Observations": "station"}   # mot employé dans la liste (« f
 SEGMENT_IMPORTER = "+ Importer"
 BASES_HORAIRES = ["légale", "UTC"]
 COULEUR_ROLE = {"analyser": COULEUR_FICHIER_1, "comparer": COULEUR_FICHIER_2}
-TEXTE_RECHERCHE = "Rechercher une zone, une station, un type de fichier… (ex. « Agen », « canicule », « relevé »)"
+TEXTE_RECHERCHE = "Rechercher une zone, une station, un type de fichier… (ex. « Agen », « canicule », « aéroport »)"
 DESCRIPTION_IMPORTE = "fichier importé pendant la session"
 DESCRIPTION_FICHIER_C = "semaine ou journée créée dans l'onglet Créer"
 

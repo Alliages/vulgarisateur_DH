@@ -112,13 +112,15 @@ CSS = f"""
 .zt {{ display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }}
 .pz {{ font-weight: 700; font-size: 12.5px; color: {INDIGO}; padding: 1px 8px; border-radius: 7px; cursor: pointer; }}
 .cpt {{ font-size: 12px; color: {GRIS_DOUX}; }}
-.st {{ display: grid; grid-template-columns: minmax(90px, 158px) 1fr 66px 24px; align-items: center; gap: 8px;
+.st {{ display: grid; grid-template-columns: minmax(130px, 1.5fr) 1fr 66px 24px; align-items: center; gap: 8px;
       font-size: 13px; padding: 4px 6px; border-bottom: 1px solid #F0EEEA; border-radius: 6px; cursor: pointer;
       border-left: 3px solid transparent; }}
 .st:hover {{ background: #F6F5F2; }}
 .st.choisi {{ border-left-color: var(--c); background: var(--fond-choisi); }}
-.sn {{ font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
-.sn small {{ font-weight: 600; font-size: 9.5px; color: {GRIS_DOUX}; margin-left: 4px; }}
+.sn {{ font-weight: 600; white-space: nowrap; display: flex; align-items: baseline; gap: 5px; min-width: 0; }}
+.sn .nm {{ overflow: hidden; text-overflow: ellipsis; min-width: 0; }}
+.sn em {{ font-style: normal; font-weight: 500; font-size: 10.5px; color: {GRIS_DOUX}; flex: none; }}
+.sn small {{ font-weight: 600; font-size: 9.5px; color: {GRIS_DOUX}; flex: none; }}
 .barre {{ height: 7px; background: #F1EFEB; border-radius: 4px; overflow: hidden; }}
 .barre i {{ display: block; height: 100%; border-radius: 4px; }}
 .dh {{ text-align: right; font-weight: 700; color: {CORAIL}; white-space: nowrap; }}
@@ -218,7 +220,8 @@ export default function (component) {
         ligne.style.setProperty("--c", data.couleur_role);
         ligne.style.setProperty("--fond-choisi", data.fond_choisi);
         ligne.title = f.titre;
-        ligne.innerHTML = `<span class="sn">${f.nom}${f.en_cours ? "<small>en cours</small>" : ""}</span>`
+        ligne.innerHTML = `<span class="sn"><span class="nm">${f.nom}</span>${f.emplacement ? `<em>${f.emplacement}</em>` : ""}`
+          + `${f.en_cours ? "<small>en cours</small>" : ""}</span>`
           + `<span class="barre"><i style="width:${f.largeur}%;background:${f.couleur}"></i></span>`
           + `<span class="dh">${f.dh} <small>°C.h</small></span><span class="n20">${f.n20}</span>`;
         ligne.onclick = () => {                            // fichier choisi : surligné tout de suite, Python prévenu
@@ -287,7 +290,10 @@ def donnees_famille(lignes: list, resumes: dict, couleurs: dict, choisi: str, en
             r = resumes.get(l["id"]) or {}
             dh = r.get("dh")
             part = (dh or 0) / DH_ECHELLE_CHOIX
-            rangees.append({"id": l["id"], "nom": html.escape(l["libelle"] if une_station else l["station"]),
+            nom, emplacement = l["libelle"] if une_station else l["station"], str(l.get("emplacement") or "")
+            if emplacement and nom.endswith(f" ({emplacement})"):          # « Lille-Lesquin (aéroport) » : nom + étiquette
+                nom = nom[: -len(emplacement) - 3]
+            rangees.append({"id": l["id"], "nom": html.escape(nom), "emplacement": html.escape(emplacement),
                             "titre": f"{l['zone']} · {l['libelle']}", "dh": _texte(dh), "n20": _texte(r.get("nuits_20")),
                             "largeur": round(100 * min(1, part)), "couleur": degrade_dh(part),
                             "en_cours": l["id"] == en_cours})
