@@ -16,3 +16,5 @@
 0.9.8 : version de test. Indicateurs rangés un par fichier (un nouvel indicateur s'ajoute sans toucher au reste de l'outil) ; import de fichiers plus sûr (dates jour/mois/année, messages d'erreur clairs, taille limitée) ; graphiques gardés en mémoire et démarrage plus rapide (pythermalcomfort n'est plus chargé) ; code réorganisé, sans changement des résultats.
 
 0.9.9 : correction. Famille « Relevés » renommée « Observations » ; relevés de mai 2026 remplacés par les observations horaires Météo-France de 15 stations (au moins une par zone), du 1er mai au 30 septembre 2026 ; onglet Comparer : les deux noms de fichiers en haut de page, chacun dans sa couleur.
+
+0.9.10 : version de test. Fenêtre de choix : mini carte de France des zones (teinte du vert au corail selon le DH « Th-D canicule »), clic sur une zone pour filtrer, fichiers listés par zone avec DH et nuits ≥ 20 °C, pour toutes les familles (RE2020, Observations, puis TRACC) ; position des stations par coordonnées (facultatives) ou par département.

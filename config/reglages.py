@@ -10,7 +10,7 @@
 """
 
 # --- Version (dernier chiffre pair = gros changement, impair = correction) ---
-VERSION = "0.9.9"
+VERSION = "0.9.10"
 STATUT_VERSION = "version de test"
 
 # --- Auteur et liens (pied de page, README) ---
@@ -36,6 +36,8 @@ ONGLETS = [ONGLET_ANALYSER, ONGLET_COMPARER, ONGLET_CREER, ONGLET_EXPORTER, ONGL
 # --- Familles de fichiers météo (colonne « famille » du catalogue), dans l'ordre de la fenêtre de choix ---
 FAMILLES = ["RE2020", "Observations", "TRACC"]
 FAMILLE_IMPORTES = "Importés"          # fichiers chargés pendant la session (et fichier C)
+DH_ECHELLE_CHOIX = 3300                # °C.h : haut de l'échelle des barres de DH de la fenêtre de choix (commune
+                                       # à toutes les familles ; au-delà, barre pleine)
 LIBELLE_SEUILS_DH = "Seuils d'inconfort pour le DH"
 
 # --- Libellés des choix ---------------------------------------------------

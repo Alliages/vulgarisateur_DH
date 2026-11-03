@@ -39,6 +39,12 @@ mois en gras, source en pied, axes noirs fléchés.
 ## Fichiers météo — Observations (03/11/2026)
 - [x] 15 stations Météo-France 2026 (01/05–30/09, UTC), dont Trappes et Paris-Montsouris, intégrées en 0.9.9.
 
+## Fenêtre de choix en carte (0.9.10)
+- [ ] **TRACC** : même carte + liste ; rien à coder, il suffit d'inscrire les fichiers au catalogue (famille TRACC,
+  zone, département, et si possible latitude / longitude).
+- [ ] Coordonnées à compléter (colonnes `latitude`, `longitude`) : Paris-Montsouris, Roubaix, Lille-Lesquin,
+  Lyon Tête d'Or, Angers ville, Nantes ville, Bordeaux-Paulin (placées pour l'instant au centre du département).
+
 ## Points ouverts
 - Heure des maximums : affichée en heure légale (16 h) ; l'image de référence est en UTC (14 h). À trancher.
 - Bandeau des hypothèses : passe sur deux lignes sur écran moyen.

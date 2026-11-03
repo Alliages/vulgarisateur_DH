@@ -12,7 +12,7 @@ des journées ou des semaines types, et exporte les résultats.
 > (fichiers météo) : c'est alors un indicateur de sévérité du climat, pas le DH d'un bâtiment. Il peut
 > aussi s'utiliser avec n'importe quel fichier horaire, y compris des résultats de simulation de
 > températures intérieures.
-> Version 0.9.9, version de test.
+> Version 0.9.10, version de test.
 
 ![Capture d'écran de l'outil](docs/capture-accueil.png)
 
@@ -32,8 +32,9 @@ Par défaut, tout suit la méthode RE2020 (arrêté du 4 août 2021, annexe III,
 ## Comment l'utiliser en quatre étapes
 
 1. **Choisir le fichier météo** : dans le menu de gauche, bouton « Changer de fichier ».
-   La fenêtre de choix propose une recherche, les familles de fichiers (RE2020, relevés…), les zones
-   placées comme sur la carte de France, puis les fichiers de la zone avec leurs chiffres clés.
+   La fenêtre de choix propose une recherche et les familles de fichiers (RE2020, Observations…) : pour
+   chacune, une mini carte de France des zones (clic sur une zone pour filtrer) et les fichiers par zone,
+   avec leur DH et leurs nuits ≥ 20 °C.
 2. **Lire l'onglet ① Analyser** : huit cartes d'indicateurs, l'année heure par heure (zoom à la
    molette ou avec le curseur ; en bas, une barre bleue par nuit ≥ 20 °C, bleu nuit si ≥ 24 °C), puis la
    semaine et la journée les plus chaudes. La pastille « i » de
@@ -289,7 +290,10 @@ hypothèse porte sa source et son statut (sourcé, provisoire, à préciser).
   (heure UTC), au moins une par zone : Trappes, Paris-Montsouris, Roubaix, Lille-Lesquin (H1a), Nancy-Essey (H1b),
   Lyon Tête d'Or, Mâcon (H1c), Rennes (H2a), Tours, Angers, Nantes (H2b), Agen, Bordeaux-Paulin (H2c),
   Carpentras (H2d), Marignane (H3). À Trappes, la température du 6/07 7h au 17/07 8h UTC est reconstituée.
-- **Catalogue** : `config/catalogue_fichiers.csv` (famille, zone, station, base horaire, source).
+- **Catalogue** : `config/catalogue_fichiers.csv` (famille, zone, station, base horaire, source ; facultatif :
+  `departement`, `latitude`, `longitude` pour placer la station sur la carte de la fenêtre de choix).
+- **Carte des zones** : `config/carte_france.json`, contours des départements et projection repris de
+  [zones-climatiques-re2020](https://github.com/Alliages/zones-climatiques-re2020).
 
 Après une modification du Word ou du classeur, régénérer les fichiers puis relancer les tests :
 

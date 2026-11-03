@@ -3,6 +3,23 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.10 — version de test (03/11/2026), fenêtre de choix en carte
+
+**Fenêtre « Changer de fichier »**, pour toutes les familles du catalogue (RE2020, Observations, puis TRACC) :
+- mini carte de France des zones climatiques, teintées du vert au corail selon le DH du fichier « Th-D canicule »
+  de la zone (réglage RE2020) ; étiquette « zone · nombre de fichiers » ; un point par station ;
+- clic sur une zone (étiquette ou département) : la liste ne garde que cette zone ; nouveau clic ou
+  « ✕ Toutes les zones » : tout revoir ;
+- fichiers listés par zone : nom, barre et chiffre du DH, nuits ≥ 20 °C ; clic = fichier choisi ;
+- barres de DH sur une échelle commune (0 à 3 300 °C.h, `DH_ECHELLE_CHOIX`), dégradé vert → caramel → corail
+  (nouvelle couleur `VERT` dans la charte) ; légende discrète.
+- Remplace la grille schématique des zones RE2020 et les cartes de fichiers (gardées pour la recherche et les
+  fichiers importés). Composant `interface/carte_zones.py` (`st.components.v2`).
+
+**Catalogue** : colonnes facultatives `departement`, `latitude`, `longitude` (position du point ; à défaut,
+centre du département puis de la zone). Coordonnées renseignées pour les 8 stations de la carte
+zones-climatiques-re2020 ; département renseigné pour tous les fichiers.
+
 ## 0.9.9 — correction (03/11/2026), fichiers météo
 
 - Famille « Relevés » renommée **« Observations »** ; dossier `donnees/meteo/Observations/`.

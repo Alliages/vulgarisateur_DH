@@ -1,9 +1,9 @@
-"""Tests de la fenêtre de choix du fichier météo (0.9.0) : carte des zones, second fichier par défaut, recherche."""
+"""Tests de la fenêtre de choix du fichier météo (0.9.0, carte des zones 0.9.10) : carte, liste, second fichier, recherche."""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from calcul.serie import charger_catalogue
-from interface import choix_fichier as cf
+from interface import carte_zones, choix_fichier as cf
 
 # ============================================================
 # DONNÉES (sources minimales : pas de calcul, chiffres factices)
@@ -13,18 +13,42 @@ SRC = cf.Sources(catalogue=CAT, charger=lambda cle: None, resume=lambda cle: {"d
                  importer=lambda *a: None)
 
 
-def test_carte_couvre_toutes_les_zones_re2020():
-    """Chaque zone RE2020 du catalogue a une place sur la carte schématique, et une seule."""
-    places = [z for ligne in cf.DISPOSITION_ZONES for z in ligne if z]
-    zones = set(CAT.loc[CAT["famille"] == cf.FAMILLE_CARTE, "zone"])
-    assert sorted(places) == sorted(zones) and len(places) == len(set(places))
+def test_carte_couvre_toutes_les_zones_du_catalogue():
+    """Chaque zone du catalogue a des départements sur la carte de France (config/carte_france.json)."""
+    zones_carte = {d["zone"] for d in carte_zones.CARTE["departements"]}
+    assert set(CAT["zone"]) <= zones_carte and set(carte_zones.ZONES) == zones_carte
 
 
 def test_scenario_de_reference_dans_chaque_zone():
-    """La barre de chaque zone lit le fichier « Th-D canicule » : il doit exister partout."""
-    for zone in set(CAT.loc[CAT["famille"] == cf.FAMILLE_CARTE, "zone"]):
-        cle = cf._fichier_de_zone(zone, SRC)
-        assert CAT.set_index("id").loc[cle, "libelle"] == cf.SCENARIO_REFERENCE
+    """La teinte de chaque zone lit son fichier « Th-D canicule » : il doit exister partout."""
+    dh = cf._dh_reference(SRC)
+    assert set(dh) == set(carte_zones.ZONES)
+    assert set(carte_zones.couleurs_zones({z: n for n, z in enumerate(carte_zones.ZONES)})) == set(carte_zones.ZONES)
+
+
+def test_positions_des_stations():
+    """Chaque fichier a un département (2 caractères) ; les coordonnées, facultatives, tombent dans la carte."""
+    x0, y0, largeur, hauteur = (float(v) for v in carte_zones.CADRAGE.split())
+    codes = {d["code"] for d in carte_zones.CARTE["departements"]}
+    for _, l in CAT.iterrows():
+        assert l["departement"] in codes, l["id"]
+        if l["latitude"]:
+            x, y = carte_zones.projeter(l["latitude"], l["longitude"])
+            assert x0 <= x <= x0 + largeur and y0 <= y <= y0 + hauteur, l["id"]
+    assert carte_zones.projeter(48.7733, 2.0097) == (486.4, 252.1)        # Trappes, comme sur la carte d'origine
+
+
+def test_donnees_de_la_liste():
+    """Observations : une ligne par station, groupées par zone ; RE2020 : 2 fichiers par zone, station en en-tête."""
+    resumes = {i: {"dh": 1000, "nuits_20": 10, "tmax": 30} for i in CAT["id"]}
+    obs = carte_zones.donnees_famille(CAT[CAT["famille"] == "Observations"].to_dict("records"), resumes, {}, None, None,
+                                      "#f05d5e", "station", "titre")
+    assert sum(len(g["lignes"]) for g in obs["groupes"]) == 15 and obs["compte"]["H1a"] == 4
+    re2020 = carte_zones.donnees_famille(CAT[CAT["famille"] == "RE2020"].to_dict("records"), resumes, {}, "H1a_th_d",
+                                         None, "#f05d5e", "fichier", "titre")
+    h1a = next(g for g in re2020["groupes"] if g["zone"] == "H1a")
+    assert "station Trappes" in h1a["entete"] and [l["nom"] for l in h1a["lignes"]] == ["Th-BC moyen", "Th-D canicule"]
+    assert len(re2020["points"]) == 8                                          # un point par station, pas par fichier
 
 
 def test_second_fichier_par_defaut():

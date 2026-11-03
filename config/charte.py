@@ -14,6 +14,7 @@
 CARAMEL = "#f7b267"      # barres de DH, écart entre fichiers, hypothèses
 CORAIL = "#f05d5e"       # température, DH (cartes), fichier de l'onglet Analyser
 TEAL = "#0f7173"         # second fichier (Comparer), température moyenne
+VERT = "#5aa77f"         # bas du dégradé des DH (zones et fichiers peu chauds), accordé au TEAL
 GRIS = "#272932"         # texte, axes, seuils
 INDIGO = "#2e294e"       # nuit (indicateurs nocturnes), barre des onglets, titres
 BLEU_MENU = "#48BEFF"    # couleur complémentaire du menu
@@ -56,6 +57,8 @@ GRILLE = "#ECEAE6"
 SEPARATEUR = "#E2E0DB"                # traits verticaux entre jours / mois
 FOND_BANDE_CHAUDE = "rgba(247,178,103,0.22)"   # caramel clair : au-dessus du seuil chaud (28 °C)
 FOND_BANDE_FRAICHE = "rgba(72,190,255,0.13)"   # bleu clair : en dessous du seuil frais (20 °C)
+# --- Fenêtre de choix : dégradé des DH vert → caramel → corail (0.9.10) ---
+SATURATION_MAX_VERT = 0.36           # vert-jaune doux entre le vert et le caramel (ni kaki, ni vert acide)
 COULEURS_NUITS = ["#ECEAF3", "#8C86B8", INDIGO]   # Comparer : < 20 °C · tropicale (≥ 20 °C) · très chaude (≥ 24 °C)
 BLEU_NUIT_CLAIR = "#8A9BD6"           # Analyser, bande des nuits : nuit tropicale (≥ 20 °C)
 BLEU_NUIT_FONCE = "#111845"           # Analyser, bande des nuits : nuit très chaude (≥ 24 °C)

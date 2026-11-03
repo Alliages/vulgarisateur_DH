@@ -5,9 +5,10 @@
  - Menu de gauche : carte du fichier en cours, bouton « Changer de
    fichier », fichiers récents.
  - Fenêtre de choix (st.dialog) : recherche dans toutes les familles,
-   familles en onglets, zones RE2020 sur une carte schématique
-   (barre = DH du fichier canicule), fichiers en cartes avec 3
-   chiffres clés, import d'un fichier.
+   familles en onglets ; pour chaque famille du catalogue (RE2020,
+   Observations, TRACC), une mini carte de France des zones et la
+   liste des fichiers par zone (interface/carte_zones.py, 0.9.10) ;
+   importés et résultats de recherche en cartes ; import d'un fichier.
  - La même fenêtre choisit le second fichier de l'onglet Comparer.
 
  Clé d'un fichier : id du catalogue · « importe:<nom> » (fichier
@@ -27,9 +28,10 @@ import pandas as pd
 import streamlit as st
 
 from calcul.format_fr import nombre
-from config.charte import CARAMEL, CORAIL, COULEUR_FICHIER_1, COULEUR_FICHIER_2
+from config.charte import COULEUR_FICHIER_1, COULEUR_FICHIER_2
 from config.reglages import FAMILLE_IMPORTES, FAMILLES, FICHIER_DEFAUT, ONGLET_ANALYSER, ONGLET_COMPARER
-from interface.couleurs import degrade, melange
+from interface import carte_zones
+from interface.couleurs import melange
 
 # ============================================================
 # PARAMÈTRES
@@ -45,11 +47,9 @@ NB_RECENTS = 3
 NB_IMPORTS_MAX = 5                       # fichiers importés gardés par session (mémoire du serveur partagé)
 
 # --- Fenêtre de choix ---
-FAMILLE_CARTE = "RE2020"                 # famille présentée par zones sur la carte schématique
-SCENARIO_REFERENCE = "Th-D canicule"     # la barre de chaque zone = DH de ce fichier
-DISPOSITION_ZONES = [["H2a", "H1a", "H1b"],      # nord-ouest · Paris · nord-est
-                     ["H2b", "H1c", "H2d"],      # centre-ouest · centre-est · sud-est intérieur
-                     ["H2c", None, "H3"]]        # sud-ouest · (légende) · Méditerranée
+FAMILLE_CARTE = "RE2020"                 # famille par défaut ; ses fichiers de référence colorent les zones
+SCENARIO_REFERENCE = "Th-D canicule"     # teinte de chaque zone = DH de ce fichier (réglage RE2020)
+UNITE_FAMILLE = {"Observations": "station"}   # mot employé dans la liste (« fichier » par défaut)
 SEGMENT_IMPORTER = "+ Importer"
 BASES_HORAIRES = ["légale", "UTC"]
 COULEUR_ROLE = {"analyser": COULEUR_FICHIER_1, "comparer": COULEUR_FICHIER_2}
@@ -191,28 +191,9 @@ def preparer(role: str, cle: str, src: Sources):
     """État initial de la fenêtre : famille, zone et fichier du fichier déjà choisi."""
     i = infos(cle, src)
     st.session_state[D_FAMILLE] = i["famille"] if i["famille"] in FAMILLES else FAMILLE_IMPORTES
-    st.session_state[D_ZONE] = i["zone"] or _premiere_zone(src)
+    st.session_state[D_ZONE] = i["zone"]
     st.session_state[D_FICHIER] = cle
     st.session_state[D_RECHERCHE] = ""
-
-
-def _premiere_zone(src: Sources) -> str:
-    return next(z for ligne in DISPOSITION_ZONES for z in ligne if z)
-
-
-def _fichier_de_zone(zone: str, src: Sources) -> str | None:
-    """Fichier proposé quand on choisit une zone : le scénario de référence, sinon le premier."""
-    cat = src.catalogue
-    lignes = cat[(cat["famille"] == FAMILLE_CARTE) & (cat["zone"] == zone)]
-    if lignes.empty:
-        return None
-    ref = lignes[lignes["libelle"] == SCENARIO_REFERENCE]
-    return (ref if not ref.empty else lignes).iloc[0]["id"]
-
-
-def _choisir_zone(zone: str, src: Sources):
-    st.session_state[D_ZONE] = zone
-    st.session_state[D_FICHIER] = _fichier_de_zone(zone, src)
 
 
 def _choisir_fichier(cle: str):
@@ -243,37 +224,22 @@ def _etape(numero: str, texte: str, petit: str = ""):
                 f'{f"<small>{html.escape(petit)}</small>" if petit else ""}</div>', unsafe_allow_html=True)
 
 
-def _carte_zones(src: Sources, couleur: str):
-    """Étape 1 : les zones RE2020 placées comme sur la carte de France, barre = DH du scénario de référence."""
+def _dh_reference(src: Sources) -> dict:
+    """Zone → DH de son fichier de référence (« Th-D canicule », réglage RE2020) : teinte des zones de la carte."""
     cat = src.catalogue
     ref = cat[(cat["famille"] == FAMILLE_CARTE) & (cat["libelle"] == SCENARIO_REFERENCE)]
-    dh = {r.zone: src.resume(r.id)["dh"] or 0 for r in ref.itertuples()}
-    stations = dict(zip(ref["zone"], ref["station"]))
-    dh_max = max(dh.values(), default=1) or 1
-    zone_choisie = st.session_state.get(D_ZONE)
-    _etape("1", "Zone climatique", "placée comme sur la carte de France")
-    for ligne in DISPOSITION_ZONES:
-        for col, zone in zip(st.columns(3, gap="small"), ligne):
-            with col:
-                if zone is None:
-                    st.markdown(f'<div class="legende-zones">Barre : DH du fichier « {SCENARIO_REFERENCE} » '
-                                f'(réglage RE2020)<div class="degrade"></div><div class="bornes"><span>moins chaud'
-                                f'</span><span>plus chaud</span></div></div>', unsafe_allow_html=True)
-                    continue
-                if zone not in dh:
-                    continue
-                part = dh[zone] / dh_max
-                choisie = zone == zone_choisie
-                with st.container(key=f"tuile_zone_{zone}", gap=None):
-                    st.markdown(
-                        f'<div class="tuile zone{" choisie" if choisie else ""}" style="--c:{couleur};'
-                        f'--fond-choisi:{melange(couleur, 0.07)}"><div class="code">{zone}</div>'
-                        f'<div class="station">{html.escape(stations.get(zone, ""))}</div>'
-                        f'<div class="jauge"><div style="width:{100 * part:.0f}%;background:{degrade(CARAMEL, CORAIL, part)}"></div></div>'
-                        f'<div class="chiffre">DH canicule <b>{nombre(dh[zone], 0)}</b></div></div>',
-                        unsafe_allow_html=True)
-                    st.button(f"Zone {zone}", key=f"b_zone_{zone}", on_click=_choisir_zone, args=(zone, src),
-                              width="stretch")
+    return {r.zone: src.resume(r.id)["dh"] for r in ref.itertuples()}
+
+
+def _carte_et_liste(famille: str, src: Sources, couleur: str, cle_en_cours: str):
+    """Une famille du catalogue : mini carte des zones (clic = filtre) et liste des fichiers par zone."""
+    lignes = src.catalogue[src.catalogue["famille"] == famille].to_dict("records")
+    unite = UNITE_FAMILLE.get(famille, "fichier")
+    titre = f"{len(lignes)} {unite}s · {len({l['zone'] for l in lignes})} zones · clic sur une zone pour filtrer"
+    donnees = carte_zones.donnees_famille(
+        lignes, {l["id"]: src.resume(l["id"]) for l in lignes}, carte_zones.couleurs_zones(_dh_reference(src)),
+        st.session_state.get(D_FICHIER), cle_en_cours, couleur, unite, titre)
+    carte_zones.afficher(f"carte_{famille}", donnees, _choisir_fichier)
 
 
 def _cartes_fichiers(cles: list, src: Sources, couleur: str, cle_en_cours: str, titre_long: bool,
@@ -365,17 +331,8 @@ def _contenu(src: Sources, role: str):
                                        format_func=lambda f: _libelle_famille(f, src)) or FAMILLE_CARTE
         if famille == SEGMENT_IMPORTER:
             _importer(src)
-        elif famille == FAMILLE_CARTE:
-            col_zones, col_fichiers = st.columns([1.15, 1], gap="medium")
-            with col_zones:
-                _carte_zones(src, couleur)
-            with col_fichiers:
-                zone = st.session_state.get(D_ZONE)
-                cat = src.catalogue
-                lignes = cat[(cat["famille"] == FAMILLE_CARTE) & (cat["zone"] == zone)]
-                station = lignes["station"].iloc[0] if not lignes.empty else ""
-                _etape("2", f"Fichier de la zone {zone}", station)
-                _cartes_fichiers(list(lignes["id"]), src, couleur, cle_en_cours, titre_long=False)
+        elif famille != FAMILLE_IMPORTES and (src.catalogue["famille"] == famille).any():
+            _carte_et_liste(famille, src, couleur, cle_en_cours)       # RE2020, Observations, TRACC…
         else:
             cles = [c for c in cles_disponibles(src) if infos(c, src)["famille"] == famille]
             if not cles:
