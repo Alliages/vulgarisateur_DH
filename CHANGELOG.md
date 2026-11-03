@@ -13,6 +13,8 @@ Dernier chiffre **pair** = gros changement, **impair** = correction.
 - fichiers listés par zone : nom, barre et chiffre du DH, nuits ≥ 20 °C ; clic = fichier choisi ;
 - barres de DH sur une échelle commune (0 à 3 300 °C.h, `DH_ECHELLE_CHOIX`), dégradé vert → caramel → corail
   (nouvelle couleur `VERT` dans la charte) ; légende discrète.
+- Pastilles « zone · n » légèrement transparentes, placées automatiquement dans leur zone sans recouvrir un point
+  ni une autre pastille (au plus près de leur place habituelle).
 - Remplace la grille schématique des zones RE2020 et les cartes de fichiers (gardées pour la recherche et les
   fichiers importés). Composant `interface/carte_zones.py` (`st.components.v2`).
 

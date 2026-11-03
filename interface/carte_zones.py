@@ -44,6 +44,8 @@ ZONES = ["H1a", "H1b", "H1c", "H2a", "H2b", "H2c", "H2d", "H3"]
 DECALAGE_ETIQUETTES = {"H1a": (-30, -55), "H1b": (10, 0), "H1c": (-75, 30), "H2a": (0, -10),   # unités du viewBox,
                        "H2b": (10, 30), "H2c": (-10, 30), "H2d": (45, -40), "H3": (40, 40)}    # depuis le centre de la zone
 ECART_POINTS = 14                          # points superposés (même département) : écartés de ce rayon
+PASTILLE = {"largeur": 120, "hauteur": 50, "marge": 6, "pas": 10}   # pastilles « zone · n » (unités du viewBox) :
+                                           # taille, marge libre autour, pas de la recherche de place
 TEXTE_LEGENDE = "Teinte : DH « Th-D canicule » de la zone (RE2020)"
 TEXTE_SOUS_LISTE = "DH (réglage RE2020 ; méthode basic pour une série partielle) · nuits ≥ 20 °C"
 
@@ -90,8 +92,8 @@ CSS = f"""
 .dep {{ stroke: #fff; stroke-width: .6; stroke-opacity: .6; cursor: pointer; transition: opacity .15s; }}
 .dep.pale {{ opacity: .25; }}
 .dep:hover {{ opacity: .85; }}
-.bz {{ fill: #fff; fill-opacity: .94; stroke: {INDIGO}; stroke-width: 1.5; }}
-.bz.on {{ fill: {INDIGO}; fill-opacity: 1; }}
+.bz {{ fill: #fff; fill-opacity: .72; stroke: {INDIGO}; stroke-opacity: .75; stroke-width: 1.5; }}
+.bz.on {{ fill: {INDIGO}; fill-opacity: .88; }}
 .lz {{ font-weight: 700; font-size: 30px; fill: {INDIGO}; }}
 .lzc {{ font-weight: 600; font-size: 24px; fill: {INDIGO}; }}
 .on-t {{ fill: #fff; }}
@@ -166,13 +168,56 @@ export default function (component) {
   });
   racine.querySelector(".legende .degrade").style.background = data.degrade;
 
+  // --- Place des pastilles « zone · n » : dans leur zone, sans recouvrir un point ni une autre pastille ---
+  //     Recherche sur une grille autour de la zone, la plus proche de la place préférée (centre + décalage).
+  //     Niveau 2 : pastille entièrement dans la zone ; 1 : centre dans la zone ; 0 : n'importe où dans la carte.
+  let positions = null;
+  function placerPastilles(points) {
+    const { largeur: L, hauteur: H, marge: M, pas } = data.pastille;
+    const [vx, vy, vl, vh] = svg.getAttribute("viewBox").split(" ").map(Number);
+    const deps = (z) => [...svg.querySelectorAll(`.dep[data-zone="${z}"]`)];
+    const dedans = (chemins, x, y) => { const pt = new DOMPoint(x, y); return chemins.some((c) => c.isPointInFill(pt)); };
+    const coins = [[-1, -1], [1, -1], [-1, 1], [1, 1], [0, -1], [0, 1], [-1, 0], [1, 0]];
+    const posees = [], pos = {};
+    const libre = (x, y) =>
+      x - L / 2 >= vx && x + L / 2 <= vx + vl && y - H / 2 >= vy && y + H / 2 <= vy + vh
+      && points.every(([px, py]) => Math.abs(px - x) > L / 2 + 10 + M || Math.abs(py - y) > H / 2 + 10 + M)
+      && posees.every(([qx, qy]) => Math.abs(qx - x) > L + M || Math.abs(qy - y) > H + M);
+    // zones les plus petites d'abord : elles ont le moins de place
+    const surface = (z) => deps(z).reduce((s, c) => { const b = c.getBBox(); return s + b.width * b.height; }, 0);
+    const ordre = Object.keys(data.compte).sort((a, b) => surface(a) - surface(b));
+    for (const z of ordre) {
+      const c = centreZone(z); if (!c) continue;
+      const chemins = deps(z), d = data.decalages[z] || [0, 0], prefere = [c[0] + d[0], c[1] + d[1]];
+      const b = chemins.map((x) => x.getBBox()).reduce((a, e) => ({ x0: Math.min(a.x0, e.x), y0: Math.min(a.y0, e.y),
+        x1: Math.max(a.x1, e.x + e.width), y1: Math.max(a.y1, e.y + e.height) }), { x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9 });
+      let meilleur = null;
+      for (const niveau of [2, 1, 0]) {
+        let score = Infinity;
+        for (let x = b.x0 - L / 2; x <= b.x1 + L / 2; x += pas) {
+          for (let y = b.y0 - H / 2; y <= b.y1 + H / 2; y += pas) {
+            const s = (x - prefere[0]) ** 2 + (y - prefere[1]) ** 2;
+            if (s >= score || !libre(x, y)) continue;
+            if (niveau >= 1 && !dedans(chemins, x, y)) continue;
+            if (niveau === 2 && !coins.every(([sx, sy]) => dedans(chemins, x + sx * L / 2, y + sy * H / 2))) continue;
+            score = s; meilleur = [x, y];
+          }
+        }
+        if (meilleur) break;
+      }
+      pos[z] = meilleur || prefere;
+      posees.push(pos[z]);
+    }
+    return pos;
+  }
+
   function dessiner() {
     // --- Départements : pâles hors de la zone choisie ---
     svg.querySelectorAll(".dep").forEach((p) => p.classList.toggle("pale", !!zone && p.dataset.zone !== zone));
 
     // --- Points des stations : coordonnées, sinon centre du département, sinon centre de la zone ---
     marques.innerHTML = "";
-    const places = {};
+    const places = {}, occupes = [];
     for (const p of data.points) {
       let xy = p.x != null ? [p.x, p.y] : null;
       if (!xy && p.dep) { const d = svg.querySelector(`.dep[data-code="${p.dep}"]`); if (d) xy = centre(d).slice(0, 2); }
@@ -184,12 +229,14 @@ export default function (component) {
       const pale = zone && p.zone !== zone ? " pale-pt" : "";
       el("circle", { class: "pt" + pale, cx: x, cy: y, r: 10 });
       el("circle", { class: "ptc" + pale, cx: x, cy: y, r: 4.5 });
+      occupes.push([x, y]);
     }
+    if (!positions) positions = placerPastilles(occupes);   // une fois : les points ne bougent pas avec le filtre
 
     // --- Étiquettes « zone · nombre » (cliquables) ---
     for (const z of Object.keys(data.compte)) {
       const c = centreZone(z); if (!c) continue;
-      const d = data.decalages[z] || [0, 0], x = c[0] + d[0], y = c[1] + d[1], on = z === zone;
+      const [x, y] = positions[z], on = z === zone;
       const g = el("g", { class: "etiquette" });
       el("rect", { class: "bz" + (on ? " on" : ""), x: x - 60, y: y - 25, width: 120, height: 50, rx: 25 }, null, g);
       el("text", { class: "lz" + (on ? " on-t" : ""), x: x - 44, y: y + 10 }, z, g);
@@ -303,7 +350,7 @@ def donnees_famille(lignes: list, resumes: dict, couleurs: dict, choisi: str, en
                 points.append(_point(l))
         groupes.append({"zone": z, "couleur": couleurs.get(z, "#E4E2DD"), "entete": html.escape(entete), "lignes": rangees})
     return {"couleurs": couleurs, "compte": dict(Counter(l["zone"] for l in lignes)), "points": points, "groupes": groupes,
-            "decalages": DECALAGE_ETIQUETTES, "ecart": ECART_POINTS, "unite": unite, "titre": html.escape(titre),
+            "decalages": DECALAGE_ETIQUETTES, "ecart": ECART_POINTS, "pastille": PASTILLE, "unite": unite, "titre": html.escape(titre),
             "choisi": choisi, "couleur_role": couleur_role, "fond_choisi": melange(couleur_role, 0.07),
             "degrade": "linear-gradient(90deg," + ",".join(degrade_dh(i / 10) for i in range(11)) + ")",
             "zone": None}
