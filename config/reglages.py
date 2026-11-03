@@ -10,7 +10,7 @@
 """
 
 # --- Version (dernier chiffre pair = gros changement, impair = correction) ---
-VERSION = "0.9.8"
+VERSION = "0.9.9"
 STATUT_VERSION = "version de test"
 
 # --- Auteur et liens (pied de page, README) ---
@@ -34,7 +34,7 @@ ONGLET_EXPORTER, ONGLET_METHODE = "④  Exporter", "Méthode & sources"
 ONGLETS = [ONGLET_ANALYSER, ONGLET_COMPARER, ONGLET_CREER, ONGLET_EXPORTER, ONGLET_METHODE]
 
 # --- Familles de fichiers météo (colonne « famille » du catalogue), dans l'ordre de la fenêtre de choix ---
-FAMILLES = ["RE2020", "Relevés", "TRACC"]
+FAMILLES = ["RE2020", "Observations", "TRACC"]
 FAMILLE_IMPORTES = "Importés"          # fichiers chargés pendant la session (et fichier C)
 LIBELLE_SEUILS_DH = "Seuils d'inconfort pour le DH"
 

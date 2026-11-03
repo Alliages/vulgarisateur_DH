@@ -15,7 +15,14 @@ HYP, DEFS = charger_hypotheses(), charger_indicateurs()
 CAT = charger_catalogue().set_index("id")
 
 
+# Relevé partiel de référence : fixture de test, hors catalogue de l'outil (retiré du catalogue en 0.9.9)
+RELEVE_TEST = {"id": "releve_trappes_2026", "famille": "Observations", "zone": "H1a", "libelle": "Relevé Trappes mai 2026",
+               "base_horaire": "légale", "format": "date_heure", "chemin": "tests/donnees/releve_trappes_2026.csv"}
+
+
 def _serie(identifiant):
+    if identifiant == RELEVE_TEST["id"]:
+        return charger_serie(dict(RELEVE_TEST))
     ligne = CAT.loc[identifiant].to_dict(); ligne["id"] = identifiant
     return charger_serie(ligne)
 
@@ -41,7 +48,7 @@ def test_basic_sans_occupation_h1a():
 
 
 def test_releve_partiel_bascule_en_basic():
-    a, v = _valeurs("H1a_releve_trappes_2026")
+    a, v = _valeurs("releve_trappes_2026")
     assert a.methode_effective == "basic" and a.message_methode
     assert v["heures_chaudes"] == 73 and v["nuits_consecutives"] == 1
 
@@ -73,7 +80,7 @@ def test_familles_du_catalogue():
     """Chaque fichier appartient à une famille connue du menu."""
     from config.reglages import FAMILLES
     assert set(CAT["famille"]) <= set(FAMILLES)
-    assert (CAT["famille"] == "RE2020").sum() == 16 and (CAT["famille"] == "Relevés").sum() == 2
+    assert (CAT["famille"] == "RE2020").sum() == 16
 
 
 if __name__ == "__main__":

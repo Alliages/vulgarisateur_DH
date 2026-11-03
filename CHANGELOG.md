@@ -3,6 +3,12 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.9 — correction (03/11/2026), fichiers météo
+
+- Famille « Relevés » renommée **« Observations »** ; dossier `donnees/meteo/Observations/` créé (vide).
+- Relevés Trappes et Paris-Montsouris de mai 2026 **retirés du catalogue** : 16 fichiers RE2020 restent.
+  Le relevé Trappes reste dans `tests/donnees/` comme jeu de test d'un relevé partiel (tests inchangés).
+
 ## 0.9.8 — version de test (01/11/2026), audit du code
 
 Résultats inchangés : les 10 indicateurs des 18 fichiers du catalogue, sous 4 réglages, et les 8 graphiques ont

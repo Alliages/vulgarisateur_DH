@@ -20,13 +20,19 @@ REGLAGE = dict(REGLAGE_RE2020, indicateurs=DEFS)
 TEXTE_REGLAGE = "réglage RE2020"
 
 
+# Relevé partiel de référence : fixture de test, hors catalogue de l'outil (retiré du catalogue en 0.9.9)
+RELEVE_TEST = {"id": "releve_trappes_2026", "famille": "Observations", "zone": "H1a", "libelle": "Relevé Trappes mai 2026",
+               "base_horaire": "légale", "format": "date_heure", "chemin": "tests/donnees/releve_trappes_2026.csv"}
+
+
 def _fichier(identifiant):
-    ligne = CAT.loc[identifiant].to_dict(); ligne["id"] = identifiant
+    ligne = dict(RELEVE_TEST) if identifiant == RELEVE_TEST["id"] else CAT.loc[identifiant].to_dict()
+    ligne["id"] = identifiant
     a = analyser(charger_serie(ligne), REGLAGE_RE2020, HYP)
     return FichierExport(a.serie.libelle, a, calculer_indicateurs(a, REGLAGE_RE2020, HYP, DEFS))
 
 
-A, B, R = _fichier("H1a_th_d"), _fichier("H3_th_d"), _fichier("H1a_releve_trappes_2026")
+A, B, R = _fichier("H1a_th_d"), _fichier("H3_th_d"), _fichier("releve_trappes_2026")
 
 
 def test_copier_coller_tableau_et_ecart():

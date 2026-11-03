@@ -12,7 +12,7 @@ des journées ou des semaines types, et exporte les résultats.
 > (fichiers météo) : c'est alors un indicateur de sévérité du climat, pas le DH d'un bâtiment. Il peut
 > aussi s'utiliser avec n'importe quel fichier horaire, y compris des résultats de simulation de
 > températures intérieures.
-> Version 0.9.8, version de test.
+> Version 0.9.9, version de test.
 
 ![Capture d'écran de l'outil](docs/capture-accueil.png)
 
@@ -285,8 +285,7 @@ hypothèse porte sa source et son statut (sourcé, provisoire, à préciser).
 - **Fichiers RE2020** : 8 zones × fichier « Th-BC » (climat moyen) et « Th-D » (canicule), scénarios
   météo RE2020, DHUP / Météo-France (mesures 2000-2018), repris de
   [zones-climatiques-re2020](https://github.com/Alliages/zones-climatiques-re2020).
-- **Relevés** : Trappes et Paris-Montsouris, épisode de chaleur de mai 2026, Infoclimat (repris de
-  l'Excel Vulgarisation_DH).
+- **Observations** : famille prévue (dossier `donnees/meteo/Observations/`), fichiers à venir.
 - **Catalogue** : `config/catalogue_fichiers.csv` (famille, zone, station, base horaire, source).
 
 Après une modification du Word ou du classeur, régénérer les fichiers puis relancer les tests :
