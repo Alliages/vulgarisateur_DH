@@ -47,6 +47,26 @@ mois en gras, source en pied, axes noirs fléchés.
 - [ ] Clermont-Ferrand, Montpellier, Perpignan, Toulouse : pas de poste de centre-ville ; l'aéroport sous-estime
   la chaleur urbaine (surtout la nuit). À signaler dans l'outil ?
 
+## Indicateur « sévérité cumulée des vagues de chaleur » (04/11/2026, sans changement de version)
+Méthode Météo-France (Soubeyroux et al. 2016) à la station : Tm = (TN+TX)/2, toute l'année ;
+Spic / Sdeb / Sint = centiles 99,5 / 97,5 / 95 sur 1991-2020 ; vague = au moins un jour ≥ Spic,
+du premier au dernier jour ≥ Sdeb, arrêt après 1 jour < Sint ou 3 jours < Sdeb, durée ≥ 3 jours ;
+sévérité = Σ max(0 ; Tm − Sdeb) ; cumul = somme des vagues. Hypothèses vdc_* dans hypotheses.xlsx.
+- [x] 8 stations de référence (stations des fichiers RE2020 du catalogue) dans hypotheses.xlsx, onglet
+  « stations_vague_chaleur ».
+- [x] GitHub Action « Seuils vagues de chaleur » (lancement à la main) + outils/calculer_seuils_vdc.py.
+  Erreurs de téléchargement : 3 essais si passagères, puis message (URL, cause, piste de correction)
+  en annotation rouge et dans le tableau récapitulatif du run.
+- [ ] Lancer l'Action (feu vert de Guigui) et relire le journal (complétude, contrôle été 2003).
+- [ ] Plugin d'indicateur (Analyser, Comparer). **Valeur affichée = somme des sévérités de toutes les vagues
+  de l'année du fichier (°C·jour)**, avec le **nombre de vagues de chaleur** de l'année. En complément possible :
+  durée cumulée, intensité max.
+- [ ] Variante sans le 10/07-31/08 (bâtiments scolaires, étude EODD).
+- [ ] **Autres fichiers** (observations, TRACC, fichiers importés) : seuils de leur propre station à calculer ;
+  en attendant, pas d'indicateur (ou zone demandée à l'utilisateur).
+- [ ] Analyse des résultats : comparer avec l'étude EODD (G. Le Gall, durée cumulée 2026 record sauf altitude)
+  et tester la critique du fichier RE2020 « 2003 » (Bretagne, Manche).
+
 ## Points ouverts
 - Heure des maximums : affichée en heure légale (16 h) ; l'image de référence est en UTC (14 h). À trancher.
 - Bandeau des hypothèses : passe sur deux lignes sur écran moyen.

@@ -1,0 +1,48 @@
+# ============================================================
+#  SEUILS VAGUES DE CHALEUR — lancement À LA MAIN uniquement
+# ============================================================
+#  GitHub > Actions > « Seuils vagues de chaleur » > Run workflow.
+#  1. Télécharge les données quotidiennes Météo-France (meteo.data.gouv.fr) des départements
+#     des stations listées dans docs/sources/hypotheses.xlsx, onglet « stations_vague_chaleur ».
+#  2. Calcule Spic / Sdeb / Sint (centiles de (TN+TX)/2 sur la période de référence).
+#  3. Complète l'onglet Excel et config/seuils_vague_chaleur.csv, puis les envoie sur la branche.
+#  Le journal affiche, pour chaque station, les seuils, la complétude et un contrôle sur l'été 2003.
+#  Erreurs : en rouge en tête du run (annotations) et dans le tableau récapitulatif, avec une piste
+#  de correction ; le détail complet est dans le journal de l'étape « Calculer les seuils ».
+#  Les stations réussies sont enregistrées même si d'autres ont échoué (le run reste alors en rouge).
+# ============================================================
+name: Seuils vagues de chaleur
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  seuils:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Installer les dépendances
+        run: python -m pip install -r requirements.txt
+      - name: Calculer les seuils
+        run: python -u outils/calculer_seuils_vdc.py
+      - name: Envoyer les seuils (même si une station a échoué)
+        if: success() || failure()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898341+github-actions[bot]@users.noreply.github.com"
+          git add docs/sources/hypotheses.xlsx
+          [ -f config/seuils_vague_chaleur.csv ] && git add config/seuils_vague_chaleur.csv
+          if git diff --cached --quiet; then
+            echo "Aucun changement à enregistrer."
+          else
+            git commit -m "Seuils vagues de chaleur recalculés (Action)"
+            git push
+          fi
