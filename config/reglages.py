@@ -10,7 +10,7 @@
 """
 
 # --- Version (dernier chiffre pair = gros changement, impair = correction) ---
-VERSION = "0.9.10"
+VERSION = "0.9.11"
 STATUT_VERSION = "version de test"
 
 # --- Auteur et liens (pied de page, README) ---
@@ -29,9 +29,10 @@ REGLAGE_RE2020 = {
 FICHIER_DEFAUT = "H1a_th_d"
 
 # --- Onglets de la page (le nom sert aussi de clé pour passer d'un onglet à l'autre) ---
+ONGLET_ACCUEIL = "Accueil"                 # page d'explication (0.9.11), ouverte au démarrage
 ONGLET_ANALYSER, ONGLET_COMPARER, ONGLET_CREER = "①  Analyser", "②  Comparer", "③  Créer jour / semaine"
 ONGLET_EXPORTER, ONGLET_METHODE = "④  Exporter", "Méthode & sources"
-ONGLETS = [ONGLET_ANALYSER, ONGLET_COMPARER, ONGLET_CREER, ONGLET_EXPORTER, ONGLET_METHODE]
+ONGLETS = [ONGLET_ACCUEIL, ONGLET_ANALYSER, ONGLET_COMPARER, ONGLET_CREER, ONGLET_EXPORTER, ONGLET_METHODE]
 
 # --- Familles de fichiers météo (colonne « famille » du catalogue), dans l'ordre de la fenêtre de choix ---
 FAMILLES = ["RE2020", "Observations", "TRACC"]

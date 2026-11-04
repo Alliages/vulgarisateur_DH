@@ -3,6 +3,18 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.11 — correction (04/11/2026), onglet Accueil et favicon
+
+- Nouvel onglet **Accueil**, ouvert au démarrage : à quoi sert l'outil, trois notions (8760 heures, météo ou
+  climat, degrés-heures), les données, les limites et les liens utiles (carte des zones climatiques, wiki des
+  données météo, fichiers RE2020 officiels, code). Bouton vers l'onglet Méthode & sources.
+- Texte dans `docs/accueil.md` (modifiable sans toucher au code) ; affichage `interface/onglet_accueil.py` ;
+  titres sur fond coloré et notions en encadrés caramel (`interface/style.css`). Pas de nom de fichier dans le
+  haut de page de l'Accueil, aucun calcul lancé.
+- **Favicon** : le logo de l'en-tête (onde blanche sur rond indigo) remplace le soleil ☀
+  (`interface/favicon.png`, source `interface/favicon.svg`).
+- Test de l'interface : le DH de référence est vérifié dans l'onglet Analyser (l'app s'ouvre sur l'Accueil).
+
 ## 0.9.10 — version de test (03/11/2026), fenêtre de choix en carte
 
 **Fenêtre « Changer de fichier »**, pour toutes les familles du catalogue (RE2020, Observations, puis TRACC) :

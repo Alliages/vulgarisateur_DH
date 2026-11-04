@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from config.reglages import ONGLETS
+from config.reglages import ONGLET_ANALYSER, ONGLETS
 
 # ============================================================
 # PARAMÈTRES
@@ -33,6 +33,8 @@ def test_onglet_sans_erreur(onglet):
 
 def test_dh_de_reference_affiche():
     """La carte DH affiche 839 °C.h pour le fichier par défaut (H1a Th-D, réglage RE2020)."""
-    at = AppTest.from_file(APP, default_timeout=DELAI).run()
+    at = AppTest.from_file(APP, default_timeout=DELAI)
+    at.session_state["onglet"] = ONGLET_ANALYSER       # l'app s'ouvre sur l'Accueil depuis la 0.9.11
+    at.run()
     html = " ".join(m.value for m in at.markdown)
     assert 'class="carte principale"' in html and ">839<" in html

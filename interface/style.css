@@ -239,3 +239,21 @@ div[role="dialog"] { border-radius: 22px; }
 .pied { color: ${GRIS_DOUX}; font-size: .75rem; border-top: 1px solid ${TRAIT}; margin-top: 18px; padding-top: 6px;
          text-align: center; }
 .pied a { color: ${TEAL}; font-weight: 600; }
+/* Onglet Accueil (0.9.11) : carte blanche, titres sur fond coloré, notions en encadrés caramel */
+.st-key-accueil { background: ${BLANC}; border-radius: ${RAYON}; box-shadow: ${OMBRE}; padding: 26px 34px 20px;
+                   max-width: 920px; margin: 4px auto 0; }
+.st-key-accueil p, .st-key-accueil li { font-size: 1.02rem; line-height: 1.6; color: ${GRIS}; }
+.st-key-accueil strong { color: ${TEAL}; }
+.st-key-accueil h1 { background: ${INDIGO}; color: white; border-radius: 12px; padding: 14px 20px;
+                      font-size: 1.7rem; margin-bottom: 14px; }
+.st-key-accueil h2 { background: ${BLEU_MENU}; color: ${INDIGO}; border-radius: 10px; padding: 7px 14px;
+                      font-size: 1.18rem; margin: 22px 0 8px; }
+.st-key-accueil h2.alerte { background: ${CORAIL}; color: white; }
+.st-key-accueil h2.liens { background: ${TEAL}; color: white; }
+.st-key-accueil h1 a, .st-key-accueil h2 a, .st-key-accueil [data-testid="stHeaderActionElements"] { display: none; }
+.st-key-accueil blockquote { border-left: 5px solid ${CARAMEL}; background: ${CARAMEL_CLAIR}; color: ${GRIS}; opacity: 1;
+                              border-radius: 0 10px 10px 0; padding: 8px 16px; margin: 10px 0; }
+.st-key-accueil blockquote p { color: ${GRIS}; margin: 0; }    /* Streamlit grise les citations (opacité 0,6) */
+.st-key-accueil blockquote strong { color: ${INDIGO}; }
+.st-key-accueil a { color: ${TEAL}; font-weight: 600; }
+.st-key-accueil_methode button p { color: ${TEAL}; font-weight: 700; }

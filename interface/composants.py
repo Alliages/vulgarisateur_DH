@@ -21,7 +21,7 @@ import streamlit as st
 from calcul.format_fr import nombre
 from config import charte
 from config.charte import BLEU_CLAIR, BLEU_FRAIS, CORAIL, COULEUR_FICHIER_1, COULEUR_FICHIER_2, GRIS_DOUX
-from config.reglages import AUTEUR, LIEN_CODE_SOURCE, STATUT_VERSION, VERSION
+from config.reglages import AUTEUR, LIEN_CODE_SOURCE, ONGLET_ACCUEIL, STATUT_VERSION, VERSION
 from interface.couleurs import melange
 
 # ============================================================
@@ -60,6 +60,7 @@ def haut_de_page(serie, onglets: list, cle_onglet: str, serie_b=None) -> str:
     """
     Bloc fixé en haut de la page : en-tête, barre des onglets, nom du fichier en cours.
     serie_b (onglet Comparer) : les deux noms côte à côte, chacun dans sa couleur.
+    Onglet Accueil : pas de nom de fichier (0.9.11).
     Renvoie l'onglet choisi (seul son contenu est calculé ensuite).
     """
     st.markdown(css(), unsafe_allow_html=True)
@@ -73,7 +74,8 @@ def haut_de_page(serie, onglets: list, cle_onglet: str, serie_b=None) -> str:
         with st.container(key="barre_onglets"):
             onglet = st.segmented_control("Onglets", onglets, key=cle_onglet, required=True,
                                           label_visibility="collapsed")
-        titre_fichier(serie, serie_b)
+        if (onglet or onglets[0]) != ONGLET_ACCUEIL:
+            titre_fichier(serie, serie_b)
     return onglet or onglets[0]
 
 

@@ -3,7 +3,7 @@
  MÉTÉO ET CHALEUR — point d'entrée Streamlit
 ============================================================
  Lancement local :  streamlit run app.py
- Onglets : ① Analyser · ② Comparer · ③ Créer · ④ Exporter · Méthode & sources
+ Onglets : Accueil · ① Analyser · ② Comparer · ③ Créer · ④ Exporter · Méthode & sources
  Seul l'onglet ouvert est calculé (navigation dans le bloc fixe du haut).
  Réglage par défaut : RE2020 (config/reglages.py).
  Ce fichier ne fait que charger les données (en cache) et aiguiller
@@ -21,21 +21,22 @@ from calcul.hypotheses import (CHEMIN_HYPOTHESES, CHEMIN_INDICATEURS, charger_hy
                                remplacer_reperes, valeur)
 from calcul.indicateurs import calculer_indicateurs, valeurs
 from calcul.serie import CHEMIN_CATALOGUE, charger_catalogue, charger_serie, lire_fichier_importe
-from config.reglages import (FAMILLE_IMPORTES, ONGLET_ANALYSER, ONGLET_COMPARER, ONGLET_CREER, ONGLET_EXPORTER,
-                             ONGLET_METHODE, ONGLETS, REGLAGE_RE2020)
+from config.reglages import (FAMILLE_IMPORTES, ONGLET_ACCUEIL, ONGLET_ANALYSER, ONGLET_COMPARER, ONGLET_CREER,
+                             ONGLET_EXPORTER, ONGLET_METHODE, ONGLETS, REGLAGE_RE2020)
 from export.export import FichierExport
-from interface import (choix_fichier, erreurs, memoire, menu_reglages, onglet_analyser, onglet_comparer, onglet_creer,
-                       onglet_exporter, onglet_methode)
+from interface import (choix_fichier, erreurs, memoire, menu_reglages, onglet_accueil, onglet_analyser,
+                       onglet_comparer, onglet_creer, onglet_exporter, onglet_methode)
 from interface.composants import haut_de_page, pied
 
 # ============================================================
 # PARAMÈTRES
 # ============================================================
 TITRE_PAGE = "Météo et Chaleur"
+ICONE_PAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "interface", "favicon.png")  # logo de l'en-tête
 INDICATEURS_RESUME = ["dh", "nuits_20"]  # chiffres clés des cartes de la fenêtre de choix (+ T max)
 FICHIERS_CONFIG = (CHEMIN_HYPOTHESES, CHEMIN_INDICATEURS, CHEMIN_CATALOGUE)   # leur date invalide les caches
 
-st.set_page_config(page_title=TITRE_PAGE, page_icon="☀", layout="wide")
+st.set_page_config(page_title=TITRE_PAGE, page_icon=ICONE_PAGE, layout="wide")
 erreurs.filtrer_bruit_windows()          # console PowerShell : masque « ConnectionResetError [WinError 10054] »
 
 
@@ -123,7 +124,7 @@ VALIDATEURS_MEMOIRE = {
 
 
 def _aller_methode():
-    """Lien « Méthode & sources › » du bandeau des hypothèses."""
+    """Lien « Méthode & sources › » du bandeau des hypothèses et de l'accueil."""
     st.session_state["onglet"] = ONGLET_METHODE
 
 
@@ -151,8 +152,13 @@ def main():
         a = analyser_serie(serie)
         return a, calculer(a)
 
+    # Seul l'onglet ouvert est calculé (l'accueil ne calcule rien)
+    if onglet == ONGLET_ACCUEIL:
+        onglet_accueil.afficher(_aller_methode)
+        pied()
+        memoire.enregistrer(stockage)
+        return
     analyse_a = analyser_serie(serie_a)
-    # Seul l'onglet ouvert est calculé
     if onglet == ONGLET_ANALYSER:
         onglet_analyser.afficher(analyse_a, calculer(analyse_a), reglage, HYP, _aller_methode)
     elif onglet == ONGLET_COMPARER:
