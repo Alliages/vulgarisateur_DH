@@ -3,6 +3,14 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.12 — version de test (04/11/2026), fichiers TRACC
+
+- **48 fichiers TRACC** au catalogue : 8 zones × +2, +2,7 et +4 °C, avec ou sans vague de chaleur
+  (`donnees/meteo/TRACC/<zone>/tracc_plus2_0.csv` … `tracc_plus4_0_vdc.csv`), format `heure;T` en UTC, température à 2 m.
+- `outils/convertir_tracc.py` les produit depuis le dossier `TRACC/` (non publié, ajouté au `.gitignore`).
+- Valeurs de la source non corrigées : maxima au-dessus de 46 °C signalés dans la description de 4 fichiers.
+  Coordonnées reprises des lignes RE2020 (longitude de Carpentras fausse dans la source).
+
 ## 0.9.11 — correction (04/11/2026), onglet Accueil et favicon
 
 - Nouvel onglet **Accueil**, ouvert au démarrage : à quoi sert l'outil, trois notions (8760 heures, météo ou

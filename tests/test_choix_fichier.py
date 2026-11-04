@@ -67,7 +67,8 @@ def test_second_fichier_par_defaut():
 
 def test_recherche_par_station():
     trouves = [c for c in cf.cles_disponibles(SRC) if "agen" in cf._texte_recherche(c, SRC)]
-    assert sorted(trouves) == ["H2c_th_bc", "H2c_th_d", "Obs_agen_la_garenne_aeroport_2026"]   # RE2020 + observation
+    tracc = [f"H2c_tracc_plus{n}{v}" for n in ("2_0", "2_7", "4_0") for v in ("", "_vdc")]
+    assert sorted(trouves) == sorted(["H2c_th_bc", "H2c_th_d", "Obs_agen_la_garenne_aeroport_2026", *tracc])   # les 3 familles
 
 
 if __name__ == "__main__":

@@ -40,8 +40,9 @@ mois en gras, source en pied, axes noirs fléchés.
 - [x] 15 stations Météo-France 2026 (01/05–30/09, UTC), dont Trappes et Paris-Montsouris, intégrées en 0.9.9.
 
 ## Fenêtre de choix en carte (0.9.10)
-- [ ] **TRACC** : même carte + liste ; rien à coder, il suffit d'inscrire les fichiers au catalogue (famille TRACC,
-  zone, département, et si possible latitude / longitude).
+- [x] **TRACC** : 48 fichiers au catalogue (0.9.12), produits par `outils/convertir_tracc.py`.
+- [ ] TRACC : vérifier à la source les maxima au-dessus de 46 °C (Rennes 54,8 et 49,2 ; Tours 53,7 ; Nancy 46,9) et
+  la longitude de Carpentras (5,216 dans les fichiers, celle de Marignane).
 - [x] Coordonnées des 20 observations (synthèse Météo-France du 03/11/2026).
 - [ ] Emplacement à confirmer (déduit dans la synthèse) : Agen, Carpentras, Nancy-Essey, Tours, Trappes.
 - [ ] Clermont-Ferrand, Montpellier, Perpignan, Toulouse : pas de poste de centre-ville ; l'aéroport sous-estime
