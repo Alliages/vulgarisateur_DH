@@ -81,6 +81,7 @@ def test_familles_du_catalogue():
     from config.reglages import FAMILLES
     assert set(CAT["famille"]) <= set(FAMILLES)
     assert (CAT["famille"] == "RE2020").sum() == 16 and (CAT["famille"] == "Observations").sum() == 20
+    assert (CAT["famille"] == "TRACC").sum() == 48
 
 
 if __name__ == "__main__":

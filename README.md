@@ -12,7 +12,7 @@ des journées ou des semaines types, et exporte les résultats.
 > (fichiers météo) : c'est alors un indicateur de sévérité du climat, pas le DH d'un bâtiment. Il peut
 > aussi s'utiliser avec n'importe quel fichier horaire, y compris des résultats de simulation de
 > températures intérieures.
-> Version 0.9.11, version de test.
+> Version 0.9.12, version de test.
 
 ![Capture d'écran de l'outil](docs/capture-accueil.png)
 
@@ -99,8 +99,6 @@ au plus est comblé ; un fichier mal formé est refusé avec un message qui dit 
 
 ## Ce que l'outil ne fait pas encore
 
-- **Fichiers TRACC** (trajectoire de réchauffement de référence) : la famille est prévue, les fichiers
-  restent à intégrer.
 - **Proposer un fichier au catalogue** : un fichier importé ne dure que le temps de la session.
 - **Version anglaise**.
 
@@ -271,7 +269,7 @@ interface/              onglets, menu des réglages, fenêtre de choix, cartes, 
 export/                 copier-coller, CSV et Excel
 docs/sources/           À MODIFIER : documentation.docx (textes) et hypotheses.xlsx (valeurs)
 docs/pages/             pages Markdown générées depuis le Word (onglet Méthode & sources)
-donnees/meteo/<zone>/   fichiers météo du catalogue
+donnees/meteo/<zone>/   fichiers météo du catalogue (TRACC : donnees/meteo/TRACC/<zone>/)
 outils/                 convertir_docs.py, comparaison Excel ↔ Python
 tests/                  tests automatiques (lancés aussi par GitHub à chaque envoi : .github/workflows/tests.yml)
 CHANGELOG.md            journal des versions
@@ -290,6 +288,11 @@ hypothèse porte sa source et son statut (sourcé, provisoire, à préciser).
   (heure UTC), au moins une par zone. Le nom dit où est la station : « (ville) », « (centre-ville) »,
   « (périphérie) », « (aéroport) » ou « (aérodrome) » ; une station d'aéroport sous-estime la chaleur urbaine,
   surtout la nuit. Coordonnées, altitude et emplacement : API Météo-France (synthèse du 03/11/2026). À Trappes, la température du 6/07 7h au 17/07 8h UTC est reconstituée.
+- **Fichiers TRACC** (trajectoire de réchauffement de référence) : 8 zones × 3 niveaux (+2, +2,7 et +4 °C),
+  avec ou sans vague de chaleur, années types en heure UTC, données climatiques prospectives de
+  [data.ademe.fr](https://data.ademe.fr/datasets?q=climatique&topics=fJZXrdcRGP). `outils/convertir_tracc.py`
+  les produit depuis le dossier `TRACC/` (non publié). Valeurs non corrigées : 4 fichiers « vague de chaleur »
+  dépassent le record français de 46 °C (jusqu'à 54,8 °C à Rennes en +4 °C), ils le disent dans leur description.
 - **Catalogue** : `config/catalogue_fichiers.csv` (famille, zone, station, base horaire, source ; facultatif :
   `departement`, `latitude`, `longitude` pour placer la station sur la carte de la fenêtre de choix).
 - **Carte des zones** : `config/carte_france.json`, contours des départements et projection repris de

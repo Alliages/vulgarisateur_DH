@@ -13,3 +13,5 @@ env/
 *.bundle
 .DS_Store
 Thumbs.db
+# Fichiers TRACC bruts (60 Mo) : les CSV par zone sont dans donnees/meteo/TRACC/
+/TRACC/
