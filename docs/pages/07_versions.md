@@ -18,3 +18,9 @@
 0.9.9 : correction. Famille « Relevés » renommée « Observations » ; relevés de mai 2026 remplacés par les observations horaires Météo-France de 15 stations (au moins une par zone), du 1er mai au 30 septembre 2026 ; onglet Comparer : les deux noms de fichiers en haut de page, chacun dans sa couleur.
 
 0.9.10 : version de test. Fenêtre de choix : mini carte de France des zones (teinte du vert au corail selon le DH « Th-D canicule »), clic sur une zone pour filtrer, fichiers listés par zone avec DH et nuits ≥ 20 °C, pour toutes les familles (RE2020, Observations, puis TRACC) ; position des stations par coordonnées (facultatives) ou par département ; 5 observations ajoutées (Strasbourg, Clermont-Ferrand, Toulouse, Montpellier, Perpignan), noms précisant l'emplacement de la station (ville ou aéroport…) et coordonnées de toutes les stations.
+
+0.9.11 : correction. Nouvel onglet Accueil, ouvert au démarrage : à quoi sert l'outil, trois notions (8760 heures, météo ou climat, degrés-heures), les données, les limites et les liens utiles ; favicon reprenant le logo de l'en-tête.
+
+0.9.12 : version de test. 48 fichiers TRACC au catalogue : 8 zones, +2, +2,7 et +4 °C, avec ou sans vague de chaleur.
+
+0.9.14 : version de test. Vagues de chaleur (méthode Météo-France) : indicateurs de sévérité et de nombre de vagues, seuils des 8 stations de référence, utilisés pour les fichiers RE2020, TRACC et les observations de ces stations ; graphique des vagues en bas des onglets Analyser et Comparer. Un nouvel indicateur rejoint l'ordre des cartes gardé par le navigateur. Logo et favicon en hexagone.

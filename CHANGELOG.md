@@ -19,6 +19,8 @@ Dernier chiffre **pair** = gros changement, **impair** = correction.
   retiré.
 - **Logo et favicon** : hexagone indigo en 6 triangles à la place du rond, onde blanche conservée
   (`interface/composants.py`, `interface/favicon.svg`, `interface/favicon.png`).
+- Documentation Word à jour (fichiers TRACC, versions 0.9.11 à 0.9.14) : le contrôle « Documentation à jour » de GitHub
+  repasse.
 - Seuils des 8 stations calculés par l'Action « Seuils vagues de chaleur » (normales 1991-2020) :
   `config/seuils_vague_chaleur.csv` et onglet `stations_vague_chaleur` de `hypotheses.xlsx`.
 - Fusion du dossier de travail `vulgarisateur_DH 9.11 vague de chaleur` : indicateurs ajoutés à `hypotheses.xlsx` et
