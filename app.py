@@ -133,7 +133,7 @@ def _aller_methode():
 # ============================================================
 
 def main():
-    stockage = memoire.charger(VALIDATEURS_MEMOIRE)          # avant les widgets du menu
+    stockage = memoire.charger(VALIDATEURS_MEMOIRE, ORDRE_DEFAUT)          # avant les widgets du menu
     serie_a = serie_par_cle(choix_fichier.cle_courante(SOURCES))
     choix_fichier.menu(SOURCES, serie_a, lambda: choix_fichier.ouvrir("analyser", SOURCES))
     reglage = menu_reglages.afficher(INDICATEURS, ORDRE_DEFAUT, HYP)

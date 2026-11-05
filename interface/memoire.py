@@ -26,9 +26,11 @@ CLE_COMPOSANT = "memoire_navigateur"
 VARIABLE_SANS_MEMOIRE = "METEO_SANS_MEMOIRE"   # variable d'environnement : =1 désactive la mémoire
 CLE_CHARGEE = "memoire_chargee"           # vrai quand le navigateur a été lu pour cette session
 CLE_ENVOYE = "memoire_envoyee"            # dernières valeurs envoyées au navigateur (évite les relances en boucle)
+CLE_ORDRE_CARTES = "r_indicateurs"        # ordre des cartes choisi dans le menu
+CLE_CARTES_CONNUES = "cartes_connues"     # indicateurs proposés lors de la dernière visite
 # clé de session → nom dans le navigateur
 A_GARDER = {"fichier_courant": "fichier", "fichiers_recents": "recents", "lignes": "lignes",
-            "r_indicateurs": "ordre_cartes"}
+            CLE_ORDRE_CARTES: "ordre_cartes", CLE_CARTES_CONNUES: CLE_CARTES_CONNUES}
 
 
 def _gestionnaire():
@@ -41,10 +43,23 @@ def _gestionnaire():
         return None
 
 
-def charger(valider: dict) -> object:
+def _ajouter_nouvelles_cartes(memoire, ordre_defaut: list):
     """
-    À appeler avant les widgets. valider : {clé de session : fonction(valeur lue) → valeur propre ou None}.
-    Renvoie le gestionnaire (à passer à `enregistrer`), ou None.
+    Un indicateur apparu depuis la dernière visite s'ajoute à la fin de l'ordre gardé dans le navigateur ;
+    un indicateur que l'utilisateur a retiré reste retiré. Mémoire d'avant cette règle (sans liste des
+    indicateurs connus) : tous les indicateurs par défaut absents de l'ordre gardé sont ajoutés, une fois.
+    """
+    ordre = st.session_state.get(CLE_ORDRE_CARTES)
+    if ordre:
+        connues = memoire[CLE_CARTES_CONNUES] if CLE_CARTES_CONNUES in memoire else ordre
+        st.session_state[CLE_ORDRE_CARTES] = ordre + [i for i in ordre_defaut if i not in connues and i not in ordre]
+    st.session_state[CLE_CARTES_CONNUES] = list(ordre_defaut)
+
+
+def charger(valider: dict, ordre_defaut: list = ()) -> object:
+    """
+    À appeler avant les widgets. valider : {clé de session : fonction(valeur lue) → valeur propre ou None} ;
+    ordre_defaut : indicateurs proposés par défaut. Renvoie le gestionnaire (à passer à `enregistrer`), ou None.
     """
     memoire = _gestionnaire()
     if memoire is None or st.session_state.get(CLE_CHARGEE):
@@ -57,6 +72,7 @@ def charger(valider: dict) -> object:
                 propre = valider.get(cle_session, lambda v: v)(memoire[cle_nav])
                 if propre:
                     st.session_state[cle_session] = propre
+        _ajouter_nouvelles_cartes(memoire, ordre_defaut)
     except Exception:
         pass
     st.session_state[CLE_CHARGEE] = True

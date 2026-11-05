@@ -12,7 +12,7 @@ des journées ou des semaines types, et exporte les résultats.
 > (fichiers météo) : c'est alors un indicateur de sévérité du climat, pas le DH d'un bâtiment. Il peut
 > aussi s'utiliser avec n'importe quel fichier horaire, y compris des résultats de simulation de
 > températures intérieures.
-> Version 0.9.12, version de test.
+> Version 0.9.14, version de test.
 
 ![Capture d'écran de l'outil](docs/capture-accueil.png)
 
@@ -35,7 +35,7 @@ Par défaut, tout suit la méthode RE2020 (arrêté du 4 août 2021, annexe III,
    La fenêtre de choix propose une recherche et les familles de fichiers (RE2020, Observations…) : pour
    chacune, une mini carte de France des zones (clic sur une zone pour filtrer) et les fichiers par zone,
    avec leur DH et leurs nuits ≥ 20 °C.
-2. **Lire l'onglet ① Analyser** : huit cartes d'indicateurs, l'année heure par heure (zoom à la
+2. **Lire l'onglet ① Analyser** : dix cartes d'indicateurs, l'année heure par heure (zoom à la
    molette ou avec le curseur ; en bas, une barre bleue par nuit ≥ 20 °C, bleu nuit si ≥ 24 °C), puis la
    semaine et la journée les plus chaudes. La pastille « i » de
    chaque carte donne la définition.
@@ -61,6 +61,14 @@ du menu de gauche ; « Revenir au réglage RE2020 » les remet par défaut.
 | Nuits ≥ 24 °C | nuits où la température ne descend pas sous 24 °C |
 | Température moyenne | moyenne de l'été (1er juin – 30 septembre) |
 | Température moyenne nocturne | moyenne des nuits de l'été |
+| Sévérité des vagues de chaleur (°C.j) | somme, sur tous les jours de vague, de l'écart de la température moyenne journalière au seuil de début de la station |
+| Vagues de chaleur | nombre de vagues du fichier (méthode Météo-France) |
+
+Les deux indicateurs de vague de chaleur demandent les seuils de la station (`config/seuils_vague_chaleur.csv`,
+produit par l'Action « Seuils vagues de chaleur ») : ils existent pour les 8 stations de référence. Les fichiers
+RE2020 et TRACC prennent ceux de la station de leur zone, les observations ceux de leur station si elle en fait partie.
+Sans station associée (autres observations, fichiers importés), la carte affiche « — ». Un graphique en bas
+des onglets Analyser et Comparer montre les vagues du fichier, jour par jour, face aux seuils de sa station.
 
 Le détail de chaque méthode est dans l'onglet **Méthode & sources**.
 

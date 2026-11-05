@@ -59,10 +59,14 @@ sévérité = Σ max(0 ; Tm − Sdeb) ; cumul = somme des vagues. Hypothèses vd
   Erreurs de téléchargement : 3 essais si passagères, puis message (URL, cause, piste de correction)
   en annotation rouge et dans le tableau récapitulatif du run.
 - [ ] Lancer l'Action (feu vert de Guigui) et relire le journal (complétude, contrôle été 2003).
-- [ ] Plugin d'indicateur (Analyser, Comparer). **Valeur affichée = somme des sévérités de toutes les vagues
-  de l'année du fichier (°C·jour)**, avec le **nombre de vagues de chaleur** de l'année. En complément possible :
-  durée cumulée, intensité max.
-- [ ] Variante sans le 10/07-31/08 (bâtiments scolaires, étude EODD).
+- [x] Plugins d'indicateur `vdc_severite` (**somme des sévérités de toutes les vagues du fichier, °C·j**) et
+  `vdc_nombre` (**nombre de vagues**, détail : jours de vague et plus longue vague) ; calcul dans
+  calcul/vagues_chaleur.py. Seuils des 8 stations calculés par l'Action (config/seuils_vague_chaleur.csv). Fichiers concernés : RE2020 et TRACC (station de la zone) et observations de la même
+  station (numéro de poste) ; les autres restent à « — ».
+- [ ] À vérifier avec l'étude EODD : les jours sous Sdeb en fin de vague ne sont pas comptés dans la durée
+  (sa figure semble les compter) ; sans effet sur la sévérité ni le nombre de vagues.
+- [ ] Variante sans le 10/07-31/08 (bâtiments scolaires, étude EODD) : calcul prêt (`hors_periode`), pas encore
+  affichée (réglage à ajouter).
 - [ ] **Autres fichiers** (observations, TRACC, fichiers importés) : seuils de leur propre station à calculer ;
   en attendant, pas d'indicateur (ou zone demandée à l'utilisateur).
 - [ ] Analyse des résultats : comparer avec l'étude EODD (G. Le Gall, durée cumulée 2026 record sauf altitude)

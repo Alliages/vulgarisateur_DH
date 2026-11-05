@@ -7,8 +7,10 @@ import streamlit as st
 from calcul.analyse import jour_le_plus_chaud, occupation_affichee, semaine_la_plus_chaude, tranche
 from calcul.format_fr import date_longue, periode_longue
 from calcul.hypotheses import valeur
+from config.charte import COULEUR_FICHIER_1
 from config.reglages import CRITERES_JOURNEE_TEXTE, CRITERES_SEMAINE_TEXTE, LIBELLES_CRITERE_SEMAINE
 from interface import graphiques_analyse as ga
+from interface import graphiques_vagues as gv
 from interface.cartes import cartes
 from interface.composants import bandeau_hypotheses
 from interface.graphiques_communs import afficher as afficher_graphique
@@ -67,5 +69,12 @@ def afficher(analyse, resultats, reglage, hyp, aller_methode):
             sous = f"Critère : {CRITERES_JOURNEE_TEXTE[reglage['critere_journee']]}<br>mêmes couleurs que la semaine"
             afficher_graphique(ga.courbe_dh(t, seuil, dh, x, titre, sous, "jour",
                                             occupation_affichee(x, reglage["occupation"]), "", legende=False))
+    # Vagues de chaleur, tout en bas
+    fenetre, bornes = gv.echelle((analyse,), hyp, fenetre_ete(s, hyp))
+    fig = gv.vagues_chaleur(analyse, hyp, s.libelle, COULEUR_FICHIER_1, fenetre, bornes) if bornes else None
+    if fig:
+        afficher_graphique(fig)
+    else:
+        st.caption(f"Vagues de chaleur : {gv.TEXTE_SANS_SEUILS}.")
     for a in s.avertissements:
         st.caption(f"⚠ {a}")

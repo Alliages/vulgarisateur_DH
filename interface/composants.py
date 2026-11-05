@@ -29,6 +29,10 @@ from interface.couleurs import melange
 # ============================================================
 CHEMIN_CSS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.css")
 TRACE_LOGO = "M2 12 C3.2 12 3.6 9.5 4.8 9.5 S6.4 14.5 7.6 14.5 S9.2 6 10.6 6 S12.4 18 13.8 18 S15.6 3.5 17.2 3.5 S19.2 20.5 22 12"
+TRIANGLES_LOGO = ("33.60,29.23 33.60,3.23 56.12,16.23", "35.20,32.00 57.72,19.00 57.72,45.00",
+                  "33.60,34.77 56.12,47.77 33.60,60.77", "30.40,34.77 30.40,60.77 7.88,47.77",
+                  "28.80,32.00 6.28,45.00 6.28,19.00", "30.40,29.23 7.88,16.23 30.40,3.23")   # hexagone en 6 triangles
+TAILLE_LOGO = 52                        # px, en-tête
 COULEUR_PLUS_CHAUD = "#C23B3C"          # texte des pastilles « plus chaud »
 FOND_EGAL = "#EEEDEA"                   # pastille « égal »
 
@@ -46,10 +50,13 @@ def css() -> str:
     return f"\n<style>\n{modele.substitute(valeurs)}</style>\n"
 
 
-def logo_onde() -> str:
-    """Logo : une onde de température (oscillation qui s'amplifie), trait blanc sur rond indigo."""
-    return ('<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" '
-            f'stroke-linecap="round" stroke-linejoin="round"><path d="{TRACE_LOGO}"/></svg>')
+def logo_onde(taille: int = TAILLE_LOGO) -> str:
+    """Logo : une onde de température (oscillation qui s'amplifie), trait blanc sur hexagone indigo en 6 triangles."""
+    triangles = "".join(f'<polygon points="{p}"/>' for p in TRIANGLES_LOGO)
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{taille}" height="{taille}" viewBox="0 0 64 64">'
+            f'<g fill="{charte.INDIGO}" stroke="{charte.INDIGO}" stroke-width="2" stroke-linejoin="round">{triangles}</g>'
+            '<g transform="translate(10.4 10.4) scale(1.8)" fill="none" stroke="white" stroke-width="2.2" '
+            f'stroke-linecap="round" stroke-linejoin="round"><path d="{TRACE_LOGO}"/></g></svg>')
 
 
 # ============================================================

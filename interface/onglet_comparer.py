@@ -13,6 +13,7 @@ from calcul.analyse import jour_le_plus_chaud, semaine_la_plus_chaude
 from calcul.hypotheses import remplacer_reperes, valeur
 from config.charte import COULEUR_FICHIER_1, COULEUR_FICHIER_2, GRIS
 from interface import graphiques_comparaison as gc
+from interface import graphiques_vagues as gv
 from interface.cartes import valeur_texte
 from interface.composants import cartouche, pastille_ecart
 from interface.graphiques_communs import afficher as afficher_graphique
@@ -97,4 +98,11 @@ def afficher(analyse_a, res_a, serie_b, analyser_b, reglage, hyp, ouvrir_choix_s
         st.caption(f"Semaine la plus chaude : il faut au moins {n} jours complets dans chaque fichier.")
     # 5. Cumul des DH (repères RE2020 lus dans les hypothèses)
     afficher_graphique(gc.cumul_dh(analyse_a, analyse_b, nom_a, nom_b, sources, *(valeur(hyp, r) for r in REPERES_DH)))
+    # 6. Vagues de chaleur : les deux fichiers sur un graphique, avec les seuils de leur station
+    fenetre_vdc, bornes = gv.echelle((analyse_a, analyse_b), hyp, fenetre, ANNEE)
+    if bornes:
+        afficher_graphique(gv.vagues_comparees(analyse_a, analyse_b, hyp, nom_a, nom_b, fenetre_vdc, bornes, ANNEE))
+    for a, nom in ((analyse_a, nom_a), (analyse_b, nom_b)):
+        if gv.sans_seuils(a):
+            st.caption(f"Vagues de chaleur · {nom} : {gv.TEXTE_SANS_SEUILS}.")
     st.caption("Les deux fichiers sont ramenés sur une même année pour être superposés jour par jour.")

@@ -30,9 +30,9 @@
 header[data-testid="stHeader"] { background: transparent; }
 [data-testid="stToolbarActions"], [data-testid="stMainMenu"], [data-testid="stAppDeployButton"] { display: none; }
 .block-container { padding-top: 1.2rem; max-width: 1500px; }
-/* En-tête clair : logo rond + nom + sous-titre + version */
+/* En-tête clair : logo hexagonal + nom + sous-titre + version */
 .entete { display: flex; align-items: center; gap: 16px; margin: 0 0 14px; }
-.entete .logo { width: 52px; height: 52px; border-radius: 50%; background: ${INDIGO}; display: flex;
+.entete .logo { width: 52px; height: 52px; display: flex;
                  align-items: center; justify-content: center; flex: none; }
 .entete .nom { font-size: 1.7rem; font-weight: 700; color: ${GRIS}; line-height: 1.1; }
 .entete .sous { color: ${GRIS_DOUX}; font-size: .95rem; }

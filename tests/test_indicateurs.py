@@ -54,7 +54,8 @@ def test_releve_partiel_bascule_en_basic():
 
 
 def test_ordre_des_indicateurs():
-    assert [d["id"] for d in DEFS] == ["dh", "heures_chaudes", "dh_nuit", "nuits_20", "nuits_consecutives", "nuits_24", "t_moyenne", "t_moyenne_nuit"]
+    assert [d["id"] for d in DEFS] == ["dh", "heures_chaudes", "dh_nuit", "nuits_20", "nuits_consecutives", "nuits_24", "t_moyenne", "t_moyenne_nuit",
+                                         "vdc_severite", "vdc_nombre"]
 
 
 

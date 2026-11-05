@@ -3,6 +3,27 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.14 — version de test (05/11/2026), indicateurs de vague de chaleur
+
+- **2 nouveaux indicateurs** (cartes, Comparer, Exporter) : `vdc_severite` (somme des sévérités de toutes les vagues
+  du fichier, °C.j) et `vdc_nombre` (nombre de vagues ; détail : jours de vague et plus longue vague). Calcul dans
+  `calcul/vagues_chaleur.py`, méthode Météo-France (seuils Spic, Sdeb, Sint de la station).
+- Fichiers concernés : RE2020 et TRACC (station de la zone) et observations de la même station (numéro de poste) ; les
+  autres restent à « — ».
+- **Graphique des vagues de chaleur** tout en bas des onglets Analyser et Comparer (`interface/graphiques_vagues.py`) :
+  température moyenne du jour, seuils Spic / Sdeb / Sint de la station, vagues sur fond teinté, sévérité en aire
+  colorée, durée et sévérité de chaque vague. Comparer : les deux fichiers sur un seul graphique, seuils en gris
+  s'ils sont communs, sinon dans la couleur de chaque fichier.
+- Mémoire du navigateur : un nouvel indicateur s'ajoute à la fin de l'ordre des cartes gardé d'une visite à l'autre
+  (les cartes de vague de chaleur n'apparaissaient pas pour qui avait déjà ouvert l'outil) ; un indicateur retiré reste
+  retiré.
+- **Logo et favicon** : hexagone indigo en 6 triangles à la place du rond, onde blanche conservée
+  (`interface/composants.py`, `interface/favicon.svg`, `interface/favicon.png`).
+- Seuils des 8 stations calculés par l'Action « Seuils vagues de chaleur » (normales 1991-2020) :
+  `config/seuils_vague_chaleur.csv` et onglet `stations_vague_chaleur` de `hypotheses.xlsx`.
+- Fusion du dossier de travail `vulgarisateur_DH 9.11 vague de chaleur` : indicateurs ajoutés à `hypotheses.xlsx` et
+  `config/indicateurs.csv`, tests et TODO repris ; le code de calcul était déjà en place.
+
 ## 0.9.12 — version de test (04/11/2026), fichiers TRACC
 
 - **48 fichiers TRACC** au catalogue : 8 zones × +2, +2,7 et +4 °C, avec ou sans vague de chaleur
