@@ -1,0 +1,9 @@
+zone;station;numero_poste;spic;sdeb;sint;periode;jours_valides;taux_valide;statut
+H1a;Trappes;78621001;26.4;23.4;21.8;1991-2020;10958;1.0;calculé
+H1b;Nancy-Essey;54526001;26.4;23.6;22.1;1991-2020;10958;1.0;calculé
+H1c;Mâcon;71105001;27.8;25.0;23.7;1991-2020;10958;1.0;calculé
+H2a;Rennes-St Jacques;35281001;25.3;22.6;21.2;1991-2020;10958;1.0;calculé
+H2b;Tours;37179001;26.8;23.9;22.4;1991-2020;10958;1.0;calculé
+H2c;Agen-La Garenne;47091001;27.8;25.5;24.1;1991-2020;10958;1.0;calculé
+H2d;Carpentras;84031001;28.9;27.1;26.0;1991-2020;10958;1.0;calculé
+H3;Marignane;13054001;29.0;27.6;26.6;1991-2020;10958;1.0;calculé
