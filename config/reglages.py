@@ -10,7 +10,7 @@
 """
 
 # --- Version (dernier chiffre pair = gros changement, impair = correction) ---
-VERSION = "0.9.14"
+VERSION = "0.9.15"
 STATUT_VERSION = "version de test"
 
 # --- Auteur et liens (pied de page, README) ---
@@ -27,6 +27,23 @@ REGLAGE_RE2020 = {
     "lignes": [28.0],                 # lignes horizontales (°C)
 }
 FICHIER_DEFAUT = "H1a_th_d"
+
+# --- Ampleur des écarts (colonne « Ampleur » de l'onglet Comparer) ---
+# mode « relatif » : écart en % ; « absolu » : écart dans l'unité de l'indicateur.
+# seuil : écart d'une jauge pleine (en % si relatif, en unité sinon).
+# Indicateur absent de cette table : valeurs par défaut de calcul/indicateurs/base.py (relatif, 100 %).
+AMPLEUR_INDICATEURS = {
+    "dh": {"mode_ampleur": "relatif", "seuil_ampleur": 50},
+    "dh_nuit": {"mode_ampleur": "relatif", "seuil_ampleur": 50},
+    "heures_chaudes": {"mode_ampleur": "relatif", "seuil_ampleur": 100},
+    "vdc_severite": {"mode_ampleur": "relatif", "seuil_ampleur": 100},
+    "nuits_20": {"mode_ampleur": "absolu", "seuil_ampleur": 30},
+    "nuits_consecutives": {"mode_ampleur": "absolu", "seuil_ampleur": 7},
+    "nuits_24": {"mode_ampleur": "absolu", "seuil_ampleur": 5},
+    "t_moyenne": {"mode_ampleur": "absolu", "seuil_ampleur": 3},
+    "t_moyenne_nuit": {"mode_ampleur": "absolu", "seuil_ampleur": 3},
+    "vdc_nombre": {"mode_ampleur": "absolu", "seuil_ampleur": 3},
+}
 
 # --- Onglets de la page (le nom sert aussi de clé pour passer d'un onglet à l'autre) ---
 ONGLET_ACCUEIL = "Accueil"                 # page d'explication (0.9.11), ouverte au démarrage

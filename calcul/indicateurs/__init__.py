@@ -15,8 +15,10 @@
 
 import importlib
 import pkgutil
+from dataclasses import replace
 
 from calcul.indicateurs.base import Indicateur, Resultat
+from config.reglages import AMPLEUR_INDICATEURS
 
 __all__ = ["Indicateur", "Resultat", "REGISTRE", "calculer_indicateurs", "valeurs"]
 
@@ -37,7 +39,7 @@ def _decouvrir() -> dict:
             raise TypeError(f"calcul/indicateurs/{module}.py : variable INDICATEUR = Indicateur(...) manquante")
         if ind.id != module:
             raise ValueError(f"calcul/indicateurs/{module}.py : l'identifiant « {ind.id} » doit être le nom du fichier")
-        registre[ind.id] = ind
+        registre[ind.id] = replace(ind, **AMPLEUR_INDICATEURS.get(ind.id, {}))    # ampleur : table centrale
     return registre
 
 

@@ -11,11 +11,12 @@ import streamlit as st
 
 from calcul.analyse import jour_le_plus_chaud, semaine_la_plus_chaude
 from calcul.hypotheses import remplacer_reperes, valeur
+from calcul.indicateurs import REGISTRE
 from config.charte import COULEUR_FICHIER_1, COULEUR_FICHIER_2, GRIS
 from interface import graphiques_comparaison as gc
 from interface import graphiques_vagues as gv
 from interface.cartes import valeur_texte
-from interface.composants import cartouche, pastille_ecart
+from interface.composants import cartouche, cellule_ampleur, legende_ampleur, pastille_ecart
 from interface.graphiques_communs import afficher as afficher_graphique
 
 # ============================================================
@@ -38,18 +39,26 @@ def _tableau(res_a, res_b, nom_a, nom_b, hyp):
         dec = int(d.get("decimales", 0) or 0)
         unite = html.escape(d["unite"])
         va, vb = ra.valeur, rb.valeur
-        ecart = "—" if va is None or vb is None else pastille_ecart(round(vb, dec) - round(va, dec), d["unite"], dec)
+        ind = REGISTRE[d["id"]]
+        arrondi = None if va is None or vb is None else round(round(vb, dec) - round(va, dec), dec)
+        ecart = "—" if arrondi is None else pastille_ecart(arrondi, d["unite"], dec)
+        jauge = cellule_ampleur(va, vb, arrondi, ind.mode_ampleur, ind.seuil_ampleur, d["unite"])
         lignes.append(
             f"<tr><td>{html.escape(remplacer_reperes(d['libelle'], hyp))}</td>"
             f'<td style="color:{COULEUR_FICHIER_1};text-align:right"><b>{valeur_texte(va, dec)} {unite}</b></td>'
             f'<td style="color:{COULEUR_FICHIER_2};text-align:right"><b>{valeur_texte(vb, dec)} {unite}</b></td>'
-            f'<td style="text-align:right">{ecart}</td></tr>')
+            f'<td style="text-align:right">{ecart}</td>'
+            f'<td style="text-align:right">{jauge}</td></tr>')
     entete = (f'<tr><th style="text-align:left">Indicateur</th>'
               f'<th style="color:{COULEUR_FICHIER_1};text-align:right">● {html.escape(nom_a)}</th>'
               f'<th style="color:{COULEUR_FICHIER_2};text-align:right">● {html.escape(nom_b)}</th>'
-              f'<th style="text-align:right;color:{GRIS}">Écart<br><span style="font-weight:400;font-size:.8rem">'
-              f'{html.escape(nom_b)} par rapport à {html.escape(nom_a)}</span></th></tr>')
-    st.markdown(f'<div class="tableau"><table>{entete}{"".join(lignes)}</table></div>', unsafe_allow_html=True)
+              f'<th style="text-align:right;color:{GRIS}">Écart<br><span class="ecart-sens">'
+              f'<span style="color:{COULEUR_FICHIER_2}" title="{html.escape(nom_b)}">●</span> par rapport à '
+              f'<span style="color:{COULEUR_FICHIER_1}" title="{html.escape(nom_a)}">●</span></span></th>'
+              f'<th style="text-align:right;color:{GRIS}">Ampleur<br><span style="font-weight:400;font-size:.8rem">'
+              f'jauge pleine = seuil à droite</span></th></tr>')
+    st.markdown(f'<div class="tableau"><table>{entete}{"".join(lignes)}</table>{legende_ampleur()}</div>',
+                unsafe_allow_html=True)
 
 
 # ============================================================

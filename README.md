@@ -12,7 +12,7 @@ des journées ou des semaines types, et exporte les résultats.
 > (fichiers météo) : c'est alors un indicateur de sévérité du climat, pas le DH d'un bâtiment. Il peut
 > aussi s'utiliser avec n'importe quel fichier horaire, y compris des résultats de simulation de
 > températures intérieures.
-> Version 0.9.14, version de test.
+> Version 0.9.15, version de test.
 
 ![Capture d'écran de l'outil](docs/capture-accueil.png)
 

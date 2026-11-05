@@ -20,7 +20,8 @@ import streamlit as st
 
 from calcul.format_fr import nombre
 from config import charte
-from config.charte import BLEU_CLAIR, BLEU_FRAIS, CORAIL, COULEUR_FICHIER_1, COULEUR_FICHIER_2, GRIS_DOUX
+from config.charte import (BLEU_CLAIR, BLEU_FRAIS, CORAIL, COULEUR_FICHIER_1, COULEUR_FICHIER_2, COULEURS_BAISSE,
+                           COULEURS_HAUSSE, GRIS_DOUX)
 from config.reglages import AUTEUR, LIEN_CODE_SOURCE, ONGLET_ACCUEIL, STATUT_VERSION, VERSION
 from interface.couleurs import melange
 
@@ -32,6 +33,8 @@ TRACE_LOGO = "M2 12 C3.2 12 3.6 9.5 4.8 9.5 S6.4 14.5 7.6 14.5 S9.2 6 10.6 6 S12
 TRIANGLES_LOGO = ("33.60,29.23 33.60,3.23 56.12,16.23", "35.20,32.00 57.72,19.00 57.72,45.00",
                   "33.60,34.77 56.12,47.77 33.60,60.77", "30.40,34.77 30.40,60.77 7.88,47.77",
                   "28.80,32.00 6.28,45.00 6.28,19.00", "30.40,29.23 7.88,16.23 30.40,3.23")   # hexagone en 6 triangles
+PALIERS_AMPLEUR = (1 / 3, 2 / 3)         # remplissage à partir duquel la jauge passe au niveau 1, puis 2
+DECIMALES_AMPLEUR = 1
 TAILLE_LOGO = 52                        # px, en-tête
 COULEUR_PLUS_CHAUD = "#C23B3C"          # texte des pastilles « plus chaud »
 FOND_EGAL = "#EEEDEA"                   # pastille « égal »
@@ -145,6 +148,47 @@ def pastille_ecart(ecart: float, unite: str, decimales: int = 0) -> str:
         fond, texte, signe = BLEU_CLAIR, BLEU_FRAIS, "−"
     return (f'<span class="pastille" style="background:{fond};color:{texte}">'
             f'{signe}{nombre(abs(ecart), decimales)} {html.escape(unite)}</span>')
+
+
+def ampleur(va, vb, ecart, mode, seuil):
+    """
+    Jauge de l'onglet Comparer : {valeur, remplissage (0 → 1), niveau (0, 1, 2)}, ou None si le calcul n'a pas de sens
+    (mode relatif et référence nulle). ecart : écart de la pastille, arrondi comme elle, qui décide de l'écart nul.
+    """
+    if mode == "relatif" and va == 0:
+        return None
+    valeur = 0.0 if ecart == 0 else (vb - va) / abs(va) * 100 if mode == "relatif" else ecart
+    remplissage = min(abs(valeur) / seuil, 1.0)
+    return {"valeur": valeur, "remplissage": remplissage, "niveau": sum(remplissage >= s for s in PALIERS_AMPLEUR)}
+
+
+def _court(v: float) -> str:
+    """Une décimale au plus, virgule décimale : 1,9 · 3 · 1 472."""
+    texte = nombre(abs(v), DECIMALES_AMPLEUR)
+    return texte[:-2] if texte.endswith(",0") else texte
+
+
+def cellule_ampleur(va, vb, ecart, mode, seuil, unite) -> str:
+    """Cellule « Ampleur » : [valeur de l'écart] [jauge] [seuil]. La jauge reprend le sens de la pastille."""
+    if va is None or vb is None:
+        return "—"
+    a = ampleur(va, vb, ecart, mode, seuil)
+    if a is None:
+        return '<span class="ampleur-na">n/a</span>'
+    v = a["valeur"]
+    u = "%" if mode == "relatif" else html.escape(unite)
+    signe = "+" if v > 0 else "−" if v < 0 else ""
+    couleur = COULEURS_HAUSSE[a["niveau"]] if v > 0 else COULEURS_BAISSE[a["niveau"]]
+    discret = " discret" if mode == "absolu" or v == 0 else ""       # mode absolu : la valeur répète la pastille
+    return (f'<span class="ampleur"><span class="valeur{discret}">{signe}{_court(v)}&nbsp;{u}</span>'
+            f'<span class="jauge"><span style="width:{a["remplissage"] * 100:.0f}%;background:{couleur}"></span></span>'
+            f'<span class="seuil">{_court(seuil)}&nbsp;{u}</span></span>')
+
+
+def legende_ampleur() -> str:
+    """Légende sous le tableau de l'onglet Comparer."""
+    return (f'<div class="legende-ampleur"><span style="background:{COULEURS_HAUSSE[2]}"></span>hausse (intensité = ampleur)'
+            f'<span style="background:{COULEURS_BAISSE[2]}"></span>baisse</div>')
 
 
 def cartouche(role: str, serie, couleur: str):

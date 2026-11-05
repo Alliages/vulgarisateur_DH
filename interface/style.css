@@ -257,3 +257,19 @@ div[role="dialog"] { border-radius: 22px; }
 .st-key-accueil blockquote strong { color: ${INDIGO}; }
 .st-key-accueil a { color: ${TEAL}; font-weight: 600; }
 .st-key-accueil_methode button p { color: ${TEAL}; font-weight: 700; }
+
+/* Comparer : sous-titre de la colonne Écart (noms des fichiers au survol des points) */
+.ecart-sens { font-size: 11px; font-weight: 400; white-space: nowrap; }
+.ecart-sens span { cursor: help; }
+
+/* Comparer : colonne « Ampleur » : valeur, jauge, seuil */
+.ampleur { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.ampleur .valeur { min-width: 5.2em; text-align: right; font-size: 13px; font-weight: 700; color: ${GRIS}; }
+.ampleur .valeur.discret { font-weight: 400; color: ${GRIS_AMPLEUR_VALEUR}; }
+.ampleur .jauge { width: 72px; height: 6px; border-radius: 3px; background: ${GRILLE}; overflow: hidden; flex: none; }
+.ampleur .jauge span { display: block; height: 100%; border-radius: 3px; }
+.ampleur .seuil { min-width: 4.6em; text-align: left; font-size: 11px; color: ${GRIS_AMPLEUR_SEUIL}; }
+.ampleur-na { font-size: 13px; color: ${GRIS_AMPLEUR_VALEUR}; }
+.legende-ampleur { display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 6px 10px 4px;
+                    font-size: 11px; color: ${GRIS_DOUX}; }
+.legende-ampleur span { width: 10px; height: 10px; border-radius: 2px; margin-left: 10px; }

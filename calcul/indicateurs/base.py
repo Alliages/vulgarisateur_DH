@@ -22,6 +22,8 @@ from typing import Callable
 # ============================================================
 TEINTES = ("chaud", "nuit", "moyenne")                       # couleur de la carte (config/charte.py)
 ICONES = ("soleil", "lune", "horloge", "calendrier", "thermometre")   # dessins de interface/cartes.py
+MODES_AMPLEUR = ("relatif", "absolu")                        # écart en % ou dans l'unité de l'indicateur
+MODE_AMPLEUR_DEFAUT, SEUIL_AMPLEUR_DEFAUT = "relatif", 100   # indicateur absent de AMPLEUR_INDICATEURS
 
 
 @dataclass
@@ -42,7 +44,9 @@ class Indicateur:
                  par nuit}, {"type": "jauge", "valeurs": part entre 0 et 1}) ;
     teinte     : « chaud » (rouge), « nuit » (foncé) ou « moyenne » (bleu canard) ;
     icone      : dessin de la carte (voir ICONES) ;
-    principale : carte en couleur pleine (une seule : le DH).
+    principale : carte en couleur pleine (une seule : le DH) ;
+    mode_ampleur, seuil_ampleur : jauge de l'onglet Comparer, mode (voir MODES_AMPLEUR) et écart d'une jauge pleine
+                 (en % si relatif, en unité sinon). Valeurs réglées dans config/reglages.py, AMPLEUR_INDICATEURS.
     """
     id: str
     calculer: Callable
@@ -50,9 +54,16 @@ class Indicateur:
     teinte: str = "moyenne"
     icone: str = "thermometre"
     principale: bool = False
+    mode_ampleur: str = MODE_AMPLEUR_DEFAUT
+    seuil_ampleur: float = SEUIL_AMPLEUR_DEFAUT
 
     def __post_init__(self):
         if self.teinte not in TEINTES:
             raise ValueError(f"indicateur {self.id} : teinte « {self.teinte} » inconnue ({', '.join(TEINTES)})")
         if self.icone not in ICONES:
             raise ValueError(f"indicateur {self.id} : icône « {self.icone} » inconnue ({', '.join(ICONES)})")
+        if self.mode_ampleur not in MODES_AMPLEUR:
+            raise ValueError(f"indicateur {self.id} : mode d'ampleur « {self.mode_ampleur} » inconnu "
+                             f"({', '.join(MODES_AMPLEUR)})")
+        if self.seuil_ampleur <= 0:
+            raise ValueError(f"indicateur {self.id} : le seuil d'ampleur doit être positif")

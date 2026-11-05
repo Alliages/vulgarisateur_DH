@@ -3,6 +3,13 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.15 — correction (05/11/2026), colonne Ampleur de l'onglet Comparer
+
+- Onglet Comparer : colonne **Ampleur** dans le tableau des indicateurs : valeur de l'écart, jauge et seuil. Écart en %
+  ou dans l'unité selon l'indicateur, jauge aux couleurs de la pastille (hausse en rouge, baisse en bleu, trois
+  intensités). Mode et seuils : `AMPLEUR_INDICATEURS` dans `config/reglages.py`.
+- En-tête de la colonne Écart : deux points aux couleurs des fichiers, noms au survol, pour une colonne plus étroite.
+
 ## 0.9.14 — version de test (05/11/2026), indicateurs de vague de chaleur
 
 - **2 nouveaux indicateurs** (cartes, Comparer, Exporter) : `vdc_severite` (somme des sévérités de toutes les vagues

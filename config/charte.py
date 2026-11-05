@@ -54,6 +54,11 @@ ORANGE_FONCE = "#B5651D"              # trait et texte de la bande « au-dessus 
 TEXTE_ECART = "#9C5A12"               # écart moyen écrit entre deux fichiers
 GRIS_INOCCUPE = "rgba(39,41,50,0.08)" # heures d'absence (scénario d'occupation)
 GRILLE = "#ECEAE6"
+# --- Colonne « Ampleur » de l'onglet Comparer : sens de la pastille, intensité selon le niveau (0, 1, 2) ---
+COULEURS_HAUSSE = ("#F09595", "#E24B4A", "#A32D2D")
+COULEURS_BAISSE = ("#85B7EB", "#378ADD", "#185FA5")
+GRIS_AMPLEUR_VALEUR = "#B7B5B0"       # valeur qui répète la pastille (mode absolu), écart nul
+GRIS_AMPLEUR_SEUIL = "#9A9892"        # seuil à droite de la jauge
 SEPARATEUR = "#E2E0DB"                # traits verticaux entre jours / mois
 FOND_BANDE_CHAUDE = "rgba(247,178,103,0.22)"   # caramel clair : au-dessus du seuil chaud (28 °C)
 FOND_BANDE_FRAICHE = "rgba(72,190,255,0.13)"   # bleu clair : en dessous du seuil frais (20 °C)
