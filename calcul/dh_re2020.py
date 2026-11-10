@@ -61,6 +61,22 @@
       θop ≥ θconf_corr, ≥ θconf_corr + 1, ≥ θconf_corr + 2.
 
 ------------------------------------------------------------
+ OCCUPATION CONVENTIONNELLE DU LOGEMENT
+------------------------------------------------------------
+ Fiche C_EIN_Scénarios conventionnels (annexe III, 4.1, tableau de
+ synthèse) et classeur « scénarios conventionnels » du 29/04/2026,
+ usages 1 (maisons individuelles) et 2 (logements collectifs) :
+   - lundi, mardi, jeudi, vendredi : occupé de 0h à 9h et de 17h à 0h
+     (absents de 9h à 17h) ;
+   - mercredi : occupé de 0h à 9h et de 13h à 0h (absents de 9h à 13h) ;
+   - samedi, dimanche : occupé 24h/24 ;
+   - inoccupé la 4e semaine de décembre, soit la semaine 52 de l'année
+     conventionnelle (52 semaines : 4-4-5-4-5-4-4-5-4-4-5-4 par mois),
+     jours 358 à 364. Le jour 365, hors des 52 semaines, reste occupé
+     (cas non décrit par le texte).
+ Heures légales, année débutant un lundi (convention Th-BCE).
+
+------------------------------------------------------------
  CONVENTION HORAIRE
 ------------------------------------------------------------
  L'indice h d'une série désigne l'heure [h:00 ; h+1:00[.
@@ -73,10 +89,6 @@
 ------------------------------------------------------------
  HORS TEXTE CONSULTÉ (hypothèses)
 ------------------------------------------------------------
- - Occupation logement : absents 10h–18h lun/mar/jeu/ven et
-   10h–14h le mercredi (source CEREMA, scénarios conventionnels
-   non relus dans l'annexe). Année débutant un lundi (convention
-   Th-BCE).
  - θiifr+ = 26 °C (valeur citée dans l'annexe pour les graphiques
    de confort adaptatif ; consigne de refroidissement en occupation).
 ============================================================
@@ -126,15 +138,19 @@ P_TOP = 0.5                           # poids de la température radiante
 # --- Brasseurs d'air — formule (1659) -----------------------
 VITESSE_AIR_MIN_BRASSEUR = 0.2        # m/s : en dessous, aucun effet
 
-# --- Occupation conventionnelle logement (source CEREMA) ----
-# Jours : 0 = lundi … 6 = dimanche. Heures inoccupées, fin exclue.
+# --- Occupation conventionnelle logement — annexe III, 4.1 ----
+# Jours : 0 = lundi … 6 = dimanche. Heures légales inoccupées, fin exclue.
 ABSENCES_LOGEMENT_RE2020 = {
-    0: (10, 18),   # lundi
-    1: (10, 18),   # mardi
-    2: (10, 14),   # mercredi
-    3: (10, 18),   # jeudi
-    4: (10, 18),   # vendredi
+    0: (9, 17),    # lundi
+    1: (9, 17),    # mardi
+    2: (9, 13),    # mercredi
+    3: (9, 17),    # jeudi
+    4: (9, 17),    # vendredi
 }                  # samedi, dimanche : occupé 24h/24
+# Semaine inoccupée : 4e semaine de décembre = semaine 52 de l'année
+# conventionnelle. Jours de l'année comptés à partir de 1, bornes incluses.
+JOUR_DEBUT_INOCCUPATION = 358
+JOUR_FIN_INOCCUPATION = 364
 PREMIER_JOUR_SEMAINE_RE2020 = 0       # l'année Th-BCE commence un lundi
 
 # --- Choix autorisés ----------------------------------------
@@ -245,11 +261,22 @@ def masque_occupation_logement_re2020(
     heure_du_jour = heures % HEURES_PAR_JOUR
     jour_semaine = (heures // HEURES_PAR_JOUR + premier_jour_semaine) % 7
 
+    jour_annee = heures // HEURES_PAR_JOUR + 1      # 1 = 1er janvier
+
     occupe = np.ones(nb_heures, dtype=bool)
+    # Absences de la journée, du lundi au vendredi
     for jour, (debut, fin) in ABSENCES_LOGEMENT_RE2020.items():
         absent = (jour_semaine == jour) & (heure_du_jour >= debut) & (heure_du_jour < fin)
         occupe[absent] = False
+    # Semaine inoccupée de décembre
+    occupe[semaine_inoccupee(jour_annee)] = False
     return occupe
+
+
+def semaine_inoccupee(jour_annee) -> np.ndarray:
+    """True pendant la semaine inoccupée de décembre (jour de l'année, 1 = 1er janvier)."""
+    jour_annee = np.asarray(jour_annee)
+    return (jour_annee >= JOUR_DEBUT_INOCCUPATION) & (jour_annee <= JOUR_FIN_INOCCUPATION)
 
 
 # ============================================================

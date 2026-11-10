@@ -84,7 +84,8 @@ def test_exemple_h1a_th_d_contre_tracc():
         ind = REGISTRE[i]
         return ampleur(va, vb, round(round(vb, dec) - round(va, dec), dec), ind.mode_ampleur, ind.seuil_ampleur)
 
-    attendu = {"dh": (3, 0.06, 0), "heures_chaudes": (70, 0.70, 2), "dh_nuit": (-31, 0.62, 1),
+    # DH : +7 % depuis la 0.9.18 (occupation de l'annexe III, absents de 9h à 17h) ; +3 % avant
+    attendu = {"dh": (7, 0.14, 0), "heures_chaudes": (70, 0.70, 2), "dh_nuit": (-31, 0.62, 1),
                "nuits_24": (2, 0.40, 1), "t_moyenne": (1.9, 0.63, 1)}
     for i, (valeur, remplissage, niveau) in attendu.items():
         j = jauge(i)

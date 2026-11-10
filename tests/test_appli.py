@@ -32,9 +32,9 @@ def test_onglet_sans_erreur(onglet):
 
 
 def test_dh_de_reference_affiche():
-    """La carte DH affiche 839 °C.h pour le fichier par défaut (H1a Th-D, réglage RE2020)."""
+    """La carte DH affiche 908 °C.h pour le fichier par défaut (H1a Th-D, réglage RE2020)."""
     at = AppTest.from_file(APP, default_timeout=DELAI)
     at.session_state["onglet"] = ONGLET_ANALYSER       # l'app s'ouvre sur l'Accueil depuis la 0.9.11
     at.run()
     html = " ".join(m.value for m in at.markdown)
-    assert 'class="carte principale"' in html and ">839<" in html
+    assert 'class="carte principale"' in html and ">908<" in html

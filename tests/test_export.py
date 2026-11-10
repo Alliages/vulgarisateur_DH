@@ -38,7 +38,7 @@ A, B, R = _fichier("H1a_th_d"), _fichier("H3_th_d"), _fichier("releve_trappes_20
 def test_copier_coller_tableau_et_ecart():
     lignes = texte_copier([A, B], HYP, remplacer_reperes, "tableau").split("\n")
     assert lignes[0].split("\t") == ["Indicateur", A.nom, B.nom, "Écart"]
-    assert lignes[1].split("\t") == ["DH (°C.h)", "839", "1472", "+633"]       # nombres lisibles par Excel
+    assert lignes[1].split("\t") == ["DH (°C.h)", "908", "1660", "+752"]       # nombres lisibles par Excel
     assert len(lignes) == 1 + len(DEFS)
 
 
@@ -52,10 +52,10 @@ def test_csv_indicateurs_puis_horaire():
     lignes = csv_export([A, B], HYP, remplacer_reperes, TEXTE_REGLAGE).decode(ENCODAGE_CSV).splitlines()
     tete = [l for l in lignes if l.startswith("#")]
     assert len(tete) == 2 + 1 + len(DEFS)                                         # réglage, source, en-tête, indicateurs
-    assert tete[3].startswith("# DH (°C.h);839,145;")
+    assert tete[3].startswith("# DH (°C.h);908,464;")
     donnees = pd.read_csv(io.StringIO("\n".join(lignes[len(tete):])), sep=";", decimal=",")
     assert len(donnees) == 8760 and list(donnees.columns[:2]) == ["date", "heure"]
-    assert abs(donnees[f"DH {A.nom} (°C.h)"].sum() - 839.145) < 0.05
+    assert abs(donnees[f"DH {A.nom} (°C.h)"].sum() - 908.464) < 0.05
 
 
 def test_csv_indicateurs_seuls():

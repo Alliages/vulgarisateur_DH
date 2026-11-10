@@ -126,7 +126,7 @@ def _zones_inoccupees(fig, x, occupe):
         if not libre and debut is not None:
             fig.add_vrect(x0=debut - pas / 2, x1=x[i - 1] + pas / 2, fillcolor=GRIS_INOCCUPE, line_width=0, layer="below")
             debut = None
-    fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name="Absents (scénario RE2020, provisoire)",
+    fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", name="Absents (scénario RE2020)",
                              marker=dict(symbol="square", size=12, color="rgba(39,41,50,0.15)")))
 
 

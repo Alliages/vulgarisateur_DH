@@ -38,7 +38,7 @@ def texte_reglage(reglage: dict, hyp: dict) -> str:
 def _puces(reglage, hyp) -> str:
     morceaux = [f"{LIBELLES_METHODE[reglage['methode']]} · seuil {hyp['seuil_nuit_dh']['valeur']:g} → "
                 f"{hyp['seuil_jour_max']['valeur']:g} °C",
-                "DH en occupation (provisoire)" if reglage["occupation"] else "DH 24h/24",
+                "DH en occupation" if reglage["occupation"] else "DH 24h/24",
                 f"nuit {hyp['nuit_debut']['valeur']:g}h-{hyp['nuit_fin']['valeur']:g}h", "heure légale"]
     return "".join(f'<span class="puce">{html.escape(m)}</span>' for m in morceaux)
 

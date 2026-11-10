@@ -57,7 +57,7 @@ def analyser(serie, reglage: dict, hyp: dict) -> Analyse:
     t = serie.t
     hl, js = serie.heure_legale, serie.jour_semaine
     est_jour = masque_jour(hl, hyp)
-    occ = masque_occupation(hl, js) if reglage["occupation"] else np.ones(len(t), dtype=bool)
+    occ = masque_occupation(hl, js, serie.jour_annee) if reglage["occupation"] else np.ones(len(t), dtype=bool)
     bas, haut = valeur(hyp, "seuil_nuit_dh"), valeur(hyp, "seuil_jour_max")
 
     theta_rm = periode = None
@@ -157,7 +157,8 @@ def occupation_affichee(horodatage: pd.DatetimeIndex, avec_occupation: bool):
     """Masque d'occupation (scénario logement) d'une période, ou None si les DH sont comptés 24h/24."""
     if not avec_occupation:
         return None
-    return masque_occupation(horodatage.hour.to_numpy(), horodatage.day_of_week.to_numpy())
+    return masque_occupation(horodatage.hour.to_numpy(), horodatage.day_of_week.to_numpy(),
+                             horodatage.day_of_year.to_numpy())
 
 
 def journees_de_la_periode_chaude(a: Analyse, critere: str, nb_jours: int, jours_semaine: int):

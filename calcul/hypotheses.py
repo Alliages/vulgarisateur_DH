@@ -15,9 +15,11 @@ import re
 
 import numpy as np
 
-# Occupation conventionnelle logement (PROVISOIRE, source CEREMA, à vérifier par Guigui) : une seule
-# définition, celle de dh_re2020.py (jour de la semaine, 0 = lundi → (début, fin) d'absence, heure légale)
+# Occupation conventionnelle logement (annexe III, 4.1 et classeur des scénarios conventionnels) : une
+# seule définition, celle de dh_re2020.py (jour de la semaine, 0 = lundi → (début, fin) d'absence, heure
+# légale ; semaine inoccupée de décembre)
 from calcul.dh_re2020 import ABSENCES_LOGEMENT_RE2020 as ABSENCES_LOGEMENT
+from calcul.dh_re2020 import semaine_inoccupee
 
 # ============================================================
 # PARAMÈTRES
@@ -89,9 +91,14 @@ def masque_jour(heure_legale, hyp) -> np.ndarray:
     return (heure_legale >= valeur(hyp, "jour_debut")) & (heure_legale < valeur(hyp, "jour_fin"))
 
 
-def masque_occupation(heure_legale, jour_semaine) -> np.ndarray:
-    """True = occupé. Scénario logement provisoire (ABSENCES_LOGEMENT)."""
+def masque_occupation(heure_legale, jour_semaine, jour_annee=None) -> np.ndarray:
+    """
+    True = occupé. Scénario conventionnel du logement (ABSENCES_LOGEMENT).
+    jour_annee (1 = 1er janvier) : s'il est fourni, la semaine inoccupée de décembre est retirée.
+    """
     occupe = np.ones(len(heure_legale), dtype=bool)
     for jour, (debut, fin) in ABSENCES_LOGEMENT.items():
         occupe &= ~((jour_semaine == jour) & (heure_legale >= debut) & (heure_legale < fin))
+    if jour_annee is not None:
+        occupe &= ~semaine_inoccupee(jour_annee)
     return occupe

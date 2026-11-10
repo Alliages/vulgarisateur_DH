@@ -3,6 +3,21 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.18 — correction (10/11/2026), occupation du logement
+
+- **Occupation conventionnelle du logement alignée sur les textes** : absents de 9h à 17h les lundis, mardis, jeudis et
+  vendredis, de 9h à 13h le mercredi (avant : 10h à 18h et 10h à 14h, d'après un webinaire CEREMA). Source : annexe III
+  de l'arrêté du 4 août 2021, fiche 4.1, et classeur des scénarios conventionnels du 29/04/2026 (usages 1 et 2).
+- **Semaine inoccupée de décembre** : 4e semaine de décembre, soit les jours 358 à 364 de l'année. Sans effet sur le DH
+  RE2020, compté pendant la période de confort adaptatif.
+- **Les DH en occupation changent** pour tous les fichiers. Référence H1a Th-D : **908,464 °C.h** (avant : 839,145),
+  retrouvée par un recalcul indépendant du module. Les DH 24h/24 et les autres indicateurs ne changent pas.
+- Hypothèse `occupation_logement` : statut « sourcé » ; la mention « provisoire » disparaît de l'interface et de l'export.
+- Code : `ABSENCES_LOGEMENT_RE2020`, `JOUR_DEBUT_INOCCUPATION`, `JOUR_FIN_INOCCUPATION` et `semaine_inoccupee()` dans
+  `calcul/dh_re2020.py` ; `masque_occupation()` reçoit le jour de l'année. Classeur de `outils/construire_excel_dh.py` :
+  paramètres `ABS_*` corrigés, `INOCC_DEBUT` et `INOCC_FIN` ajoutés.
+- Tests : scénario comparé case par case au classeur, semaine de décembre, valeurs de référence recalculées (106 tests).
+
 ## 0.9.15 — correction (05/11/2026), colonne Ampleur de l'onglet Comparer
 
 - Onglet Comparer : colonne **Ampleur** dans le tableau des indicateurs : valeur de l'écart, jauge et seuil. Écart en %

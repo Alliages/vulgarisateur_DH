@@ -36,7 +36,7 @@ def _valeurs(identifiant, **reglage):
 def test_non_regression_h1a():
     a, v = _valeurs("H1a_th_d")
     assert a.methode_effective == "RE2020"
-    assert round(v["dh"], 3) == 839.145
+    assert round(v["dh"], 3) == 908.464
     assert round(v["dh_nuit"]) == 151 and v["nuits_20"] == 16 and v["nuits_24"] == 1
     assert v["heures_chaudes"] == 218 and v["nuits_consecutives"] == 11
     assert round(v["t_moyenne"], 1) == 19.2 and round(v["t_moyenne_nuit"], 1) == 17.2
@@ -70,10 +70,10 @@ def test_decimales_et_ordre_personnalise():
 
 
 def test_profils_des_cartes():
-    """Mini-graphiques : jauge de la part de nuit (≈ 18 % pour H1a Th-D), barres mensuelles pour le DH."""
+    """Mini-graphiques : jauge de la part de nuit (≈ 17 % pour H1a Th-D), barres mensuelles pour le DH."""
     a = analyser(_serie("H1a_th_d"), REGLAGE_RE2020, HYP)
     profils = {d["id"]: r.info["profil"] for d, r in calculer_indicateurs(a, REGLAGE_RE2020, HYP, DEFS)}
-    assert profils["dh_nuit"]["type"] == "jauge" and round(100 * profils["dh_nuit"]["valeurs"]) == 18
+    assert profils["dh_nuit"]["type"] == "jauge" and round(100 * profils["dh_nuit"]["valeurs"]) == 17
     assert profils["dh"]["type"] == "barres" and list(profils["dh"]["valeurs"].index) == [6, 7, 8, 9]
 
 

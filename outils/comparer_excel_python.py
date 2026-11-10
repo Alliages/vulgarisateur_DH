@@ -60,8 +60,8 @@ def main():
     t = lire_colonne(ws, COL["t_bc"] if p["SCENARIO"] == "Th-BC" else COL["t_d"])
 
     # Seule différence de paramétrage possible : l'occupation et les heures d'absence
-    if (p["ABS_DEBUT"], p["ABS_FIN"], p["ABS_FIN_MER"]) != (10, 18, 14):
-        print("Attention : heures d'absence modifiées dans l'Excel, non reprises par calculer_dh.")
+    if (p["ABS_DEBUT"], p["ABS_FIN"], p["ABS_FIN_MER"], p["INOCC_DEBUT"], p["INOCC_FIN"]) != (9, 17, 13, 358, 364):
+        print("Attention : heures d'absence ou semaine inoccupée modifiées dans l'Excel, non reprises par calculer_dh.")
     communs = dict(seuil_bas=p["SEUIL_BAS"], seuil_haut=p["SEUIL_HAUT"], decalage_heure=int(p["DECALAGE"]),
                    heure_debut_jour=int(p["H_DEBUT"]), heure_fin_jour=int(p["H_FIN"]), details=True)
     basic = calculer_dh(t, **communs)

@@ -124,7 +124,7 @@ def bandeau_hypotheses(reglage, analyse, hyp, libelles_semaine, aller_methode=No
                   "température fichier lissée (RE2020)"]
     else:
         puces.append(f"basic · {hyp['seuil_nuit_dh']['valeur']:g} °C nuit / {hyp['seuil_jour_max']['valeur']:g} °C jour")
-    puces.append("occupation logement (provisoire)" if reglage["occupation"] else "24h/24, sans occupation")
+    puces.append("occupation logement" if reglage["occupation"] else "24h/24, sans occupation")
     puces.append(f"nuit {hyp['nuit_debut']['valeur']:g}h-{hyp['nuit_fin']['valeur']:g}h")
     if analyse.serie.decalage_utc:
         puces.append(f"heure légale = UTC + {analyse.serie.decalage_utc}")

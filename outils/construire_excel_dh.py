@@ -69,13 +69,17 @@ PARAMETRES = [
     ("DECALAGE",    2,    "h",    "Heure légale = heure du fichier (UTC) + décalage (été = 2)",
      "Annexe III, fiche climat : Hleg = IHJ + EHLO"),
     ("OCCUPATION",  1,    "0/1",  "1 = occupation logement RE2020 pour le DH réel ; 0 = toujours occupé",
-     "Scénario CEREMA (non relu dans l'annexe)"),
-    ("ABS_DEBUT",   10,   "h",    "Début d'absence (lun., mar., mer., jeu., ven.)",
-     "CEREMA, webinaire RE2020 confort d'été"),
-    ("ABS_FIN",     18,   "h",    "Fin d'absence lun., mar., jeu., ven. (exclue)",
-     "CEREMA, webinaire RE2020 confort d'été"),
-    ("ABS_FIN_MER", 14,   "h",    "Fin d'absence le mercredi (exclue)",
-     "CEREMA, webinaire RE2020 confort d'été"),
+     "Annexe III, fiche 4.1 et classeur des scénarios conventionnels"),
+    ("ABS_DEBUT",   9,    "h",    "Début d'absence (lun., mar., mer., jeu., ven.)",
+     "Annexe III, fiche 4.1 : occupé de 0h à 9h"),
+    ("ABS_FIN",     17,   "h",    "Fin d'absence lun., mar., jeu., ven. (exclue)",
+     "Annexe III, fiche 4.1 : occupé de 17h à 0h"),
+    ("ABS_FIN_MER", 13,   "h",    "Fin d'absence le mercredi (exclue)",
+     "Annexe III, fiche 4.1 : occupé de 13h à 0h le mercredi"),
+    ("INOCC_DEBUT", 358,  "jour", "Premier jour de la semaine inoccupée de décembre (1 = 1er janvier)",
+     "Annexe III, fiche 4.1 : 4e semaine de décembre = semaine 52"),
+    ("INOCC_FIN",   364,  "jour", "Dernier jour de la semaine inoccupée de décembre (inclus)",
+     "Annexe III, fiche 4.1"),
 ]
 LIGNE_PREMIER_PARAM = 4          # première ligne des paramètres dans l'onglet
 
@@ -228,8 +232,9 @@ def main():
             f"=MOD(A{r}+DECALAGE,24)",                                              # F
             f"=MOD(INT((A{r}+DECALAGE)/24),7)+1",                                   # G
             f"=IF(AND(F{r}>=H_DEBUT,F{r}<H_FIN),1,0)",                              # H
-            f"=IF(OCCUPATION=0,1,IF(G{r}>=6,1,IF(AND(F{r}>=ABS_DEBUT,"
-            f"F{r}<IF(G{r}=3,ABS_FIN_MER,ABS_FIN)),0,1)))",                        # I
+            f"=IF(OCCUPATION=0,1,IF(AND(INT((A{r}+DECALAGE)/24)+1>=INOCC_DEBUT,"
+            f"INT((A{r}+DECALAGE)/24)+1<=INOCC_FIN),0,IF(G{r}>=6,1,IF(AND(F{r}>=ABS_DEBUT,"
+            f"F{r}<IF(G{r}=3,ABS_FIN_MER,ABS_FIN)),0,1))))",                       # I
             f"=IF(H{r}=1,SEUIL_HAUT,SEUIL_BAS)",                                    # J
             f"=MAX(0,D{r}-J{r})",                                                   # K
             f"=IF(D{r}>=J{r},1,0)",                                                 # L
@@ -407,8 +412,8 @@ def main():
         ("3. θop_inc_max(j) = MAX(26 ; 0,33 × θrm(j) + 18,8 + 2) — fiche 13.5, formule (2543), catégorie 1.", F_NORMAL),
         ("4. Habitation : jour → MIN(28 ; θop_inc_max), nuit → 26 °C — formule (2544).", F_NORMAL),
         ("5. DH = Σ MAX(0 ; T(h) − seuil(h)) sur les heures occupées de la période adaptative — formule (2551).", F_NORMAL),
-        ("6. Occupation logement : absents 10h–18h lun., mar., jeu., ven. et 10h–14h le mercredi "
-         "(année débutant un lundi, heure légale).", F_NORMAL),
+        ("6. Occupation logement : absents 9h–17h lun., mar., jeu., ven. et 9h–13h le mercredi ; inoccupé "
+         "la 4e semaine de décembre (année débutant un lundi, heure légale) — fiche 4.1.", F_NORMAL),
         ("", F_NORMAL),
         ("Onglets", F_GRAS),
         ("Paramètres : toutes les valeurs modifiables (cellules jaunes), nommées et utilisées par les formules.", F_NORMAL),

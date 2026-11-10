@@ -54,6 +54,10 @@ class SerieMeteo:
     def jour_semaine(self):
         return self.horodatage.day_of_week.to_numpy()
 
+    @property
+    def jour_annee(self):
+        return self.horodatage.day_of_year.to_numpy()      # 1 = 1er janvier
+
 
 # ============================================================
 # LECTURE

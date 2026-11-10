@@ -14,7 +14,7 @@ Numéro de la prochaine version : à demander à Guigui avant de lancer.
 | A4 | Pas de lignes horizontales sur semaine / journée | ✅ |
 | A5 | Date complète dans le titre | ✅ |
 | A6 | Axe DH jaune foncé | ✅ |
-| A7 | Jours de la semaine + heures d'absence RE2020 | ✅ bandes grises (scénario provisoire) |
+| A7 | Jours de la semaine + heures d'absence RE2020 | ✅ bandes grises (scénario de l'annexe III depuis la 0.9.18) |
 | A8 | DH de la période dans le titre | ✅ |
 | A9 | Remplacer « θrm » | ✅ « température extérieure lissée » |
 | A10 | Heures > 28 °C | ✅ seuil dans hypotheses.xlsx |
@@ -78,7 +78,6 @@ sévérité = Σ max(0 ; Tm − Sdeb) ; cumul = somme des vagues. Hypothèses vd
 - Tableau de l'onglet Créer : décimales avec un point (limite du tableau éditable Streamlit).
 
 ## Rappels permanents
-- Occupation logement : hypothèse CEREMA provisoire, à vérifier par Guigui.
 - Source du seuil de nuit à 24 °C : à trouver.
 - Liste des fichiers par zone : plus tard.
 - Pas encore fait depuis 0.8.0 : boîte aux lettres GitHub + Actions, import multi-séries / zip, version anglaise.

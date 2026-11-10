@@ -12,7 +12,7 @@ des journées ou des semaines types, et exporte les résultats.
 > (fichiers météo) : c'est alors un indicateur de sévérité du climat, pas le DH d'un bâtiment. Il peut
 > aussi s'utiliser avec n'importe quel fichier horaire, y compris des résultats de simulation de
 > températures intérieures.
-> Version 0.9.15, version de test.
+> Version 0.9.18, version de test.
 
 ![Capture d'écran de l'outil](docs/capture-accueil.png)
 
@@ -74,7 +74,8 @@ Le détail de chaque méthode est dans l'onglet **Méthode & sources**.
 
 ## Hypothèses à connaître
 
-- **Occupation** : le scénario d'occupation d'un logement est provisoire (CEREMA), il reste à vérifier.
+- **Occupation** : scénario conventionnel du logement (annexe III, fiche 4.1) : absents de 9h à 17h du lundi au
+  vendredi (de 9h à 13h le mercredi), présents le week-end, logement inoccupé la 4e semaine de décembre.
 - **Nuits ≥ 24 °C** : seuil proposé, source à préciser.
 - **Heure** : les fichiers RE2020 sont en heure UTC ; l'outil les passe en heure légale avec UTC + 2
   toute l'année (heure d'été, celle qui compte pour l'inconfort d'été).
@@ -218,7 +219,7 @@ from config.reglages import REGLAGE_RE2020
 hyp = charger_hypotheses()
 ligne = charger_catalogue().set_index("id").loc["H1a_th_d"].to_dict() | {"id": "H1a_th_d"}
 analyse = analyser(charger_serie(ligne), REGLAGE_RE2020, hyp)
-print(round(analyse.dh_h.sum(), 3))                                           # 839.145 °C.h
+print(round(analyse.dh_h.sum(), 3))                                           # 908.464 °C.h
 print(REGISTRE["nuits_20"].calculer(analyse, REGLAGE_RE2020, hyp).valeur)    # 16 nuits ≥ 20 °C
 ```
 
@@ -251,7 +252,7 @@ Depuis la 0.9.8, l'outil **n'installe plus** la librairie [pythermalcomfort](htt
 (licence MIT, CBE Berkeley). Elle ne servait qu'à la droite de confort adaptatif (0,33 × température lissée
 + 18,8 + Δ), une formule d'une ligne déjà écrite dans `calcul/confort_ptc.py`, et son chargement (numba,
 scipy) retardait d'environ 11 secondes chaque démarrage de l'outil en ligne. Les résultats ne changent pas
-(non-régression 839,145 °C.h).
+(non-régression 839,145 °C.h à l'époque ; 908,464 °C.h depuis la 0.9.18).
 
 Elle reste la **référence** : `requirements-dev.txt` l'installe et `tests/test_confort_ptc.py` vérifie que la
 formule de l'outil donne les mêmes valeurs que la librairie. Partager les indicateurs de l'outil avec la
@@ -317,7 +318,7 @@ Dans les textes du Word, `[[hyp:identifiant]]` affiche la valeur à jour d'une h
 
 ## Vérifier le calcul
 
-- **Non-régression** : DH RE2020 du fichier H1a Th-D (Trappes, canicule) = **839,145 °C.h** ; DH à
+- **Non-régression** : DH RE2020 du fichier H1a Th-D (Trappes, canicule) = **908,464 °C.h** ; DH à
   seuils fixes 26/28 °C sans occupation = 1 074,935 °C.h.
 - **Comparaison Excel ↔ Python** : `outils/construire_excel_dh.py` reconstruit le calcul en formules
   Excel ; `outils/comparer_excel_python.py` compare heure par heure (écart ≤ 10⁻¹⁴).
@@ -335,7 +336,7 @@ python -m pytest
 
 ## Limites connues
 
-- **Occupation** et **seuil de nuit à 24 °C** : hypothèses provisoires (voir Partie 1).
+- **Seuil de nuit à 24 °C** : hypothèse provisoire (voir Partie 1).
 - **Heure légale** : UTC + 2 toute l'année ; l'hiver devrait être en UTC + 1 (sans effet sur les
   indicateurs d'été, visible dans la colonne « heure » de l'export).
 - **Années bissextiles** : le 29 février est écarté quand deux fichiers sont mis côte à côte.

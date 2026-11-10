@@ -141,9 +141,25 @@ def test_occupation_logement():
     """Semaine type : 4 j × 8 h + 1 j × 4 h = 36 h inoccupées / semaine."""
     occ = masque_occupation_logement_re2020(7 * 24)
     assert (~occ).sum() == 36
-    assert occ[9] and not occ[10] and occ[18]          # lundi
-    assert occ[2 * 24 + 14] and not occ[2 * 24 + 13]   # mercredi
-    assert occ[5 * 24:].all()                          # week-end
+    assert occ[8] and not occ[9] and not occ[16] and occ[17]                  # lundi : absents de 9h à 17h
+    assert occ[2 * 24 + 8] and not occ[2 * 24 + 12] and occ[2 * 24 + 13]      # mercredi : absents de 9h à 13h
+    assert occ[5 * 24:].all()                                                 # week-end
+
+
+def test_occupation_identique_au_classeur_des_scenarios():
+    """Semaine type recopiée du classeur « scénarios conventionnels » (usages 1 et 2), cases 1 à 24."""
+    semaine = [1] * 9 + [0] * 8 + [1] * 7                 # lundi, mardi, jeudi, vendredi
+    mercredi = [1] * 9 + [0] * 4 + [1] * 11
+    attendu = np.array(semaine * 2 + mercredi + semaine * 2 + [1] * 48, dtype=bool)
+    assert np.array_equal(masque_occupation_logement_re2020(7 * 24), attendu)
+
+
+def test_semaine_inoccupee_de_decembre():
+    """4e semaine de décembre = semaine 52 : jours 358 à 364 inoccupés, jour 365 occupé le soir."""
+    occ = masque_occupation_logement_re2020(8760).reshape(365, 24)
+    assert not occ[357:364].any()                         # jours 358 à 364 (indices 357 à 363)
+    assert occ[356].all()                                 # jour 357 : dimanche de la semaine 51
+    assert occ[364, 0] and occ[364, 23]                   # jour 365 : scénario normal (un lundi)
 
 
 def test_temperature_operative():
