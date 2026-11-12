@@ -121,6 +121,11 @@ def lire_tableau(df: pd.DataFrame, base_horaire: str = "légale", decalage_ete: 
     if len(cols) < 2:
         raise ValueError("Le fichier doit avoir au moins deux colonnes (heure;T, date;heure;T ou horodatage;T), "
                          "séparées par « ; » ou « , ».")
+    # Lignes entièrement vides (« ; » exportés par Excel sous les données) : ignorées avant tout comptage.
+    vides = df.apply(lambda c: c.isna() | (c.astype("string").str.strip() == "")).all(axis=1)
+    if vides.any():
+        df = df.loc[~vides].reset_index(drop=True)
+        avertissements.append(f"{int(vides.sum()):,} lignes vides ignorées.".replace(",", " "))
     if "date" in cols and "heure" in cols:                        # relevé date;heure;T
         horo = _dates(df["date"].astype(str) + " " + df["heure"].astype(str), avertissements)
         t = _nombres(df[cols[-1]])

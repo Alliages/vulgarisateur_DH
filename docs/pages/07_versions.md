@@ -28,3 +28,5 @@
 0.9.15 : correction. Onglet Comparer : colonne Ampleur (écart en % ou dans l'unité selon l'indicateur, jauge aux couleurs de la pastille, seuil à droite) ; en-tête de la colonne Écart allégé, noms des fichiers au survol.
 
 0.9.18 : correction. Occupation du logement alignée sur l'annexe III (fiche 4.1) et le classeur des scénarios conventionnels : absents de 9h à 17h (mercredi de 9h à 13h) au lieu de 10h à 18h, logement inoccupé la 4e semaine de décembre. Le DH RE2020 des fichiers change : H1a Th-D passe de 839 à 908 °C.h.
+
+0.9.19 : correction. Import : les lignes entièrement vides (fréquentes dans un CSV enregistré par Excel) sont ignorées avant le comptage des 8 760 lignes, avec un avertissement.

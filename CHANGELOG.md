@@ -3,6 +3,14 @@
 Règle : `0.8.x` tant que l'outil ne fonctionnait pas bien, `0.9.x` depuis qu'il approche d'une version finale.
 Dernier chiffre **pair** = gros changement, **impair** = correction.
 
+## 0.9.19 — correction (12/11/2026), import de fichiers exportés d'Excel
+
+- **Lignes vides ignorées à l'import** : un CSV enregistré par Excel peut garder des milliers de lignes `;` sous les
+  données (cas rencontré : 8 760 lignes utiles + 1 031 725 lignes vides, refusé comme « 1040485 trouvées »). Ces lignes
+  sont retirées avant le comptage, avec l'avertissement « N lignes vides ignorées ». Une heure dont la température est
+  vide reste un trou à combler (≤ 3 h), pas une ligne vide.
+- Code : `lire_tableau()` dans `calcul/serie.py`. Tests : 2 cas ajoutés dans `tests/test_import_fichiers.py`.
+
 ## 0.9.18 — correction (10/11/2026), occupation du logement
 
 - **Occupation conventionnelle du logement alignée sur les textes** : absents de 9h à 17h les lundis, mardis, jeudis et

@@ -10,7 +10,7 @@
 """
 
 # --- Version (dernier chiffre pair = gros changement, impair = correction) ---
-VERSION = "0.9.18"
+VERSION = "0.9.19"
 STATUT_VERSION = "version de test"
 
 # --- Auteur et liens (pied de page, README) ---

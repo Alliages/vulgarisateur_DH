@@ -56,3 +56,17 @@ if __name__ == "__main__":
     for nom, f in list(globals().items()):
         if nom.startswith("test_") and nom != "test_erreurs_en_francais":
             f(); print("OK ", nom)
+
+
+def test_lignes_vides_excel_ignorees():
+    """Export Excel : des milliers de lignes « ; » sous les 8 760 lignes de données ne comptent pas (0.9.19)."""
+    s = _lire(ANNEE + b"\r\n" + b"\r\n".join([b";"] * 5000) + b"\r\n")
+    assert s.annee_complete and len(s.t) == 8760 and s.t[1] == 16.5
+    assert any("5 000 lignes vides ignorées" in a for a in s.avertissements)
+    assert not _lire(ANNEE).avertissements
+
+
+def test_trou_de_temperature_non_confondu_avec_ligne_vide():
+    """Une heure sans température (mais avec sa date) reste un trou à combler, pas une ligne vide."""
+    r = _lire(b"date;heure;T\n2026-06-01;00:00;20\n2026-06-01;01:00;\n2026-06-01;02:00;22\n;\n")
+    assert len(r.t) == 3 and r.t[1] == 21 and any("lignes vides" in a for a in r.avertissements)
