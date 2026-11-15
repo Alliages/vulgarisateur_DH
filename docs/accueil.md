@@ -4,6 +4,8 @@ Chaque étude thermique d'un bâtiment repose sur un fichier météo. C'est souv
 
 Cet outil sert à **ouvrir ces fichiers, les comprendre et les comparer**. Il s'adresse aux professionnels du bâtiment, sans besoin d'être thermicien.
 
+Il a été réalisé dans le cadre des travaux du [Hub des Prescripteurs Bas Carbone](https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/)
+
 ## À quoi sert l'outil
 
 - Voir si un fichier météo est chaud ou non, avec des indicateurs simples (**degrés-heures**, **nuits chaudes**, journées et semaines les plus chaudes).
