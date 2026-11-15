@@ -39,3 +39,4 @@ L'outil propose des fichiers météo classés par **zone climatique RE2020**. L'
 - [Wiki des données météo](https://github.com/Alliages/meteo/wiki/WIKI-Donn%C3%A9es-M%C3%A9t%C3%A9o)
 - [Fichiers météo officiels de la RE2020](https://rt-re-batiment.developpement-durable.gouv.fr/documents-complementaires-a706.html)
 - [Code de l'outil](https://github.com/Alliages/vulgarisateur_DH)
+- [Hub des Prescripteurs Bas Carbone](https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/)
