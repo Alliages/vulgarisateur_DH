@@ -39,6 +39,8 @@ header[data-testid="stHeader"] { background: transparent; }
 .entete .version { margin-left: auto; background: white; color: ${INDIGO}; border-radius: 22px;
                     padding: 8px 16px; font-size: .85rem; font-weight: 600; box-shadow: ${OMBRE}; }
 .entete .version b { color: ${BLEU_MENU}; }
+.entete .logo-hub { flex: none; display: flex; line-height: 0; }   /* logo du HUB, à droite de la pastille de version */
+.entete .logo-hub img { display: block; }
 /* Bloc fixe en haut : en-tête + barre des onglets + nom du fichier (le reste défile dessous) */
 /*   Streamlit enveloppe le bloc dans un conteneur de même hauteur : c'est l'enveloppe qui doit être collante */
 [data-testid="stLayoutWrapper"]:has(> .st-key-haut_fixe) { position: sticky; top: 0; z-index: 990; }

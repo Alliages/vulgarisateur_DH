@@ -10,6 +10,7 @@
 ============================================================
 """
 
+import base64
 import html
 import os
 from functools import lru_cache
@@ -36,6 +37,9 @@ TRIANGLES_LOGO = ("33.60,29.23 33.60,3.23 56.12,16.23", "35.20,32.00 57.72,19.00
 PALIERS_AMPLEUR = (1 / 3, 2 / 3)         # remplissage à partir duquel la jauge passe au niveau 1, puis 2
 DECIMALES_AMPLEUR = 1
 TAILLE_LOGO = 52                        # px, en-tête
+CHEMIN_LOGO_HUB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logo_hub.svg")
+LIEN_HUB = "https://www.ifpeb.fr/travaux/le-hub-des-prescripteurs-bas-carbone/"
+HAUTEUR_LOGO_HUB = 84                   # px, à droite du titre
 COULEUR_PLUS_CHAUD = "#C23B3C"          # texte des pastilles « plus chaud »
 FOND_EGAL = "#EEEDEA"                   # pastille « égal »
 
@@ -51,6 +55,16 @@ def css() -> str:
         modele = Template(f.read())
     valeurs = {nom: v for nom, v in vars(charte).items() if nom.isupper() and isinstance(v, str)}
     return f"\n<style>\n{modele.substitute(valeurs)}</style>\n"
+
+
+@lru_cache(maxsize=1)
+def logo_hub() -> str:
+    """Logo du HUB des Prescripteurs Bas Carbone, cliquable (ouvre le site du HUB dans un nouvel onglet)."""
+    with open(CHEMIN_LOGO_HUB, "rb") as f:
+        source = "data:image/svg+xml;base64," + base64.b64encode(f.read()).decode()
+    return (f'<a class="logo-hub" href="{LIEN_HUB}" target="_blank" rel="noopener" '
+            f'title="HUB des Prescripteurs Bas Carbone (IFPEB)">'
+            f'<img src="{source}" alt="HUB des Prescripteurs Bas Carbone" height="{HAUTEUR_LOGO_HUB}"></a>')
 
 
 def logo_onde(taille: int = TAILLE_LOGO) -> str:
@@ -80,7 +94,7 @@ def haut_de_page(serie, onglets: list, cle_onglet: str, serie_b=None) -> str:
             f'<div class="entete"><div class="logo">{logo_onde()}</div>'
             f'<div><div class="nom">Météo et Chaleur</div>'
             f'<div class="sous">Analyser la météo sous l\'angle de l\'inconfort d\'été</div></div>'
-            f'<div class="version">v<b>{VERSION}</b> · {STATUT_VERSION}</div></div>', unsafe_allow_html=True)
+            f'<div class="version">v<b>{VERSION}</b> · {STATUT_VERSION}</div>{logo_hub()}</div>', unsafe_allow_html=True)
         with st.container(key="barre_onglets"):
             onglet = st.segmented_control("Onglets", onglets, key=cle_onglet, required=True,
                                           label_visibility="collapsed")
